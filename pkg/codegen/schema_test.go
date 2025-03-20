@@ -212,7 +212,6 @@ func TestProperty_GoTypeDef(t *testing.T) {
 func TestProperty_GoTypeDef_nullable(t *testing.T) {
 	type fields struct {
 		GlobalStateDisableRequiredReadOnlyAsPointer bool
-		GlobalStateNullableType                     bool
 		Schema                                      Schema
 		Required                                    bool
 		Nullable                                    bool
@@ -230,7 +229,6 @@ func TestProperty_GoTypeDef_nullable(t *testing.T) {
 			// flag will never be pointer irrespective of other flags.
 			name: "Set skip optional pointer type for go type",
 			fields: fields{
-				GlobalStateNullableType: true,
 				Schema: Schema{
 					SkipOptionalPointer: true,
 					RefType:             "",
@@ -247,7 +245,6 @@ func TestProperty_GoTypeDef_nullable(t *testing.T) {
 			// flag to true
 			name: "When the field is optional",
 			fields: fields{
-				GlobalStateNullableType: true,
 				Schema: Schema{
 					SkipOptionalPointer: false,
 					RefType:             "",
@@ -264,7 +261,6 @@ func TestProperty_GoTypeDef_nullable(t *testing.T) {
 			// SkipOptionalPointer flag is set to true
 			name: "Set skip optional pointer type for ref type",
 			fields: fields{
-				GlobalStateNullableType: true,
 				Schema: Schema{
 					SkipOptionalPointer: true,
 					RefType:             "CustomType",
@@ -280,7 +276,6 @@ func TestProperty_GoTypeDef_nullable(t *testing.T) {
 		{
 			name: "When field is required and not nullable",
 			fields: fields{
-				GlobalStateNullableType: true,
 				Schema: Schema{
 					SkipOptionalPointer: false,
 					GoType:              "int",
@@ -294,7 +289,6 @@ func TestProperty_GoTypeDef_nullable(t *testing.T) {
 		{
 			name: "When field is required and nullable",
 			fields: fields{
-				GlobalStateNullableType: true,
 				Schema: Schema{
 					SkipOptionalPointer: false,
 					GoType:              "int",
@@ -302,13 +296,12 @@ func TestProperty_GoTypeDef_nullable(t *testing.T) {
 				Required: true,
 				Nullable: true,
 			},
-			want: "nullable.Nullable[int]",
+			want: "*int",
 		},
 
 		{
 			name: "When field is optional and not nullable",
 			fields: fields{
-				GlobalStateNullableType: true,
 				Schema: Schema{
 					SkipOptionalPointer: false,
 					GoType:              "int",
@@ -322,7 +315,6 @@ func TestProperty_GoTypeDef_nullable(t *testing.T) {
 		{
 			name: "When field is optional and nullable",
 			fields: fields{
-				GlobalStateNullableType: true,
 				Schema: Schema{
 					SkipOptionalPointer: false,
 					GoType:              "int",
@@ -330,13 +322,12 @@ func TestProperty_GoTypeDef_nullable(t *testing.T) {
 				Required: false,
 				Nullable: true,
 			},
-			want: "nullable.Nullable[int]",
+			want: "*int",
 		},
 
 		{
 			name: "When field is readOnly, non-nullable and required and skip pointer is not opted",
 			fields: fields{
-				GlobalStateNullableType: true,
 				Schema: Schema{
 					SkipOptionalPointer: false,
 					GoType:              "int",
@@ -350,7 +341,6 @@ func TestProperty_GoTypeDef_nullable(t *testing.T) {
 		{
 			name: "When field is readOnly, required, non-nullable and read only pointer disabled",
 			fields: fields{
-				GlobalStateNullableType:                     true,
 				GlobalStateDisableRequiredReadOnlyAsPointer: true,
 				Schema: Schema{
 					SkipOptionalPointer: false,
@@ -365,7 +355,6 @@ func TestProperty_GoTypeDef_nullable(t *testing.T) {
 		{
 			name: "When field is readOnly, optional and non nullable",
 			fields: fields{
-				GlobalStateNullableType: true,
 				Schema: Schema{
 					SkipOptionalPointer: false,
 					GoType:              "int",
@@ -378,7 +367,6 @@ func TestProperty_GoTypeDef_nullable(t *testing.T) {
 		{
 			name: "When field is readOnly and optional and read only pointer disabled",
 			fields: fields{
-				GlobalStateNullableType:                     true,
 				GlobalStateDisableRequiredReadOnlyAsPointer: true,
 				Schema: Schema{
 					SkipOptionalPointer: false,
@@ -393,7 +381,6 @@ func TestProperty_GoTypeDef_nullable(t *testing.T) {
 		{
 			name: "When field is write only and non nullable",
 			fields: fields{
-				GlobalStateNullableType:                     true,
 				GlobalStateDisableRequiredReadOnlyAsPointer: true,
 				Schema: Schema{
 					SkipOptionalPointer: false,
@@ -407,7 +394,6 @@ func TestProperty_GoTypeDef_nullable(t *testing.T) {
 		{
 			name: "When field is write only and nullable",
 			fields: fields{
-				GlobalStateNullableType:                     true,
 				GlobalStateDisableRequiredReadOnlyAsPointer: true,
 				Schema: Schema{
 					SkipOptionalPointer: false,
@@ -416,13 +402,12 @@ func TestProperty_GoTypeDef_nullable(t *testing.T) {
 				WriteOnly: true,
 				Nullable:  true,
 			},
-			want: "nullable.Nullable[int]",
+			want: "*int",
 		},
 
 		{
 			name: "When field is write only, nullable and read only pointer enabled",
 			fields: fields{
-				GlobalStateNullableType: true,
 				Schema: Schema{
 					SkipOptionalPointer: false,
 					GoType:              "int",
@@ -430,12 +415,11 @@ func TestProperty_GoTypeDef_nullable(t *testing.T) {
 				WriteOnly: true,
 				Nullable:  true,
 			},
-			want: "nullable.Nullable[int]",
+			want: "*int",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			globalState.options.OutputOptions.NullableType = tt.fields.GlobalStateNullableType
 			p := Property{
 				Schema:    tt.fields.Schema,
 				Required:  tt.fields.Required,

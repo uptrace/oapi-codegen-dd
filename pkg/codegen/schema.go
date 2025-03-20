@@ -34,7 +34,7 @@ type Schema struct {
 	// `type Foo = bool`. If this is not set, we will define this type via
 	// type definition `type Foo bool`
 	//
-	// Can be overriden by the OutputOptions#DisableTypeAliasesForType field
+	// Can be overriden by the config#DisableTypeAliasesForType field
 	DefineViaAlias bool
 
 	// The original OpenAPIv3 Schema.
@@ -105,9 +105,7 @@ func (p Property) GoFieldName() string {
 
 func (p Property) GoTypeDef() string {
 	typeDef := p.Schema.TypeDecl()
-	if globalState.options.OutputOptions.NullableType && p.Nullable {
-		return "nullable.Nullable[" + typeDef + "]"
-	}
+
 	if !p.Schema.SkipOptionalPointer &&
 		(!p.Required || p.Nullable ||
 			(p.ReadOnly && !p.Required) ||
@@ -555,7 +553,7 @@ func oapiSchemaToGoType(schema *openapi3.Schema, path []string, outSchema *Schem
 		outSchema.AdditionalTypes = arrayType.AdditionalTypes
 		outSchema.Properties = arrayType.Properties
 		outSchema.DefineViaAlias = true
-		if sliceContains(globalState.options.OutputOptions.DisableTypeAliasesForType, "array") {
+		if sliceContains(globalState.options.DisableTypeAliasesForType, "array") {
 			outSchema.DefineViaAlias = false
 		}
 
@@ -691,10 +689,6 @@ func GenFieldsFromProperties(props []Property) []string {
 
 		omitEmpty := !p.Nullable && shouldOmitEmpty
 
-		if p.Nullable && globalState.options.OutputOptions.NullableType {
-			omitEmpty = shouldOmitEmpty
-		}
-
 		// Support x-omitempty
 		if extOmitEmptyValue, ok := p.Extensions[extPropOmitEmpty]; ok {
 			if extOmitEmpty, err := extParseOmitEmpty(extOmitEmptyValue); err == nil {
@@ -706,17 +700,11 @@ func GenFieldsFromProperties(props []Property) []string {
 
 		if !omitEmpty {
 			fieldTags["json"] = p.JsonFieldName
-			if globalState.options.OutputOptions.EnableYamlTags {
-				fieldTags["yaml"] = p.JsonFieldName
-			}
 			if p.NeedsFormTag {
 				fieldTags["form"] = p.JsonFieldName
 			}
 		} else {
 			fieldTags["json"] = p.JsonFieldName + ",omitempty"
-			if globalState.options.OutputOptions.EnableYamlTags {
-				fieldTags["yaml"] = p.JsonFieldName + ",omitempty"
-			}
 			if p.NeedsFormTag {
 				fieldTags["form"] = p.JsonFieldName + ",omitempty"
 			}

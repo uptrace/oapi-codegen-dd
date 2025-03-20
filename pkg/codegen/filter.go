@@ -11,11 +11,11 @@ func sliceToMap(items []string) map[string]bool {
 }
 
 func filterOperationsByTag(swagger *openapi3.T, opts Configuration) {
-	if len(opts.OutputOptions.ExcludeTags) > 0 {
-		operationsWithTags(swagger.Paths, sliceToMap(opts.OutputOptions.ExcludeTags), true)
+	if len(opts.Filter.Exclude.Tags) > 0 {
+		operationsWithTags(swagger.Paths, sliceToMap(opts.Filter.Exclude.Tags), true)
 	}
-	if len(opts.OutputOptions.IncludeTags) > 0 {
-		operationsWithTags(swagger.Paths, sliceToMap(opts.OutputOptions.IncludeTags), false)
+	if len(opts.Filter.Include.Tags) > 0 {
+		operationsWithTags(swagger.Paths, sliceToMap(opts.Filter.Include.Tags), false)
 	}
 }
 
@@ -52,11 +52,11 @@ func operationHasTag(op *openapi3.Operation, tags map[string]bool) bool {
 }
 
 func filterOperationsByOperationID(swagger *openapi3.T, opts Configuration) {
-	if len(opts.OutputOptions.ExcludeOperationIDs) > 0 {
-		operationsWithOperationIDs(swagger.Paths, sliceToMap(opts.OutputOptions.ExcludeOperationIDs), true)
+	if len(opts.Filter.Exclude.OperationIDs) > 0 {
+		operationsWithOperationIDs(swagger.Paths, sliceToMap(opts.Filter.Exclude.OperationIDs), true)
 	}
-	if len(opts.OutputOptions.IncludeOperationIDs) > 0 {
-		operationsWithOperationIDs(swagger.Paths, sliceToMap(opts.OutputOptions.IncludeOperationIDs), false)
+	if len(opts.Filter.Include.OperationIDs) > 0 {
+		operationsWithOperationIDs(swagger.Paths, sliceToMap(opts.Filter.Include.OperationIDs), false)
 	}
 }
 

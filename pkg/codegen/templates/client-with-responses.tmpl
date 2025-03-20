@@ -13,7 +13,7 @@ func NewClientWithResponses(server string, opts ...ClientOption) (*ClientWithRes
     return &ClientWithResponses{client}, nil
 }
 
-{{$clientTypeName := opts.OutputOptions.ClientTypeName -}}
+{{$clientTypeName := "Client" -}}
 
 // WithBaseURL overrides the baseURL.
 func WithBaseURL(baseURL string) ClientOption {
@@ -75,12 +75,6 @@ func (r {{genResponseTypeName $opid | ucFirst}}) StatusCode() int {
     return 0
 }
 
-{{ if opts.OutputOptions.ClientResponseBytesFunction }}
-// Bytes is a convenience method to retrieve the raw bytes from the HTTP response
-func (r {{genResponseTypeName $opid | ucFirst}}) Bytes() []byte {
-    return r.Body
-}
-{{end}}
 {{end}}
 
 

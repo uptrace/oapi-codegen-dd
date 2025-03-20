@@ -8,7 +8,7 @@ type HttpRequestDoer interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-{{$clientTypeName := opts.OutputOptions.ClientTypeName -}}
+{{$clientTypeName := "Client" -}}
 
 // {{ $clientTypeName }} which conforms to the OpenAPI3 specification for this service.
 type {{ $clientTypeName }} struct {

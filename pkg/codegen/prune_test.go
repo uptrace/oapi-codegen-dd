@@ -19,8 +19,10 @@ func TestFindReferences(t *testing.T) {
 		swagger, err := openapi3.NewLoader().LoadFromData([]byte(pruneSpecTestFixture))
 		assert.NoError(t, err)
 		opts := Configuration{
-			OutputOptions: OutputOptions{
-				IncludeTags: []string{"cat"},
+			Filter: FilterConfig{
+				Include: FilterParamsConfig{
+					Tags: []string{"cat"},
+				},
 			},
 		}
 
@@ -34,8 +36,10 @@ func TestFindReferences(t *testing.T) {
 		assert.NoError(t, err)
 
 		opts := Configuration{
-			OutputOptions: OutputOptions{
-				IncludeTags: []string{"dog"},
+			Filter: FilterConfig{
+				Include: FilterParamsConfig{
+					Tags: []string{"dog"},
+				},
 			},
 		}
 
@@ -52,8 +56,10 @@ func TestFilterOnlyCat(t *testing.T) {
 	assert.NoError(t, err)
 
 	opts := Configuration{
-		OutputOptions: OutputOptions{
-			IncludeTags: []string{"cat"},
+		Filter: FilterConfig{
+			Include: FilterParamsConfig{
+				Tags: []string{"cat"},
+			},
 		},
 	}
 
@@ -82,8 +88,10 @@ func TestFilterOnlyDog(t *testing.T) {
 	assert.NoError(t, err)
 
 	opts := Configuration{
-		OutputOptions: OutputOptions{
-			IncludeTags: []string{"dog"},
+		Filter: FilterConfig{
+			Include: FilterParamsConfig{
+				Tags: []string{"dog"},
+			},
 		},
 	}
 

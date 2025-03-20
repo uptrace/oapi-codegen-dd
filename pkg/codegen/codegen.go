@@ -122,31 +122,13 @@ func Generate(spec *openapi3.T, opts Configuration) (string, error) {
 
 	filterOperationsByTag(spec, opts)
 	filterOperationsByOperationID(spec, opts)
-	if !opts.OutputOptions.SkipPrune {
+	if !opts.SkipPrune {
 		pruneUnusedComponents(spec)
 	}
 
-	// if we are provided an override for the response type suffix update it
-	if opts.OutputOptions.ResponseTypeSuffix != "" {
-		responseTypeSuffix = opts.OutputOptions.ResponseTypeSuffix
-	}
+	nameNormalizer = ToCamelCaseWithInitialisms
 
-	if globalState.options.OutputOptions.ClientTypeName == "" {
-		globalState.options.OutputOptions.ClientTypeName = defaultClientTypeName
-	}
-
-	nameNormalizerFunction := NameNormalizerFunction(opts.OutputOptions.NameNormalizer)
-	nameNormalizer = NameNormalizers[nameNormalizerFunction]
-	if nameNormalizer == nil {
-		return "", fmt.Errorf(`the name-normalizer option %v could not be found among options %q`,
-			opts.OutputOptions.NameNormalizer, NameNormalizers.Options())
-	}
-
-	if nameNormalizerFunction != NameNormalizerFunctionToCamelCaseWithInitialisms && len(opts.OutputOptions.AdditionalInitialisms) > 0 {
-		return "", fmt.Errorf("you have specified `additional-initialisms`, but the `name-normalizer` is not set to `ToCamelCaseWithInitialisms`. Please specify `name-normalizer: ToCamelCaseWithInitialisms` or remove the `additional-initialisms` configuration")
-	}
-
-	globalState.initialismsMap = makeInitialismsMap(opts.OutputOptions.AdditionalInitialisms)
+	globalState.initialismsMap = makeInitialismsMap(opts.AdditionalInitialisms)
 
 	// This creates the golang templates text package
 	TemplateFunctions["opts"] = func() Configuration { return globalState.options }
@@ -159,7 +141,7 @@ func Generate(spec *openapi3.T, opts Configuration) (string, error) {
 	}
 
 	// load user-provided templates. Will Override built-in versions.
-	for name, template := range opts.OutputOptions.UserTemplates {
+	for name, template := range opts.UserTemplates {
 		utpl := t.New(name)
 
 		txt, err := GetUserTemplateText(template)
@@ -173,7 +155,7 @@ func Generate(spec *openapi3.T, opts Configuration) (string, error) {
 		}
 	}
 
-	ops, err := OperationDefinitions(spec, opts.OutputOptions.InitialismOverrides)
+	ops, err := OperationDefinitions(spec, opts.InitialismOverrides)
 	if err != nil {
 		return "", fmt.Errorf("error creating operation definitions: %w", err)
 	}
@@ -185,7 +167,7 @@ func Generate(spec *openapi3.T, opts Configuration) (string, error) {
 
 	var typeDefinitions, constantDefinitions string
 
-	typeDefinitions, err = GenerateTypeDefinitions(t, spec, ops, opts.OutputOptions.ExcludeSchemas)
+	typeDefinitions, err = GenerateTypeDefinitions(t, spec, ops)
 	if err != nil {
 		return "", fmt.Errorf("error generating type definitions: %w", err)
 	}
@@ -195,7 +177,7 @@ func Generate(spec *openapi3.T, opts Configuration) (string, error) {
 		return "", fmt.Errorf("error generating constants: %w", err)
 	}
 
-	imprts, err := GetTypeDefinitionsImports(spec, opts.OutputOptions.ExcludeSchemas)
+	imprts, err := GetTypeDefinitionsImports(spec)
 	if err != nil {
 		return "", fmt.Errorf("error getting type definition imports: %w", err)
 	}
@@ -257,12 +239,6 @@ func Generate(spec *openapi3.T, opts Configuration) (string, error) {
 	// remove any byte-order-marks which break Go-Code
 	goCode := SanitizeCode(buf.String())
 
-	// The generation code produces unindented horrors. Use the Go Imports
-	// to make it all pretty.
-	if opts.OutputOptions.SkipFmt {
-		return goCode, nil
-	}
-
 	outBytes, err := imports.Process(opts.PackageName+".go", []byte(goCode), nil)
 	if err != nil {
 		return "", fmt.Errorf("error formatting Go code %s: %w", goCode, err)
@@ -270,10 +246,10 @@ func Generate(spec *openapi3.T, opts Configuration) (string, error) {
 	return string(outBytes), nil
 }
 
-func GenerateTypeDefinitions(t *template.Template, swagger *openapi3.T, ops []OperationDefinition, excludeSchemas []string) (string, error) {
+func GenerateTypeDefinitions(t *template.Template, swagger *openapi3.T, ops []OperationDefinition) (string, error) {
 	var allTypes []TypeDefinition
 	if swagger.Components != nil {
-		schemaTypes, err := GenerateTypesForSchemas(t, swagger.Components.Schemas, excludeSchemas)
+		schemaTypes, err := GenerateTypesForSchemas(t, swagger.Components.Schemas)
 		if err != nil {
 			return "", fmt.Errorf("error generating Go types for component schemas: %w", err)
 		}
@@ -368,17 +344,10 @@ func GenerateConstants(t *template.Template, ops []OperationDefinition) (string,
 
 // GenerateTypesForSchemas generates type definitions for any custom types defined in the
 // components/schemas section of the Swagger spec.
-func GenerateTypesForSchemas(t *template.Template, schemas map[string]*openapi3.SchemaRef, excludeSchemas []string) ([]TypeDefinition, error) {
-	excludeSchemasMap := make(map[string]bool)
-	for _, schema := range excludeSchemas {
-		excludeSchemasMap[schema] = true
-	}
+func GenerateTypesForSchemas(t *template.Template, schemas map[string]*openapi3.SchemaRef) ([]TypeDefinition, error) {
 	types := make([]TypeDefinition, 0)
 	// We're going to define Go types for every object under components/schemas
 	for _, schemaName := range SortedSchemaKeys(schemas) {
-		if _, ok := excludeSchemasMap[schemaName]; ok {
-			continue
-		}
 		schemaRef := schemas[schemaName]
 
 		goSchema, err := GenerateGoSchema(schemaRef, []string{schemaName})
@@ -897,13 +866,13 @@ func OperationImports(ops []OperationDefinition) (map[string]goImport, error) {
 	return res, nil
 }
 
-func GetTypeDefinitionsImports(swagger *openapi3.T, excludeSchemas []string) (map[string]goImport, error) {
+func GetTypeDefinitionsImports(swagger *openapi3.T) (map[string]goImport, error) {
 	res := map[string]goImport{}
 	if swagger.Components == nil {
 		return res, nil
 	}
 
-	schemaImports, err := GetSchemaImports(swagger.Components.Schemas, excludeSchemas)
+	schemaImports, err := GetSchemaImports(swagger.Components.Schemas)
 	if err != nil {
 		return nil, err
 	}
@@ -964,17 +933,9 @@ func GoSchemaImports(schemas ...*openapi3.SchemaRef) (map[string]goImport, error
 	return res, nil
 }
 
-func GetSchemaImports(schemas map[string]*openapi3.SchemaRef, excludeSchemas []string) (map[string]goImport, error) {
+func GetSchemaImports(schemas map[string]*openapi3.SchemaRef) (map[string]goImport, error) {
 	res := map[string]goImport{}
-	excludeSchemasMap := make(map[string]bool)
-	for _, schema := range excludeSchemas {
-		excludeSchemasMap[schema] = true
-	}
-	for schemaName, schema := range schemas {
-		if _, ok := excludeSchemasMap[schemaName]; ok {
-			continue
-		}
-
+	for _, schema := range schemas {
 		imprts, err := GoSchemaImports(schema)
 		if err != nil {
 			return nil, err
