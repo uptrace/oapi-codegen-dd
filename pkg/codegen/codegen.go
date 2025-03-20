@@ -202,82 +202,6 @@ func Generate(spec *openapi3.T, opts Configuration) (string, error) {
 		MergeImports(xGoTypeImports, imprts)
 	}
 
-	var irisServerOut string
-	if opts.Generate.IrisServer {
-		irisServerOut, err = GenerateIrisServer(t, ops)
-		if err != nil {
-			return "", fmt.Errorf("error generating Go handlers for Paths: %w", err)
-		}
-	}
-
-	var echoServerOut string
-	if opts.Generate.EchoServer {
-		echoServerOut, err = GenerateEchoServer(t, ops)
-		if err != nil {
-			return "", fmt.Errorf("error generating Go handlers for Paths: %w", err)
-		}
-	}
-
-	var chiServerOut string
-	if opts.Generate.ChiServer {
-		chiServerOut, err = GenerateChiServer(t, ops)
-		if err != nil {
-			return "", fmt.Errorf("error generating Go handlers for Paths: %w", err)
-		}
-	}
-
-	var fiberServerOut string
-	if opts.Generate.FiberServer {
-		fiberServerOut, err = GenerateFiberServer(t, ops)
-		if err != nil {
-			return "", fmt.Errorf("error generating Go handlers for Paths: %w", err)
-		}
-	}
-
-	var ginServerOut string
-	if opts.Generate.GinServer {
-		ginServerOut, err = GenerateGinServer(t, ops)
-		if err != nil {
-			return "", fmt.Errorf("error generating Go handlers for Paths: %w", err)
-		}
-	}
-
-	var gorillaServerOut string
-	if opts.Generate.GorillaServer {
-		gorillaServerOut, err = GenerateGorillaServer(t, ops)
-		if err != nil {
-			return "", fmt.Errorf("error generating Go handlers for Paths: %w", err)
-		}
-	}
-
-	var stdHTTPServerOut string
-	if opts.Generate.StdHTTPServer {
-		stdHTTPServerOut, err = GenerateStdHTTPServer(t, ops)
-		if err != nil {
-			return "", fmt.Errorf("error generating Go handlers for Paths: %w", err)
-		}
-	}
-
-	var strictServerOut string
-	if opts.Generate.Strict {
-		var responses []ResponseDefinition
-		if spec.Components != nil {
-			responses, err = GenerateResponseDefinitions("", spec.Components.Responses)
-			if err != nil {
-				return "", fmt.Errorf("error generation response definitions for schema: %w", err)
-			}
-		}
-		strictServerResponses, err := GenerateStrictResponses(t, responses)
-		if err != nil {
-			return "", fmt.Errorf("error generation response definitions for schema: %w", err)
-		}
-		strictServerOut, err = GenerateStrictServer(t, ops, opts)
-		if err != nil {
-			return "", fmt.Errorf("error generating Go handlers for Paths: %w", err)
-		}
-		strictServerOut = strictServerResponses + strictServerOut
-	}
-
 	var clientOut string
 	if opts.Generate.Client {
 		clientOut, err = GenerateClient(t, ops)
@@ -294,14 +218,6 @@ func Generate(spec *openapi3.T, opts Configuration) (string, error) {
 		}
 	}
 
-	var inlinedSpec string
-	if opts.Generate.EmbeddedSpec {
-		inlinedSpec, err = GenerateInlinedSpec(t, globalState.importMapping, spec)
-		if err != nil {
-			return "", fmt.Errorf("error generating Go handlers for Paths: %w", err)
-		}
-	}
-
 	var buf bytes.Buffer
 	w := bufio.NewWriter(&buf)
 
@@ -310,7 +226,6 @@ func Generate(spec *openapi3.T, opts Configuration) (string, error) {
 		t,
 		externalImports,
 		opts.PackageName,
-		opts.NoVCSVersionOverride,
 	)
 	if err != nil {
 		return "", fmt.Errorf("error generating imports: %w", err)
@@ -339,70 +254,6 @@ func Generate(spec *openapi3.T, opts Configuration) (string, error) {
 		_, err = w.WriteString(clientWithResponsesOut)
 		if err != nil {
 			return "", fmt.Errorf("error writing client: %w", err)
-		}
-	}
-
-	if opts.Generate.IrisServer {
-		_, err = w.WriteString(irisServerOut)
-		if err != nil {
-			return "", fmt.Errorf("error writing server path handlers: %w", err)
-		}
-
-	}
-
-	if opts.Generate.EchoServer {
-		_, err = w.WriteString(echoServerOut)
-		if err != nil {
-			return "", fmt.Errorf("error writing server path handlers: %w", err)
-		}
-	}
-
-	if opts.Generate.ChiServer {
-		_, err = w.WriteString(chiServerOut)
-		if err != nil {
-			return "", fmt.Errorf("error writing server path handlers: %w", err)
-		}
-	}
-
-	if opts.Generate.FiberServer {
-		_, err = w.WriteString(fiberServerOut)
-		if err != nil {
-			return "", fmt.Errorf("error writing server path handlers: %w", err)
-		}
-	}
-
-	if opts.Generate.GinServer {
-		_, err = w.WriteString(ginServerOut)
-		if err != nil {
-			return "", fmt.Errorf("error writing server path handlers: %w", err)
-		}
-	}
-
-	if opts.Generate.GorillaServer {
-		_, err = w.WriteString(gorillaServerOut)
-		if err != nil {
-			return "", fmt.Errorf("error writing server path handlers: %w", err)
-		}
-	}
-
-	if opts.Generate.StdHTTPServer {
-		_, err = w.WriteString(stdHTTPServerOut)
-		if err != nil {
-			return "", fmt.Errorf("error writing server path handlers: %w", err)
-		}
-	}
-
-	if opts.Generate.Strict {
-		_, err = w.WriteString(strictServerOut)
-		if err != nil {
-			return "", fmt.Errorf("error writing server path handlers: %w", err)
-		}
-	}
-
-	if opts.Generate.EmbeddedSpec {
-		_, err = w.WriteString(inlinedSpec)
-		if err != nil {
-			return "", fmt.Errorf("error writing inlined spec: %w", err)
 		}
 	}
 
@@ -760,7 +611,7 @@ func GenerateEnums(t *template.Template, types []TypeDefinition) (string, error)
 				Schema:         tp.Schema,
 				TypeName:       tp.TypeName,
 				ValueWrapper:   wrapper,
-				PrefixTypeName: globalState.options.Compatibility.AlwaysPrefixEnumValues,
+				PrefixTypeName: true,
 			})
 		}
 	}
@@ -814,7 +665,7 @@ func GenerateEnums(t *template.Template, types []TypeDefinition) (string, error)
 }
 
 // GenerateImports generates our import statements and package definition.
-func GenerateImports(t *template.Template, externalImports []string, packageName string, versionOverride *string) (string, error) {
+func GenerateImports(t *template.Template, externalImports []string, packageName string) (string, error) {
 	// Read build version for incorporating into generated files
 	// Unit tests have ok=false, so we'll just use "unknown" for the
 	// version if we can't read this.
@@ -827,9 +678,6 @@ func GenerateImports(t *template.Template, externalImports []string, packageName
 		}
 		if bi.Main.Version != "" {
 			moduleVersion = bi.Main.Version
-		}
-		if versionOverride != nil {
-			moduleVersion = *versionOverride
 		}
 	}
 

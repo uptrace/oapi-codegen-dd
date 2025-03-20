@@ -19,16 +19,13 @@ const (
 )
 
 func TestExampleOpenAPICodeGeneration(t *testing.T) {
-
 	// Input vars for code generation:
 	packageName := "testswagger"
 	opts := Configuration{
 		PackageName: packageName,
 		Generate: GenerateOptions{
-			EchoServer:   true,
-			Client:       true,
-			Models:       true,
-			EmbeddedSpec: true,
+			Client: true,
+			Models: true,
 		},
 	}
 
@@ -90,10 +87,8 @@ func TestExtPropGoTypeSkipOptionalPointer(t *testing.T) {
 	opts := Configuration{
 		PackageName: packageName,
 		Generate: GenerateOptions{
-			EchoServer:   true,
-			Models:       true,
-			EmbeddedSpec: true,
-			Strict:       true,
+			Models: true,
+			Client: true,
 		},
 	}
 	spec := "test_specs/x-go-type-skip-optional-pointer.yaml"
@@ -128,9 +123,8 @@ func TestGoTypeImport(t *testing.T) {
 	opts := Configuration{
 		PackageName: packageName,
 		Generate: GenerateOptions{
-			EchoServer:   true,
-			Models:       true,
-			EmbeddedSpec: true,
+			Models: true,
+			Client: true,
 		},
 	}
 	spec := "test_specs/x-go-type-import-pet.yaml"
@@ -176,6 +170,7 @@ func TestRemoteExternalReference(t *testing.T) {
 		PackageName: packageName,
 		Generate: GenerateOptions{
 			Models: true,
+			Client: true,
 		},
 		ImportMapping: map[string]string{
 			remoteRefFile: remoteRefImport,

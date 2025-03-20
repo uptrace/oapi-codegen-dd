@@ -30,10 +30,8 @@ func TestExamplePetStoreCodeGeneration(t *testing.T) {
 	opts := codegen.Configuration{
 		PackageName: packageName,
 		Generate: codegen.GenerateOptions{
-			EchoServer:   true,
-			Client:       true,
-			Models:       true,
-			EmbeddedSpec: true,
+			Client: true,
+			Models: true,
 		},
 	}
 
