@@ -17,17 +17,13 @@ package codegen
 import (
 	"bufio"
 	"bytes"
-	"context"
 	"embed"
 	"fmt"
-	"io"
 	"io/fs"
-	"net/http"
 	"os"
 	"runtime/debug"
 	"strings"
 	"text/template"
-	"time"
 
 	"github.com/getkin/kin-openapi/openapi3"
 	"golang.org/x/tools/imports"
@@ -69,7 +65,6 @@ func Generate(spec *openapi3.T, opts Configuration) (string, error) {
 	globalState.initialismsMap = makeInitialismsMap(opts.AdditionalInitialisms)
 
 	// This creates the golang templates text package
-	TemplateFunctions["opts"] = func() Configuration { return globalState.options }
 	t := template.New("oapi-codegen").Funcs(TemplateFunctions)
 	// This parses all of our own template files into the template object
 	// above
@@ -453,11 +448,7 @@ func SanitizeCode(goCode string) string {
 	return strings.ReplaceAll(goCode, "\uFEFF", "")
 }
 
-// GetUserTemplateText attempts to retrieve the template text from a passed in URL or file
-// path when inputData is more than one line.
-// This function will attempt to load a file first, and if it fails, will try to get the
-// data from the remote endpoint.
-// The timeout for remote download file is 30 seconds.
+// GetUserTemplateText attempts to retrieve the template text from a passed string or file..
 func GetUserTemplateText(inputData string) (template string, err error) {
 	// if the input data is more than one line, assume its a template and return that data.
 	if strings.Contains(inputData, "\n") {
@@ -474,30 +465,6 @@ func GetUserTemplateText(inputData string) (template string, err error) {
 	// check for non "not found" errors
 	if !os.IsNotExist(err) {
 		return "", fmt.Errorf("failed to open file %s: %w", inputData, err)
-	}
-
-	// attempt to get data from url with timeout
-	const downloadTimeout = 30 * time.Second
-	ctx, cancel := context.WithTimeout(context.Background(), downloadTimeout)
-	defer cancel()
-
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, inputData, http.NoBody)
-	if err != nil {
-		return "", fmt.Errorf("failed to create request GET %s: %w", inputData, err)
-	}
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return "", fmt.Errorf("failed to execute GET request data from %s: %w", inputData, err)
-	}
-	if resp != nil {
-		defer resp.Body.Close()
-	}
-	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return "", fmt.Errorf("got non %d status code on GET %s", resp.StatusCode, inputData)
-	}
-	data, err = io.ReadAll(resp.Body)
-	if err != nil {
-		return "", fmt.Errorf("failed to read response body from GET %s: %w", inputData, err)
 	}
 
 	return string(data), nil
