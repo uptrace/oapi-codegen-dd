@@ -3,6 +3,7 @@ package codegen
 import (
 	"errors"
 	"fmt"
+	"slices"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -11,10 +12,6 @@ import (
 // MergeSchemas merges all the fields in the schemas supplied into one giant schema.
 // The idea is that we merge all fields together into one schema.
 func MergeSchemas(allOf []*openapi3.SchemaRef, path []string) (Schema, error) {
-	return mergeSchemas(allOf, path)
-}
-
-func mergeSchemas(allOf []*openapi3.SchemaRef, path []string) (Schema, error) {
 	n := len(allOf)
 
 	if n == 1 {
@@ -115,7 +112,7 @@ func mergeOpenapiSchemas(s1, s2 openapi3.Schema, allOf bool) (openapi3.Schema, e
 
 	result.AllOf = append(s1.AllOf, s2.AllOf...)
 
-	if s1.Type.Slice() != nil && s2.Type.Slice() != nil && !equalTypes(s1.Type, s2.Type) {
+	if !slices.Equal(s1.Type.Slice(), s2.Type.Slice()) {
 		return openapi3.Schema{}, fmt.Errorf("can not merge incompatible types: %v, %v", s1.Type.Slice(), s2.Type.Slice())
 	}
 	result.Type = s1.Type
@@ -223,22 +220,4 @@ func mergeOpenapiSchemas(s1, s2 openapi3.Schema, allOf bool) (openapi3.Schema, e
 	}
 
 	return result, nil
-}
-
-func equalTypes(t1 *openapi3.Types, t2 *openapi3.Types) bool {
-	s1 := t1.Slice()
-	s2 := t2.Slice()
-
-	if len(s1) != len(s2) {
-		return false
-	}
-
-	// NOTE that ideally we'd use `slices.Equal` but as we're currently supporting Go 1.20+, we can't use it (yet https://github.com/oapi-codegen/oapi-codegen/issues/1634)
-	for i := range s1 {
-		if s1[i] != s2[i] {
-			return false
-		}
-	}
-
-	return true
 }
