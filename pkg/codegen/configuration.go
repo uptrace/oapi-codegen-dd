@@ -62,12 +62,19 @@ type FilterParamsConfig struct {
 	OperationIDs []string
 }
 
+// NewDefaultConfiguration creates a new default Configuration.
+func NewDefaultConfiguration() *Configuration {
+	return &Configuration{
+		PackageName: "gen",
+	}
+}
+
 type keyValue[K, V any] struct {
 	key   K
 	value V
 }
 
-func constructImportMapping(importMapping map[string]string) importMap {
+func newImportMap(importMapping map[string]string) importMap {
 	var (
 		pathToName = map[string]string{}
 		result     = importMap{}

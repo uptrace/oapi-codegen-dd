@@ -2,6 +2,17 @@ package codegen
 
 import "github.com/getkin/kin-openapi/openapi3"
 
+func filterDocument(doc *openapi3.T, cfg Configuration) (*openapi3.T, error) {
+	filterOperationsByTag(doc, cfg)
+	filterOperationsByOperationID(doc, cfg)
+
+	if !cfg.SkipPrune {
+		pruneUnusedComponents(doc)
+	}
+
+	return doc, nil
+}
+
 func sliceToMap(items []string) map[string]bool {
 	m := make(map[string]bool, len(items))
 	for _, item := range items {

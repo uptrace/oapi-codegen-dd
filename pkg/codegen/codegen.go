@@ -29,17 +29,6 @@ import (
 	"golang.org/x/tools/imports"
 )
 
-// ParseContext holds the OpenAPI models.
-type ParseContext struct {
-	Operations               []OperationDefinition
-	TypeDefinitions          map[SpecLocation][]TypeDefinition
-	Enums                    []EnumDefinition
-	UnionTypes               []TypeDefinition
-	AdditionalTypes          []TypeDefinition
-	UnionWithAdditionalTypes []TypeDefinition
-	Imports                  []string
-}
-
 // globalState stores all global state. Please don't put global state anywhere
 // else so that we can easily track it.
 var globalState struct {
@@ -53,20 +42,16 @@ var globalState struct {
 
 // Generate uses the Go templating engine to generate all of our server wrappers from
 // the descriptions we've built up above from the schema objects.
-// opts defines
 func Generate(spec *openapi3.T, opts Configuration) (string, error) {
 	// This is global state
 	globalState.options = opts
 	globalState.spec = spec
-	globalState.importMapping = constructImportMapping(opts.ImportMapping)
+	globalState.importMapping = newImportMap(opts.ImportMapping)
 
-	filterOperationsByTag(spec, opts)
-	filterOperationsByOperationID(spec, opts)
-	if !opts.SkipPrune {
-		pruneUnusedComponents(spec)
+	spec, err := filterDocument(spec, opts)
+	if err != nil {
+		return "", fmt.Errorf("error filtering document: %w", err)
 	}
-
-	nameNormalizer = ToCamelCaseWithInitialisms
 
 	globalState.initialismsMap = makeInitialismsMap(opts.AdditionalInitialisms)
 
@@ -74,7 +59,7 @@ func Generate(spec *openapi3.T, opts Configuration) (string, error) {
 	t := template.New("oapi-codegen").Funcs(TemplateFunctions)
 	// This parses all of our own template files into the template object
 	// above
-	err := LoadTemplates(templates, t)
+	err = LoadTemplates(templates, t)
 	if err != nil {
 		return "", fmt.Errorf("error parsing oapi-codegen templates: %w", err)
 	}

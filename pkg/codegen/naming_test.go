@@ -233,7 +233,7 @@ components:
 
 func TestRefPathToGoType(t *testing.T) {
 	old := globalState.importMapping
-	globalState.importMapping = constructImportMapping(
+	globalState.importMapping = newImportMap(
 		map[string]string{
 			"doc.json":                    "externalref0",
 			"http://deepmap.com/doc.json": "externalref1",
