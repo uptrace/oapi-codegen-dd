@@ -2,23 +2,15 @@ package codegen
 
 import (
 	"fmt"
+	"slices"
 
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-func stringInSlice(a string, list []string) bool {
-	for _, b := range list {
-		if b == a {
-			return true
-		}
-	}
-	return false
-}
-
 type RefWrapper struct {
 	Ref       string
 	HasValue  bool
-	SourceRef interface{}
+	SourceRef any
 }
 
 func walkSwagger(swagger *openapi3.T, doFn func(RefWrapper) (bool, error)) error {
@@ -89,10 +81,6 @@ func walkComponents(components *openapi3.Components, doFn func(RefWrapper) (bool
 
 	for _, response := range components.Responses {
 		_ = walkResponseRef(response, doFn)
-	}
-
-	for _, securityScheme := range components.SecuritySchemes {
-		_ = walkSecuritySchemeRef(securityScheme, doFn)
 	}
 
 	for _, example := range components.Examples {
@@ -315,28 +303,6 @@ func walkHeaderRef(ref *openapi3.HeaderRef, doFn func(RefWrapper) (bool, error))
 	return nil
 }
 
-func walkSecuritySchemeRef(ref *openapi3.SecuritySchemeRef, doFn func(RefWrapper) (bool, error)) error {
-	// Not a valid ref, ignore it and continue
-	if ref == nil {
-		return nil
-	}
-	refWrapper := RefWrapper{Ref: ref.Ref, HasValue: ref.Value != nil, SourceRef: ref}
-	shouldContinue, err := doFn(refWrapper)
-	if err != nil {
-		return err
-	}
-	if !shouldContinue {
-		return nil
-	}
-	if ref.Value == nil {
-		return nil
-	}
-
-	// NOTE: `SecuritySchemeRef`s don't contain any children that can contain refs
-
-	return nil
-}
-
 func walkLinkRef(ref *openapi3.LinkRef, doFn func(RefWrapper) (bool, error)) error {
 	// Not a valid ref, ignore it and continue
 	if ref == nil {
@@ -402,7 +368,7 @@ func removeOrphanedComponents(swagger *openapi3.T, refs []string) int {
 
 	for key := range swagger.Components.Schemas {
 		ref := fmt.Sprintf("#/components/schemas/%s", key)
-		if !stringInSlice(ref, refs) {
+		if !slices.Contains(refs, ref) {
 			countRemoved++
 			delete(swagger.Components.Schemas, key)
 		}
@@ -410,26 +376,15 @@ func removeOrphanedComponents(swagger *openapi3.T, refs []string) int {
 
 	for key := range swagger.Components.Parameters {
 		ref := fmt.Sprintf("#/components/parameters/%s", key)
-		if !stringInSlice(ref, refs) {
+		if !slices.Contains(refs, ref) {
 			countRemoved++
 			delete(swagger.Components.Parameters, key)
 		}
 	}
 
-	// securitySchemes are an exception. definitions in securitySchemes
-	// are referenced directly by name. and not by $ref
-
-	// for key, _ := range swagger.Components.SecuritySchemes {
-	// 	ref := fmt.Sprintf("#/components/securitySchemes/%s", key)
-	// 	if !stringInSlice(ref, refs) {
-	// 		countRemoved++
-	// 		delete(swagger.Components.SecuritySchemes, key)
-	// 	}
-	// }
-
 	for key := range swagger.Components.RequestBodies {
 		ref := fmt.Sprintf("#/components/requestBodies/%s", key)
-		if !stringInSlice(ref, refs) {
+		if !slices.Contains(refs, ref) {
 			countRemoved++
 			delete(swagger.Components.RequestBodies, key)
 		}
@@ -437,7 +392,7 @@ func removeOrphanedComponents(swagger *openapi3.T, refs []string) int {
 
 	for key := range swagger.Components.Responses {
 		ref := fmt.Sprintf("#/components/responses/%s", key)
-		if !stringInSlice(ref, refs) {
+		if !slices.Contains(refs, ref) {
 			countRemoved++
 			delete(swagger.Components.Responses, key)
 		}
@@ -445,7 +400,7 @@ func removeOrphanedComponents(swagger *openapi3.T, refs []string) int {
 
 	for key := range swagger.Components.Headers {
 		ref := fmt.Sprintf("#/components/headers/%s", key)
-		if !stringInSlice(ref, refs) {
+		if !slices.Contains(refs, ref) {
 			countRemoved++
 			delete(swagger.Components.Headers, key)
 		}
@@ -453,7 +408,7 @@ func removeOrphanedComponents(swagger *openapi3.T, refs []string) int {
 
 	for key := range swagger.Components.Examples {
 		ref := fmt.Sprintf("#/components/examples/%s", key)
-		if !stringInSlice(ref, refs) {
+		if !slices.Contains(refs, ref) {
 			countRemoved++
 			delete(swagger.Components.Examples, key)
 		}
@@ -461,7 +416,7 @@ func removeOrphanedComponents(swagger *openapi3.T, refs []string) int {
 
 	for key := range swagger.Components.Links {
 		ref := fmt.Sprintf("#/components/links/%s", key)
-		if !stringInSlice(ref, refs) {
+		if !slices.Contains(refs, ref) {
 			countRemoved++
 			delete(swagger.Components.Links, key)
 		}
@@ -469,7 +424,7 @@ func removeOrphanedComponents(swagger *openapi3.T, refs []string) int {
 
 	for key := range swagger.Components.Callbacks {
 		ref := fmt.Sprintf("#/components/callbacks/%s", key)
-		if !stringInSlice(ref, refs) {
+		if !slices.Contains(refs, ref) {
 			countRemoved++
 			delete(swagger.Components.Callbacks, key)
 		}

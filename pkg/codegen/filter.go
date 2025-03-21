@@ -69,7 +69,7 @@ func operationsWithOperationIDs(paths *openapi3.Paths, operationIDs map[string]b
 		ops := pathItem.Operations()
 		names := make([]string, 0, len(ops))
 		for name, op := range ops {
-			if operationHasOperationID(op, operationIDs) == exclude {
+			if operationIDs[op.OperationID] == exclude {
 				names = append(names, name)
 			}
 		}
@@ -77,12 +77,4 @@ func operationsWithOperationIDs(paths *openapi3.Paths, operationIDs map[string]b
 			pathItem.SetOperation(name, nil)
 		}
 	}
-}
-
-// operationHasOperationID returns true if the operation has operation id is included in operation ids
-func operationHasOperationID(op *openapi3.Operation, operationIDs map[string]bool) bool {
-	if op == nil {
-		return false
-	}
-	return operationIDs[op.OperationID]
 }
