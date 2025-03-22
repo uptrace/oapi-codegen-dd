@@ -53,7 +53,7 @@ func (t TypeDefinition) GetErrorResponse(errTypes map[string]string, alias strin
 	for _, part := range strings.Split(path, ".") {
 		for _, prop := range schema.Properties {
 			if prop.JsonFieldName == part {
-				goName := prop.GoName // schema.PropertyReference[prop.JsonFieldName]
+				goName := prop.GoName
 				schema = prop.Schema
 				callPath = append(callPath, keyValue[string, Property]{goName, prop})
 				// next part
@@ -71,7 +71,7 @@ func (t TypeDefinition) GetErrorResponse(errTypes map[string]string, alias strin
 	goName, prop := fstPair.key, fstPair.value
 	res = append(res, fmt.Sprintf("res := %s.%s", alias, goName))
 	if prop.Constraints.Nullable {
-		res = append(res, fmt.Sprintf("if res == nil { return nil }"))
+		res = append(res, fmt.Sprintf("if res == nil { %s }", unknownRes))
 	}
 
 	last := 0
@@ -81,8 +81,8 @@ func (t TypeDefinition) GetErrorResponse(errTypes map[string]string, alias strin
 		name, p := pair.key, pair.value
 		res = append(res, fmt.Sprintf("res%d := res.%s", ix, name))
 		if p.Constraints.Nullable {
-			res = append(res, fmt.Sprintf("if res%d == nil { return nil }", ix))
-			res = append(res, fmt.Sprintf("res%d = *res%d", ix+1, ix))
+			res = append(res, fmt.Sprintf("if res%d == nil { %s }", ix, unknownRes))
+			res = append(res, fmt.Sprintf("res%d := *res%d", ix+1, ix))
 			ix += 1
 		}
 		isStringType = p.Schema.GoType == "string"
