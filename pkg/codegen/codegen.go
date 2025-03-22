@@ -61,17 +61,7 @@ func Generate(spec *openapi3.T, cfg *Configuration) (string, error) {
 	}
 
 	// original behavior is single file output
-	res := ""
-	if header, ok := codes["header"]; ok {
-		res += header + "\n"
-		delete(codes, "header")
-	}
-
-	for _, code := range codes {
-		res += code + "\n"
-	}
-
-	return FormatCode(res), nil
+	return FormatCode(codes["all"]), nil
 }
 
 func createParseContextFromDocument(doc *openapi3.T, cfg *Configuration) (*ParseContext, error) {

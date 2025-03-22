@@ -87,7 +87,7 @@ func (p *Parser) Parse() (map[string]string, error) {
 		if err != nil {
 			return nil, fmt.Errorf("error generating code for header: %w", err)
 		}
-		typesOut["header"] = FormatCode(out)
+		typesOut["header"] = out
 	}
 
 	if len(p.ctx.Enums) > 0 {
@@ -160,6 +160,19 @@ func (p *Parser) Parse() (map[string]string, error) {
 			return nil, fmt.Errorf("error generating code for union types with additional properties: %w", err)
 		}
 		typesOut["unions_with_additional"] = FormatCode(out)
+	}
+
+	if useSingleOutput {
+		res := ""
+		if header, ok := typesOut["header"]; ok {
+			res += header + "\n"
+			delete(typesOut, "header")
+		}
+
+		for _, code := range typesOut {
+			res += code + "\n"
+		}
+		typesOut = map[string]string{"all": res}
 	}
 
 	return typesOut, nil

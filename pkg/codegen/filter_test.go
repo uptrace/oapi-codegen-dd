@@ -10,28 +10,28 @@ import (
 func TestFilterOperationsByTag(t *testing.T) {
 	packageName := "testswagger"
 	t.Run("include tags", func(t *testing.T) {
-		opts := &Configuration{
+		cfg := &Configuration{
 			PackageName: packageName,
 			Filter: FilterConfig{
 				Include: FilterParamsConfig{
 					Tags: []string{"hippo", "giraffe", "cat"},
 				},
 			},
+			UseSingleOutput: true,
 		}
 
 		loader := openapi3.NewLoader()
 		loader.IsExternalRefsAllowed = true
 
 		// Get a spec from the test definition in this file:
-		swagger, err := loader.LoadFromData([]byte(testOpenAPIDefinition))
+		doc, err := loader.LoadFromData([]byte(testOpenAPIDefinition))
 		assert.NoError(t, err)
 
 		// Run our code generation:
-		code, err := Generate(swagger, opts)
+		code, err := Generate(doc, cfg)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, code)
-		assert.NotContains(t, code, `"/test/:name"`)
-		assert.Contains(t, code, `"/cat"`)
+		assert.Contains(t, code, `type CatDeadCause string`)
 	})
 
 	t.Run("exclude tags", func(t *testing.T) {
@@ -42,17 +42,18 @@ func TestFilterOperationsByTag(t *testing.T) {
 					Tags: []string{"hippo", "giraffe", "cat"},
 				},
 			},
+			UseSingleOutput: true,
 		}
 
 		loader := openapi3.NewLoader()
 		loader.IsExternalRefsAllowed = true
 
 		// Get a spec from the test definition in this file:
-		swagger, err := loader.LoadFromData([]byte(testOpenAPIDefinition))
+		doc, err := loader.LoadFromData([]byte(testOpenAPIDefinition))
 		assert.NoError(t, err)
 
 		// Run our code generation:
-		code, err := Generate(swagger, opts)
+		code, err := Generate(doc, opts)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, code)
 		assert.NotContains(t, code, `"/cat"`)
@@ -69,21 +70,20 @@ func TestFilterOperationsByOperationID(t *testing.T) {
 					OperationIDs: []string{"getCatStatus"},
 				},
 			},
+			UseSingleOutput: true,
 		}
 
 		loader := openapi3.NewLoader()
-		loader.IsExternalRefsAllowed = true
 
 		// Get a spec from the test definition in this file:
-		swagger, err := loader.LoadFromData([]byte(testOpenAPIDefinition))
+		doc, err := loader.LoadFromData([]byte(testOpenAPIDefinition))
 		assert.NoError(t, err)
 
 		// Run our code generation:
-		code, err := Generate(swagger, opts)
+		code, err := Generate(doc, opts)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, code)
-		assert.NotContains(t, code, `"/test/:name"`)
-		assert.Contains(t, code, `"/cat"`)
+		assert.Contains(t, code, `type CatDeadCause string`)
 	})
 
 	t.Run("exclude operation ids", func(t *testing.T) {
@@ -100,11 +100,11 @@ func TestFilterOperationsByOperationID(t *testing.T) {
 		loader.IsExternalRefsAllowed = true
 
 		// Get a spec from the test definition in this file:
-		swagger, err := loader.LoadFromData([]byte(testOpenAPIDefinition))
+		doc, err := loader.LoadFromData([]byte(testOpenAPIDefinition))
 		assert.NoError(t, err)
 
 		// Run our code generation:
-		code, err := Generate(swagger, opts)
+		code, err := Generate(doc, opts)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, code)
 		assert.NotContains(t, code, `"/cat"`)

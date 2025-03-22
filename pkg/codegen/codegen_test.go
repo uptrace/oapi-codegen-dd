@@ -122,5 +122,5 @@ func TestGoTypeImport(t *testing.T) {
 	}
 }
 
-//go:embed test_spec.yaml
+//go:embed testdata/test_spec.yaml
 var testOpenAPIDefinition string
