@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/doordash/oapi-codegen/v2/pkg/util"
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
@@ -63,7 +62,7 @@ func (r RequestBodyDefinition) IsSupportedByClient() bool {
 // - application/vnd.api+json
 // - application/*+json
 func (r RequestBodyDefinition) IsJSON() bool {
-	return util.IsMediaTypeJson(r.ContentType)
+	return isMediaTypeJson(r.ContentType)
 }
 
 // IsSupported returns true if we support this content type for server. Otherwise io.Reader will be generated
@@ -115,7 +114,7 @@ func createBodyDefinition(operationID string, bodyOrRef *openapi3.RequestBodyRef
 	case targetContentType == "application/json":
 		tag = "JSON"
 		defaultBody = true
-	case util.IsMediaTypeJson(targetContentType):
+	case isMediaTypeJson(targetContentType):
 		tag = mediaTypeToCamelCase(targetContentType)
 	case strings.HasPrefix(targetContentType, "multipart/"):
 		tag = "Multipart"

@@ -8,8 +8,6 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-
-	"github.com/doordash/oapi-codegen/v2/pkg/util"
 )
 
 func TestExampleOpenAPICodeGeneration(t *testing.T) {
@@ -54,7 +52,7 @@ func TestExtPropGoTypeSkipOptionalPointer(t *testing.T) {
 		UseSingleOutput: true,
 	}
 	spec := "test_specs/x-go-type-skip-optional-pointer.yaml"
-	swagger, err := util.LoadSwagger(spec)
+	swagger, err := LoadSwagger(spec)
 	require.NoError(t, err)
 
 	// Run our code generation:
@@ -87,7 +85,7 @@ func TestGoTypeImport(t *testing.T) {
 		UseSingleOutput: true,
 	}
 	spec := "test_specs/x-go-type-import-pet.yaml"
-	swagger, err := util.LoadSwagger(spec)
+	swagger, err := LoadSwagger(spec)
 	require.NoError(t, err)
 
 	// Run our code generation:

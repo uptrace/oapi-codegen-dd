@@ -5,7 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/doordash/oapi-codegen/v2/pkg/util"
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
@@ -92,7 +91,7 @@ func (r ResponseContentDefinition) NameTagOrContentType() string {
 // - application/vnd.api+json
 // - application/*+json
 func (r ResponseContentDefinition) IsJSON() bool {
-	return util.IsMediaTypeJson(r.ContentType)
+	return isMediaTypeJson(r.ContentType)
 }
 
 type ResponseHeaderDefinition struct {
@@ -170,7 +169,7 @@ func getOperationResponses(operationID string, responses map[string]*openapi3.Re
 			switch {
 			case contentType == "application/json":
 				tag = "JSON"
-			case util.IsMediaTypeJson(contentType):
+			case isMediaTypeJson(contentType):
 				tag = mediaTypeToCamelCase(contentType)
 			case contentType == "application/x-www-form-urlencoded":
 				tag = "Formdata"

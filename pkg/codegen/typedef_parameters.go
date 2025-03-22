@@ -5,7 +5,6 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/doordash/oapi-codegen/v2/pkg/util"
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
@@ -40,7 +39,7 @@ func (pd ParameterDefinition) IsJson() bool {
 	p := pd.Spec
 	if len(p.Content) == 1 {
 		for k := range p.Content {
-			if util.IsMediaTypeJson(k) {
+			if isMediaTypeJson(k) {
 				return true
 			}
 		}

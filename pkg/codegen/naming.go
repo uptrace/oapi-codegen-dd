@@ -18,6 +18,7 @@ import (
 	"bytes"
 	"fmt"
 	"go/token"
+	"mime"
 	"net/url"
 	"regexp"
 	"sort"
@@ -341,17 +342,6 @@ func schemaXOrder(v *openapi3.SchemaRef) (int64, bool) {
 	}
 
 	return 0, false
-}
-
-// StringInArray checks whether the specified string is present in an array
-// of strings
-func StringInArray(str string, array []string) bool {
-	for _, elt := range array {
-		if elt == str {
-			return true
-		}
-	}
-	return false
 }
 
 // RefPathToObjName returns the name of referenced object without changes.
@@ -746,4 +736,12 @@ func isAdditionalPropertiesExplicitFalse(s *openapi3.Schema) bool {
 	}
 
 	return *s.AdditionalProperties.Has == false //nolint:gosimple
+}
+
+func isMediaTypeJson(mediaType string) bool {
+	parsed, _, err := mime.ParseMediaType(mediaType)
+	if err != nil {
+		return false
+	}
+	return parsed == "application/json" || strings.HasSuffix(parsed, "+json")
 }

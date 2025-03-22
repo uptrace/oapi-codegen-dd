@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/doordash/oapi-codegen/v2/pkg/util"
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
@@ -88,7 +87,7 @@ func getComponentsRequestBodies(bodies map[string]*openapi3.RequestBodyRef) ([]T
 		// the other body formats are up to the user.
 		response := requestBodyRef.Value
 		for mediaType, body := range response.Content {
-			if !util.IsMediaTypeJson(mediaType) {
+			if !isMediaTypeJson(mediaType) {
 				continue
 			}
 
@@ -138,7 +137,7 @@ func getContentResponses(responses openapi3.ResponseBodies) ([]TypeDefinition, e
 
 		jsonCount := 0
 		for mediaType := range response.Content {
-			if util.IsMediaTypeJson(mediaType) {
+			if isMediaTypeJson(mediaType) {
 				jsonCount++
 			}
 		}
@@ -146,7 +145,7 @@ func getContentResponses(responses openapi3.ResponseBodies) ([]TypeDefinition, e
 		SortedMapKeys := SortedMapKeys(response.Content)
 		for _, mediaType := range SortedMapKeys {
 			response := response.Content[mediaType]
-			if !util.IsMediaTypeJson(mediaType) {
+			if !isMediaTypeJson(mediaType) {
 				continue
 			}
 
