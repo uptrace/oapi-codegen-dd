@@ -53,7 +53,7 @@ func NewParser(cfg *Configuration, ctx *ParseContext) (*Parser, error) {
 	for name, tplContents := range cfg.UserTemplates {
 		userTpl := tpl.New(name)
 
-		txt, err := GetUserTemplateText(tplContents)
+		txt, err := getUserTemplateText(tplContents)
 		if err != nil {
 			return nil, fmt.Errorf("error loading user-provided template %q: %w", name, err)
 		}
@@ -283,8 +283,8 @@ func getSpecLocationOutName(specLocation SpecLocation) string {
 	}
 }
 
-// GetUserTemplateText attempts to retrieve the template text from a passed string or file..
-func GetUserTemplateText(inputData string) (template string, err error) {
+// getUserTemplateText attempts to retrieve the template text from a passed string or file..
+func getUserTemplateText(inputData string) (template string, err error) {
 	// if the input data is more than one line, assume its a template and return that data.
 	if strings.Contains(inputData, "\n") {
 		return inputData, nil

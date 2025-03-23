@@ -80,11 +80,11 @@ func createParseContextFromDocument(doc *openapi3.T, cfg *Configuration) (*Parse
 		return nil, nil
 	}
 
-	for _, requestPath := range SortedMapKeys(doc.Paths.Map()) {
+	for _, requestPath := range sortedMapKeys(doc.Paths.Map()) {
 		pathItem := doc.Paths.Value(requestPath)
 		// These are parameters defined for all methods on a given path. They
 		// are shared by all methods.
-		globalParams, err := DescribeParameters(pathItem.Parameters, nil)
+		globalParams, err := describeParameters(pathItem.Parameters, nil)
 		if err != nil {
 			return nil, fmt.Errorf("error describing global parameters for %s: %s",
 				requestPath, err)
@@ -92,7 +92,7 @@ func createParseContextFromDocument(doc *openapi3.T, cfg *Configuration) (*Parse
 
 		// Each path can have a number of operations, POST, GET, OPTIONS, etc.
 		pathOps := pathItem.Operations()
-		for _, method := range SortedMapKeys(pathOps) {
+		for _, method := range sortedMapKeys(pathOps) {
 			var (
 				headerDef     *TypeDefinition
 				queryDef      *TypeDefinition
@@ -106,14 +106,14 @@ func createParseContextFromDocument(doc *openapi3.T, cfg *Configuration) (*Parse
 			}
 
 			// These are parameters defined for the specific path method that we're iterating over.
-			localParams, err := DescribeParameters(op.Parameters, []string{op.OperationID + "Params"})
+			localParams, err := describeParameters(op.Parameters, []string{op.OperationID + "Params"})
 			if err != nil {
 				return nil, fmt.Errorf("error describing global parameters for %s/%s: %s",
 					method, requestPath, err)
 			}
 			// All the parameters required by a handler are the union of the
 			// global parameters and the local parameters.
-			allParams, err := CombineOperationParameters(globalParams, localParams)
+			allParams, err := combineOperationParameters(globalParams, localParams)
 			if err != nil {
 				return nil, err
 			}
@@ -124,8 +124,8 @@ func createParseContextFromDocument(doc *openapi3.T, cfg *Configuration) (*Parse
 			// Order the path parameters to match the order as specified in
 			// the path, not in the openapi spec, and validate that the parameter
 			// names match, as downstream code depends on that.
-			pathParams := FilterParameterDefinitionByType(allParams, "path")
-			pathParams, err = SortParamsByPath(requestPath, pathParams)
+			pathParams := filterParameterDefinitionByType(allParams, "path")
+			pathParams, err = sortParamsByPath(requestPath, pathParams)
 			if err != nil {
 				return nil, err
 			}
@@ -138,7 +138,7 @@ func createParseContextFromDocument(doc *openapi3.T, cfg *Configuration) (*Parse
 				importSchemas = append(importSchemas, pathSchemas...)
 			}
 
-			queryParams := FilterParameterDefinitionByType(allParams, "query")
+			queryParams := filterParameterDefinitionByType(allParams, "query")
 			queryDefs, querySchemas := generateParamsTypes(queryParams, operationID+"Query")
 			if len(queryDefs) > 0 {
 				queryDef = &queryDefs[0]
@@ -148,7 +148,7 @@ func createParseContextFromDocument(doc *openapi3.T, cfg *Configuration) (*Parse
 				importSchemas = append(importSchemas, querySchemas...)
 			}
 
-			headerParams := FilterParameterDefinitionByType(allParams, "header")
+			headerParams := filterParameterDefinitionByType(allParams, "header")
 			headerDefs, headerSchemas := generateParamsTypes(headerParams, operationID+"Headers")
 			if len(headerDefs) > 0 {
 				headerDef = &headerDefs[0]
@@ -221,7 +221,7 @@ func createParseContextFromDocument(doc *openapi3.T, cfg *Configuration) (*Parse
 		if err != nil {
 			return nil, fmt.Errorf("error getting schema imports: %w", err)
 		}
-		MergeImports(imprts, importRes)
+		mergeImports(imprts, importRes)
 	}
 
 	typeDefs, err = checkDuplicates(typeDefs)

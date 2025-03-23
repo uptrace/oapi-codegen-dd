@@ -79,9 +79,9 @@ func (o OperationDefinition) HasRequestOptions() bool {
 	return o.PathParams != nil || o.Header != nil || o.Query != nil || o.Body != nil
 }
 
-// FilterParameterDefinitionByType returns the subset of the specified parameters which are of the
+// filterParameterDefinitionByType returns the subset of the specified parameters which are of the
 // specified type.
-func FilterParameterDefinitionByType(params []ParameterDefinition, in string) []ParameterDefinition {
+func filterParameterDefinitionByType(params []ParameterDefinition, in string) []ParameterDefinition {
 	var out []ParameterDefinition
 	for _, p := range params {
 		if p.In == in {

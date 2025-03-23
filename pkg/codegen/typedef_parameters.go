@@ -3,7 +3,6 @@ package codegen
 import (
 	"fmt"
 	"strings"
-	"unicode"
 
 	"github.com/getkin/kin-openapi/openapi3"
 )
@@ -94,17 +93,6 @@ func (pd ParameterDefinition) Explode() bool {
 	return *pd.Spec.Explode
 }
 
-func (pd ParameterDefinition) GoVariableName() string {
-	name := lowercaseFirstCharacters(pd.GoName())
-	if IsGoKeyword(name) {
-		name = "p" + UppercaseFirstCharacter(name)
-	}
-	if unicode.IsNumber([]rune(name)[0]) {
-		name = "n" + name
-	}
-	return name
-}
-
 func (pd ParameterDefinition) GoName() string {
 	goName := pd.ParamName
 	if extension, ok := pd.Spec.Extensions[extGoName]; ok {
@@ -112,7 +100,7 @@ func (pd ParameterDefinition) GoName() string {
 			goName = extGoFieldName
 		}
 	}
-	return SchemaNameToTypeName(goName)
+	return schemaNameToTypeName(goName)
 }
 
 func (pd ParameterDefinition) IndirectOptional() bool {
@@ -130,10 +118,10 @@ func (p ParameterDefinitions) FindByName(name string) *ParameterDefinition {
 	return nil
 }
 
-// DescribeParameters walks the given parameters dictionary, and generates the above
+// describeParameters walks the given parameters dictionary, and generates the above
 // descriptors into a flat list. This makes it a lot easier to traverse the
 // data in the template engine.
-func DescribeParameters(params openapi3.Parameters, path []string) ([]ParameterDefinition, error) {
+func describeParameters(params openapi3.Parameters, path []string) ([]ParameterDefinition, error) {
 	outParams := make([]ParameterDefinition, 0)
 	for _, paramOrRef := range params {
 		param := paramOrRef.Value
@@ -155,8 +143,8 @@ func DescribeParameters(params openapi3.Parameters, path []string) ([]ParameterD
 		// If this is a reference to a predefined type, simply use the reference
 		// name as the type. $ref: "#/components/schemas/custom_type" becomes
 		// "CustomType".
-		if IsGoTypeReference(paramOrRef.Ref) {
-			goType, err := RefPathToGoType(paramOrRef.Ref)
+		if paramOrRef.Ref != "" {
+			goType, err := refPathToGoType(paramOrRef.Ref)
 			if err != nil {
 				return nil, fmt.Errorf("error dereferencing (%s) for param (%s): %s",
 					paramOrRef.Ref, param.Name, err)
@@ -168,8 +156,8 @@ func DescribeParameters(params openapi3.Parameters, path []string) ([]ParameterD
 	return outParams, nil
 }
 
-// CombineOperationParameters combines the Parameters defined at a global level (Parameters defined for all methods on a given path) with the Parameters defined at a local level (Parameters defined for a specific path), preferring the locally defined parameter over the global one
-func CombineOperationParameters(globalParams []ParameterDefinition, localParams []ParameterDefinition) ([]ParameterDefinition, error) {
+// combineOperationParameters combines the Parameters defined at a global level (Parameters defined for all methods on a given path) with the Parameters defined at a local level (Parameters defined for a specific path), preferring the locally defined parameter over the global one
+func combineOperationParameters(globalParams []ParameterDefinition, localParams []ParameterDefinition) ([]ParameterDefinition, error) {
 	allParams := make([]ParameterDefinition, 0, len(globalParams)+len(localParams))
 	dupCheck := make(map[string]map[string]string)
 	for _, p := range localParams {
@@ -273,7 +261,7 @@ func paramToGoType(param *openapi3.Parameter, path []string) (GoSchema, error) {
 	if len(param.Content) > 1 {
 		return GoSchema{
 			GoType:      "string",
-			Description: StringToGoComment(param.Description),
+			Description: stringToGoComment(param.Description),
 		}, nil
 	}
 
@@ -283,7 +271,7 @@ func paramToGoType(param *openapi3.Parameter, path []string) (GoSchema, error) {
 		// If we don't have json, it's a string
 		return GoSchema{
 			GoType:      "string",
-			Description: StringToGoComment(param.Description),
+			Description: stringToGoComment(param.Description),
 		}, nil
 	}
 

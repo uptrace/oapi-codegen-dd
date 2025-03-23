@@ -45,18 +45,18 @@ func collectSchemaImports(s GoSchema) (map[string]goImport, error) {
 	res := map[string]goImport{}
 
 	for _, p := range s.Properties {
-		imprts, err := GoSchemaImports(p.Schema.OpenAPISchema)
+		imprts, err := goSchemaImports(p.Schema.OpenAPISchema)
 		if err != nil {
 			return nil, err
 		}
-		MergeImports(res, imprts)
+		mergeImports(res, imprts)
 	}
 
-	imprts, err := GoSchemaImports(s.OpenAPISchema)
+	imprts, err := goSchemaImports(s.OpenAPISchema)
 	if err != nil {
 		return nil, err
 	}
-	MergeImports(res, imprts)
+	mergeImports(res, imprts)
 	return res, nil
 }
 
@@ -93,7 +93,7 @@ func parseGoImportExtension(v *openapi3.Schema) (*goImport, error) {
 	return &gi, nil
 }
 
-func GoSchemaImports(schema *openapi3.Schema) (map[string]goImport, error) {
+func goSchemaImports(schema *openapi3.Schema) (map[string]goImport, error) {
 	res := map[string]goImport{}
 	if schema == nil {
 		return nil, nil
@@ -110,23 +110,23 @@ func GoSchemaImports(schema *openapi3.Schema) (map[string]goImport, error) {
 	t := schema.Type
 	if t.Slice() == nil || t.Is("object") {
 		for _, v := range schema.Properties {
-			imprts, err := GoSchemaImports(v.Value)
+			imprts, err := goSchemaImports(v.Value)
 			if err != nil {
 				return nil, err
 			}
-			MergeImports(res, imprts)
+			mergeImports(res, imprts)
 		}
 	} else if t.Is("array") && schema.Items != nil {
-		imprts, err := GoSchemaImports(schema.Items.Value)
+		imprts, err := goSchemaImports(schema.Items.Value)
 		if err != nil {
 			return nil, err
 		}
-		MergeImports(res, imprts)
+		mergeImports(res, imprts)
 	}
 	return res, nil
 }
 
-func MergeImports(dst, src map[string]goImport) {
+func mergeImports(dst, src map[string]goImport) {
 	for k, v := range src {
 		dst[k] = v
 	}

@@ -9,9 +9,9 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 )
 
-// MergeSchemas merges all the fields in the schemas supplied into one giant schema.
+// mergeSchemas merges all the fields in the schemas supplied into one giant schema.
 // The idea is that we merge all fields together into one schema.
-func MergeSchemas(allOf []*openapi3.SchemaRef, path []string) (GoSchema, error) {
+func mergeSchemas(allOf []*openapi3.SchemaRef, path []string) (GoSchema, error) {
 	n := len(allOf)
 
 	if n == 1 {

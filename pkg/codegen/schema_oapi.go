@@ -30,7 +30,7 @@ func oapiSchemaToGoType(schema *openapi3.Schema, path []string) (GoSchema, error
 			// but are not a pre-defined type, we need to define a type
 			// for them, which will be based on the field names we followed
 			// to get to the type.
-			typeName := PathToTypeName(append(path, "Item"))
+			typeName := pathToTypeName(append(path, "Item"))
 
 			typeDef := TypeDefinition{
 				Name:     typeName,

@@ -39,7 +39,7 @@ func TestToCamelCase(t *testing.T) {
 		want: "FooBar",
 	}, {
 		str:  "foo2bar",
-		want: "Foo2bar",
+		want: "Foo2Bar",
 	}, {
 		// Test that each substitution works
 		str:  "word.word-WORD+Word_word~word(Word)Word{Word}Word[Word]Word:Word;",
@@ -53,47 +53,7 @@ func TestToCamelCase(t *testing.T) {
 	for i := range tests {
 		tt := tests[i]
 		t.Run(tt.str, func(t *testing.T) {
-			require.Equal(t, tt.want, ToCamelCase(tt.str))
-		})
-	}
-}
-
-func TestToCamelCaseWithDigits(t *testing.T) {
-	tests := []struct {
-		str  string
-		want string
-	}{{
-		str:  "",
-		want: "",
-	}, {
-		str:  " foo_bar ",
-		want: "FooBar",
-	}, {
-		str:  "hi hello-hey-hallo",
-		want: "HiHelloHeyHallo",
-	}, {
-		str:  "foo#bar",
-		want: "FooBar",
-	}, {
-		str:  "foo2bar",
-		want: "Foo2Bar",
-	}, {
-		str:  "пир2пир",
-		want: "Пир2Пир",
-	}, {
-		// Test that each substitution works
-		str:  "word.word3word-WORD+Word_word~word(Word)Word{Word}Word[Word]Word:Word;",
-		want: "WordWord3WordWORDWordWordWordWordWordWordWordWordWordWord",
-	}, {
-		// Make sure numbers don't interact in a funny way.
-		str:  "number-1234",
-		want: "Number1234",
-	},
-	}
-	for i := range tests {
-		tt := tests[i]
-		t.Run(tt.str, func(t *testing.T) {
-			require.Equal(t, tt.want, ToCamelCaseWithDigits(tt.str))
+			require.Equal(t, tt.want, toCamelCase(tt.str))
 		})
 	}
 }
@@ -151,7 +111,7 @@ func TestToCamelCaseWithInitialisms(t *testing.T) {
 	for i := range tests {
 		tt := tests[i]
 		t.Run(tt.str, func(t *testing.T) {
-			require.Equal(t, tt.want, ToCamelCaseWithInitialisms(tt.str))
+			require.Equal(t, tt.want, toCamelCaseWithInitialism(tt.str))
 		})
 	}
 }
@@ -179,7 +139,7 @@ func TestSortedSchemaKeysWithXOrder(t *testing.T) {
 
 	expected := []string{"minusHundredth_1", "minusHundredth_2", "minusTenth", "zero", "first", "afterFirst", "middleA", "middleB", "middleC", "last"}
 
-	assert.EqualValues(t, expected, SortedSchemaKeys(dict), "Keys are not sorted properly")
+	assert.EqualValues(t, expected, sortedSchemaKeys(dict), "Keys are not sorted properly")
 }
 
 func TestSortedSchemaKeysWithXOrderFromParsed(t *testing.T) {
@@ -213,7 +173,7 @@ components:
 	t.Run("for the top-level schemas", func(t *testing.T) {
 		expected := []string{"DateInterval", "AlwaysLast"}
 
-		actual := SortedSchemaKeys(spec.Components.Schemas)
+		actual := sortedSchemaKeys(spec.Components.Schemas)
 
 		assert.EqualValues(t, expected, actual)
 	})
@@ -224,7 +184,7 @@ components:
 
 		expected := []string{"start", "end"}
 
-		actual := SortedSchemaKeys(schemas.Value.Properties)
+		actual := sortedSchemaKeys(schemas.Value.Properties)
 
 		assert.EqualValues(t, expected, actual, "Keys are not sorted properly")
 	})
@@ -260,7 +220,7 @@ func TestRefPathToGoType(t *testing.T) {
 
 	for _, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
-			goType, err := RefPathToGoType(tc.path)
+			goType, err := refPathToGoType(tc.path)
 			if tc.goType == "" {
 				assert.Error(t, err)
 				return
@@ -272,36 +232,16 @@ func TestRefPathToGoType(t *testing.T) {
 	}
 }
 
-func TestIsWholeDocumentReference(t *testing.T) {
-	assert.Equal(t, false, IsWholeDocumentReference(""))
-	assert.Equal(t, false, IsWholeDocumentReference("#/components/schemas/Foo"))
-	assert.Equal(t, false, IsWholeDocumentReference("doc.json#/components/schemas/Foo"))
-	assert.Equal(t, true, IsWholeDocumentReference("doc.json"))
-	assert.Equal(t, true, IsWholeDocumentReference("../doc.json"))
-	assert.Equal(t, false, IsWholeDocumentReference("http://deepmap.com/doc.json#/components/parameters/foo_bar"))
-	assert.Equal(t, true, IsWholeDocumentReference("http://deepmap.com/doc.json"))
-}
-
-func TestIsGoTypeReference(t *testing.T) {
-	assert.Equal(t, false, IsGoTypeReference(""))
-	assert.Equal(t, true, IsGoTypeReference("#/components/schemas/Foo"))
-	assert.Equal(t, true, IsGoTypeReference("doc.json#/components/schemas/Foo"))
-	assert.Equal(t, false, IsGoTypeReference("doc.json"))
-	assert.Equal(t, false, IsGoTypeReference("../doc.json"))
-	assert.Equal(t, true, IsGoTypeReference("http://deepmap.com/doc.json#/components/parameters/foo_bar"))
-	assert.Equal(t, false, IsGoTypeReference("http://deepmap.com/doc.json"))
-}
-
 func TestOrderedParamsFromUri(t *testing.T) {
-	result := OrderedParamsFromUri("/path/{param1}/{.param2}/{;param3*}/foo")
+	result := orderedParamsFromUri("/path/{param1}/{.param2}/{;param3*}/foo")
 	assert.EqualValues(t, []string{"param1", "param2", "param3"}, result)
 
-	result = OrderedParamsFromUri("/path/foo")
+	result = orderedParamsFromUri("/path/foo")
 	assert.EqualValues(t, []string{}, result)
 }
 
 func TestReplacePathParamsWithStr(t *testing.T) {
-	result := ReplacePathParamsWithStr("/path/{param1}/{.param2}/{;param3*}/foo")
+	result := replacePathParamsWithStr("/path/{param1}/{.param2}/{;param3*}/foo")
 	assert.EqualValues(t, "/path/%s/%s/%s/foo", result)
 }
 
@@ -350,7 +290,7 @@ Line
 	}
 	for _, testCase := range testCases {
 		t.Run(testCase.message, func(t *testing.T) {
-			result := StringToGoComment(testCase.input)
+			result := stringToGoComment(testCase.input)
 			assert.EqualValues(t, testCase.expected, result, testCase.message)
 		})
 	}
@@ -406,7 +346,7 @@ Line
 	}
 	for _, testCase := range testCases {
 		t.Run(testCase.message, func(t *testing.T) {
-			result := StringWithTypeNameToGoComment(testCase.input, testCase.inputName)
+			result := stringWithTypeNameToGoComment(testCase.input, testCase.inputName)
 			assert.EqualValues(t, testCase.expected, result, testCase.message)
 		})
 	}
@@ -414,13 +354,13 @@ Line
 
 func TestEscapePathElements(t *testing.T) {
 	p := "/foo/bar/baz"
-	assert.Equal(t, p, EscapePathElements(p))
+	assert.Equal(t, p, escapePathElements(p))
 
 	p = "foo/bar/baz"
-	assert.Equal(t, p, EscapePathElements(p))
+	assert.Equal(t, p, escapePathElements(p))
 
 	p = "/foo/bar:baz"
-	assert.Equal(t, "/foo/bar%3Abaz", EscapePathElements(p))
+	assert.Equal(t, "/foo/bar%3Abaz", escapePathElements(p))
 }
 
 func TestSchemaNameToTypeName(t *testing.T) {
@@ -445,7 +385,7 @@ func TestSchemaNameToTypeName(t *testing.T) {
 		"<":            "LessThan",
 		">":            "GreaterThan",
 	} {
-		assert.Equal(t, want, SchemaNameToTypeName(in))
+		assert.Equal(t, want, schemaNameToTypeName(in))
 	}
 }
 
@@ -456,7 +396,7 @@ func TestTypeDefinitionsEquivalent(t *testing.T) {
 	def2 := TypeDefinition{Name: "name", Schema: GoSchema{
 		OpenAPISchema: &openapi3.Schema{},
 	}}
-	assert.True(t, TypeDefinitionsEquivalent(def1, def2))
+	assert.True(t, typeDefinitionsEquivalent(def1, def2))
 }
 
 func TestRefPathToObjName(t *testing.T) {
@@ -469,38 +409,7 @@ func TestRefPathToObjName(t *testing.T) {
 		"document.json#/Foo":                               "Foo",
 		"http://deepmap.com/schemas/document.json#/objObj": "objObj",
 	} {
-		assert.Equal(t, want, RefPathToObjName(in))
-	}
-}
-
-func TestLowercaseFirstCharacters(t *testing.T) {
-	tests := []struct {
-		name     string
-		in       string
-		expected string
-	}{
-		{
-			name:     "id",
-			expected: "id",
-		},
-		{
-			name:     "CamelCase",
-			expected: "camelCase",
-		},
-		{
-			name:     "ID",
-			expected: "id",
-		},
-		{
-			name:     "DBTree",
-			expected: "dbTree",
-		},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, lowercaseFirstCharacters(tt.name))
-		})
+		assert.Equal(t, want, refPathToObjName(in))
 	}
 }
 

@@ -65,6 +65,12 @@ type Property struct {
 	Constraints   Constraints
 }
 
+func (p Property) IsEqual(other Property) bool {
+	return p.JsonFieldName == other.JsonFieldName &&
+		p.Schema.TypeDecl() == other.Schema.TypeDecl() &&
+		p.Constraints == other.Constraints
+}
+
 func (p Property) GoTypeDef() string {
 	typeDef := p.Schema.TypeDecl()
 
@@ -87,7 +93,7 @@ func createPropertyGoFieldName(jsonName string, extensions map[string]any) strin
 		goFieldName = "ErrorData"
 	}
 
-	return SchemaNameToTypeName(goFieldName)
+	return schemaNameToTypeName(goFieldName)
 }
 
 // genFieldsFromProperties produce corresponding field names with JSON annotations,
@@ -106,7 +112,7 @@ func genFieldsFromProperties(props []Property) []string {
 			if i != 0 {
 				field += "\n"
 			}
-			field += fmt.Sprintf("%s\n", StringWithTypeNameToGoComment(p.Description, p.GoName))
+			field += fmt.Sprintf("%s\n", stringWithTypeNameToGoComment(p.Description, p.GoName))
 		}
 
 		if p.Deprecated {
@@ -118,7 +124,7 @@ func genFieldsFromProperties(props []Property) []string {
 				}
 			}
 
-			field += fmt.Sprintf("%s\n", DeprecationComment(deprecationReason))
+			field += fmt.Sprintf("%s\n", deprecationComment(deprecationReason))
 		}
 
 		// Check x-go-type-skip-optional-pointer, which will override if the type
@@ -174,14 +180,14 @@ func genFieldsFromProperties(props []Property) []string {
 		// Support x-oapi-codegen-extra-tags
 		if extension, ok := p.Extensions[extPropExtraTags]; ok {
 			if tags, err := extExtraTags(extension); err == nil {
-				keys := SortedMapKeys(tags)
+				keys := sortedMapKeys(tags)
 				for _, k := range keys {
 					fieldTags[k] = tags[k]
 				}
 			}
 		}
 		// Convert the fieldTags map into Go field annotations.
-		keys := SortedMapKeys(fieldTags)
+		keys := sortedMapKeys(fieldTags)
 		tags := make([]string, len(keys))
 		for j, k := range keys {
 			tags[j] = fmt.Sprintf(`%s:"%s"`, k, fieldTags[k])

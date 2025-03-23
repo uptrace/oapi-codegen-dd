@@ -19,7 +19,7 @@ func createObjectSchema(schema *openapi3.Schema, ref string, path []string) (GoS
 	}
 
 	t := schema.Type
-	if len(schema.Properties) == 0 && !SchemaHasAdditionalProperties(schema) && schema.AnyOf == nil && schema.OneOf == nil {
+	if len(schema.Properties) == 0 && !schemaHasAdditionalProperties(schema) && schema.AnyOf == nil && schema.OneOf == nil {
 		// If the object has no properties or additional properties, we
 		// have some special cases for its type.
 		if t.Is("object") {
@@ -40,7 +40,7 @@ func createObjectSchema(schema *openapi3.Schema, ref string, path []string) (GoS
 
 		// If the schema has additional properties, we need to special case
 		// a lot of behaviors.
-		outSchema.HasAdditionalProperties = SchemaHasAdditionalProperties(schema)
+		outSchema.HasAdditionalProperties = schemaHasAdditionalProperties(schema)
 
 		// Until we have a concrete additional properties type, we default to
 		// any schema.
@@ -60,7 +60,7 @@ func createObjectSchema(schema *openapi3.Schema, ref string, path []string) (GoS
 				// but are not a pre-defined type, we need to define a type
 				// for them, which will be based on the field names we followed
 				// to get to the type.
-				typeName := PathToTypeName(append(path, "AdditionalProperties"))
+				typeName := pathToTypeName(append(path, "AdditionalProperties"))
 
 				typeDef := TypeDefinition{
 					Name:         typeName,
@@ -90,7 +90,7 @@ func createObjectSchema(schema *openapi3.Schema, ref string, path []string) (GoS
 		}
 
 		// We've got an object with some properties.
-		for _, pName := range SortedSchemaKeys(schema.Properties) {
+		for _, pName := range sortedSchemaKeys(schema.Properties) {
 			p := schema.Properties[pName]
 			propertyPath := append(path, pName)
 			pSchema, err := GenerateGoSchema(p, propertyPath)
@@ -115,7 +115,7 @@ func createObjectSchema(schema *openapi3.Schema, ref string, path []string) (GoS
 				// but are not a pre-defined type, we need to define a type
 				// for them, which will be based on the field names we followed
 				// to get to the type.
-				typeName := PathToTypeName(propertyPath)
+				typeName := pathToTypeName(propertyPath)
 				specLocation := SpecLocation("")
 				if len(pSchema.UnionElements) != 0 {
 					specLocation = SpecLocationUnion

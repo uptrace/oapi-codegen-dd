@@ -42,7 +42,7 @@ func generateUnion(outSchema *GoSchema, elements openapi3.SchemaRefs, discrimina
 		}
 
 		if element.Ref == "" {
-			elementName := SchemaNameToTypeName(PathToTypeName(elementPath))
+			elementName := schemaNameToTypeName(pathToTypeName(elementPath))
 			if elementSchema.TypeDecl() == elementName {
 				elementSchema.GoType = elementName
 			} else {
@@ -71,7 +71,7 @@ func generateUnion(outSchema *GoSchema, elements openapi3.SchemaRefs, discrimina
 			}
 			// Implicit mapping.
 			if !mapped {
-				outSchema.Discriminator.Mapping[RefPathToObjName(element.Ref)] = elementSchema.GoType
+				outSchema.Discriminator.Mapping[refPathToObjName(element.Ref)] = elementSchema.GoType
 			}
 		}
 		outSchema.UnionElements = append(outSchema.UnionElements, UnionElement(elementSchema.GoType))

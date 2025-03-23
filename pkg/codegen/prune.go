@@ -13,12 +13,12 @@ type RefWrapper struct {
 	SourceRef any
 }
 
-func walkSwagger(swagger *openapi3.T, doFn func(RefWrapper) (bool, error)) error {
-	if swagger == nil || swagger.Paths == nil {
+func walkSpec(spec *openapi3.T, doFn func(RefWrapper) (bool, error)) error {
+	if spec == nil || spec.Paths == nil {
 		return nil
 	}
 
-	for _, p := range swagger.Paths.Map() {
+	for _, p := range spec.Paths.Map() {
 		for _, param := range p.Parameters {
 			_ = walkParameterRef(param, doFn)
 		}
@@ -27,7 +27,7 @@ func walkSwagger(swagger *openapi3.T, doFn func(RefWrapper) (bool, error)) error
 		}
 	}
 
-	_ = walkComponents(swagger.Components, doFn)
+	_ = walkComponents(spec.Components, doFn)
 
 	return nil
 }
@@ -348,7 +348,7 @@ func walkExampleRef(ref *openapi3.ExampleRef, doFn func(RefWrapper) (bool, error
 func findComponentRefs(swagger *openapi3.T) []string {
 	refs := []string{}
 
-	_ = walkSwagger(swagger, func(ref RefWrapper) (bool, error) {
+	_ = walkSpec(swagger, func(ref RefWrapper) (bool, error) {
 		if ref.Ref != "" {
 			refs = append(refs, ref.Ref)
 			return false, nil

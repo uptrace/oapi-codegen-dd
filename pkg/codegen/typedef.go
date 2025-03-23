@@ -107,7 +107,7 @@ func checkDuplicates(types []TypeDefinition) ([]TypeDefinition, error) {
 			// If type names collide, we need to see if they refer to the same
 			// exact type definition, in which case, we can de-dupe.
 			// If they don't match, we error out.
-			if TypeDefinitionsEquivalent(other, typ) {
+			if typeDefinitionsEquivalent(other, typ) {
 				continue
 			}
 			// We want to create an error when we try to define the same type twice.
@@ -123,10 +123,10 @@ func checkDuplicates(types []TypeDefinition) ([]TypeDefinition, error) {
 	return ts, nil
 }
 
-// TypeDefinitionsEquivalent checks for equality between two type definitions, but
+// typeDefinitionsEquivalent checks for equality between two type definitions, but
 // not every field is considered. We only want to know if they are fundamentally
 // the same type.
-func TypeDefinitionsEquivalent(t1, t2 TypeDefinition) bool {
+func typeDefinitionsEquivalent(t1, t2 TypeDefinition) bool {
 	if t1.Name != t2.Name {
 		return false
 	}

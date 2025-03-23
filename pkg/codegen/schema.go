@@ -2,6 +2,7 @@ package codegen
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/getkin/kin-openapi/openapi3"
@@ -68,7 +69,7 @@ func (s GoSchema) TypeDecl() string {
 func (s GoSchema) AddProperty(p Property) error {
 	// Scan all existing properties for a conflict
 	for _, e := range s.Properties {
-		if e.JsonFieldName == p.JsonFieldName && !PropertiesEqual(e, p) {
+		if e.JsonFieldName == p.JsonFieldName && !e.IsEqual(p) {
 			return fmt.Errorf("property '%s' already exists with a different type", e.JsonFieldName)
 		}
 	}
@@ -115,7 +116,7 @@ func (d *Discriminator) JSONTag() string {
 }
 
 func (d *Discriminator) PropertyName() string {
-	return SchemaNameToTypeName(d.Property)
+	return schemaNameToTypeName(d.Property)
 }
 
 func GenerateGoSchema(sref *openapi3.SchemaRef, path []string) (GoSchema, error) {
@@ -130,9 +131,9 @@ func GenerateGoSchema(sref *openapi3.SchemaRef, path []string) (GoSchema, error)
 
 	// If Ref is set on the SchemaRef, it means that this type is actually a reference to
 	// another type. We're not de-referencing, so simply use the referenced type.
-	if IsGoTypeReference(sref.Ref) {
+	if sref.Ref != "" {
 		// Convert the reference path to Go type
-		refType, err := RefPathToGoType(sref.Ref)
+		refType, err := refPathToGoType(sref.Ref)
 		if err != nil {
 			return GoSchema{}, fmt.Errorf("error turning reference (%s) into a Go type: %s",
 				sref.Ref, err)
@@ -155,7 +156,7 @@ func GenerateGoSchema(sref *openapi3.SchemaRef, path []string) (GoSchema, error)
 	// so that in a RESTful paradigm, the Create operation can return
 	// (object, id), so that other operations can refer to (id)
 	if schema.AllOf != nil {
-		mergedSchema, err := MergeSchemas(schema.AllOf, path)
+		mergedSchema, err := mergeSchemas(schema.AllOf, path)
 		if err != nil {
 			return GoSchema{}, fmt.Errorf("error merging schemas: %w", err)
 		}
@@ -204,10 +205,6 @@ func GenerateGoSchema(sref *openapi3.SchemaRef, path []string) (GoSchema, error)
 	return res, nil
 }
 
-func PropertiesEqual(a, b Property) bool {
-	return a.JsonFieldName == b.JsonFieldName && a.Schema.TypeDecl() == b.Schema.TypeDecl() && a.Constraints == b.Constraints
-}
-
 // SchemaDescriptor describes a GoSchema, a type definition.
 type SchemaDescriptor struct {
 	Fields                   []FieldDescriptor
@@ -232,4 +229,55 @@ func additionalPropertiesType(schema GoSchema) string {
 		addPropsType = "*" + addPropsType
 	}
 	return addPropsType
+}
+
+// sortedSchemaKeys returns the keys of the given SchemaRef dictionary in sorted
+// order, since Golang scrambles dictionary keys. This isn't a generic key sort, because
+// we support an extension to grant specific orders to schemas to help control output
+// ordering.
+func sortedSchemaKeys(dict map[string]*openapi3.SchemaRef) []string {
+	keys := make([]string, len(dict))
+	orders := make(map[string]int64, len(dict))
+	i := 0
+
+	for key, v := range dict {
+		keys[i], orders[key] = key, int64(len(dict))
+		i++
+
+		if order, ok := schemaXOrder(v); ok {
+			orders[key] = order
+		}
+	}
+
+	sort.Slice(keys, func(i, j int) bool {
+		if i, j := orders[keys[i]], orders[keys[j]]; i != j {
+			return i < j
+		}
+		return keys[i] < keys[j]
+	})
+	return keys
+}
+
+func schemaXOrder(v *openapi3.SchemaRef) (int64, bool) {
+	if v == nil {
+		return 0, false
+	}
+
+	// YAML parsing picks up the x-order as a float64
+	if order, ok := v.Extensions[extOrder].(float64); ok {
+		return int64(order), true
+	}
+
+	if v.Value == nil {
+		return 0, false
+	}
+
+	// if v.Value is set, then this is actually a `$ref`, and we should check if there's an x-order set on that
+
+	// YAML parsing picks up the x-order as a float64
+	if order, ok := v.Value.Extensions[extOrder].(float64); ok {
+		return int64(order), true
+	}
+
+	return 0, false
 }

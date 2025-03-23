@@ -36,7 +36,7 @@ type ResponseDefinition struct {
 }
 
 func (r ResponseDefinition) GoName() string {
-	return SchemaNameToTypeName(r.StatusCode)
+	return schemaNameToTypeName(r.StatusCode)
 }
 
 func (r ResponseDefinition) IsRef() bool {
@@ -83,7 +83,7 @@ func (r ResponseContentDefinition) NameTagOrContentType() string {
 	if r.NameTag != "" {
 		return r.NameTag
 	}
-	return SchemaNameToTypeName(r.ContentType)
+	return schemaNameToTypeName(r.ContentType)
 }
 
 // IsJSON returns whether this is a JSON media type, for instance:
@@ -110,7 +110,7 @@ func getOperationResponses(operationID string, responses map[string]*openapi3.Re
 	var typeDefinitions []TypeDefinition
 	var resTypeDefs []ResponseTypeDefinition
 
-	for _, statusCode := range SortedMapKeys(responses) {
+	for _, statusCode := range sortedMapKeys(responses) {
 		responseOrRef := responses[statusCode]
 		if responseOrRef == nil {
 			continue
@@ -121,7 +121,7 @@ func getOperationResponses(operationID string, responses map[string]*openapi3.Re
 		refType := ""
 		var err error
 		if responseOrRef.Ref != "" {
-			refType, err = RefPathToGoType(responseOrRef.Ref)
+			refType, err = refPathToGoType(responseOrRef.Ref)
 			if err != nil {
 				return nil, nil, fmt.Errorf("error parsing ref %s: %w", responseOrRef.Ref, err)
 			}
@@ -163,7 +163,7 @@ func getOperationResponses(operationID string, responses map[string]*openapi3.Re
 			typeSuffix = "ErrorResponse"
 		}
 
-		for _, contentType := range SortedMapKeys(response.Content) {
+		for _, contentType := range sortedMapKeys(response.Content) {
 			content := response.Content[contentType]
 			var tag string
 			switch {

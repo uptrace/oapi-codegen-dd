@@ -70,7 +70,7 @@ func createEnumsSchema(schema *openapi3.Schema, path []string) (GoSchema, error)
 	outSchema.EnumValues = make(map[string]string, len(sanitizedValues))
 
 	for k, v := range sanitizedValues {
-		outSchema.EnumValues[SchemaNameToTypeName(k)] = v
+		outSchema.EnumValues[schemaNameToTypeName(k)] = v
 	}
 
 	if len(path) > 1 { // handle additional type only on non-toplevel types
@@ -83,7 +83,7 @@ func createEnumsSchema(schema *openapi3.Schema, path []string) (GoSchema, error)
 				return outSchema, fmt.Errorf("invalid value for %q: %w", extGoTypeName, err)
 			}
 		} else {
-			typeName = SchemaNameToTypeName(PathToTypeName(path))
+			typeName = schemaNameToTypeName(pathToTypeName(path))
 		}
 
 		typeDef := TypeDefinition{
@@ -120,7 +120,7 @@ func sanitizeEnumNames(enumNames, enumValues []string) map[string]string {
 
 	for _, p := range deDup {
 		n, v := p[0], p[1]
-		sanitized := SanitizeGoIdentity(SchemaNameToTypeName(n))
+		sanitized := sanitizeGoIdentity(schemaNameToTypeName(n))
 
 		if _, dup := dupCheck[sanitized]; !dup {
 			sanitizedDeDup[sanitized] = v

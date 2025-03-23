@@ -32,8 +32,8 @@ var (
 	pathParamRE    *regexp.Regexp
 	predeclaredSet map[string]struct{}
 	separatorSet   map[rune]struct{}
-	nameNormalizer = ToCamelCaseWithInitialism
-	initialismMap  = makeInitialismsMap(initialismList)
+	nameNormalizer = toCamelCaseWithInitialism
+	initialismMap  = makeInitialismMap(initialismList)
 )
 
 var camelCaseMatchParts = regexp.MustCompile(`[\p{Lu}\d]+([\p{Ll}\d]+|$)`)
@@ -95,6 +95,11 @@ func init() {
 		"real",
 		"recover",
 	}
+
+	// for _, acr := range initialismList {
+	// 	strcase.ConfigureAcronym(acr, strings.ToLower(acr))
+	// }
+
 	predeclaredSet = map[string]struct{}{}
 	for _, id := range predeclaredIdentifiers {
 		predeclaredSet[id] = struct{}{}
@@ -118,64 +123,11 @@ func UppercaseFirstCharacter(str string) string {
 	return string(runes)
 }
 
-// lowercase the first upper characters in a string for case of abbreviation.
-// This assumes UTF-8, so we have to be careful with unicode, don't treat it as a byte array.
-func lowercaseFirstCharacters(str string) string {
-	if str == "" {
-		return ""
-	}
-
-	runes := []rune(str)
-
-	for i := 0; i < len(runes); i++ {
-		next := i + 1
-		if i != 0 && next < len(runes) && unicode.IsLower(runes[next]) {
-			break
-		}
-
-		runes[i] = unicode.ToLower(runes[i])
-	}
-
-	return string(runes)
-}
-
-// ToCamelCase will convert query-arg style strings to CamelCase. We will
-// use `., -, +, :, ;, _, ~, ' ', (, ), {, }, [, ]` as valid delimiters for words.
-// So, "word.word-word+word:word;word_word~word word(word)word{word}[word]"
-// would be converted to WordWordWordWordWordWordWordWordWordWordWordWordWord
-func ToCamelCase(str string) string {
-	s := strings.Trim(str, " ")
-
-	n := ""
-	capNext := true
-	for _, v := range s {
-		if unicode.IsUpper(v) {
-			n += string(v)
-		}
-		if unicode.IsDigit(v) {
-			n += string(v)
-		}
-		if unicode.IsLower(v) {
-			if capNext {
-				n += strings.ToUpper(string(v))
-			} else {
-				n += string(v)
-			}
-		}
-		_, capNext = separatorSet[v]
-	}
-	return n
-}
-
-// ToCamelCaseWithDigits function will convert query-arg style strings to CamelCase. We will
-// use `., -, +, :, ;, _, ~, ' ', (, ), {, }, [, ]` as valid delimiters for words.
-// The difference of ToCamelCase that letter after a number becomes capitalized.
-// So, "word.word-word+word:word;word_word~word word(word)word{word}[word]3word"
-// would be converted to WordWordWordWordWordWordWordWordWordWordWordWordWord3Word
-func ToCamelCaseWithDigits(s string) string {
+// toCamelCase will convert query-arg style strings to CamelCase.
+func toCamelCase(str string) string {
 	res := bytes.NewBuffer(nil)
 	capNext := true
-	for _, v := range s {
+	for _, v := range str {
 		if unicode.IsUpper(v) {
 			res.WriteRune(v)
 			capNext = false
@@ -200,10 +152,10 @@ func ToCamelCaseWithDigits(s string) string {
 	return res.String()
 }
 
-// ToCamelCaseWithInitialisms function will convert query-arg style strings to CamelCase with initialisms in uppercase.
+// toCamelCaseWithInitialism function will convert query-arg style strings to CamelCase with initialisms in uppercase.
 // So, httpOperationId would be converted to HTTPOperationID
-func ToCamelCaseWithInitialisms(s string) string {
-	parts := camelCaseMatchParts.FindAllString(ToCamelCaseWithDigits(s), -1)
+func toCamelCaseWithInitialism(s string) string {
+	parts := camelCaseMatchParts.FindAllString(toCamelCase(s), -1)
 	for i := range parts {
 		if v, ok := initialismMap[strings.ToLower(parts[i])]; ok {
 			parts[i] = v
@@ -212,7 +164,11 @@ func ToCamelCaseWithInitialisms(s string) string {
 	return strings.Join(parts, "")
 }
 
-func makeInitialismsMap(additionalInitialisms []string) map[string]string {
+// func toCamelCaseWithInitialism(str string) string {
+// 	return replaceInitialism(toCamelCase(str))
+// }
+
+func makeInitialismMap(additionalInitialisms []string) map[string]string {
 	l := append(initialismList, additionalInitialisms...)
 
 	m := make(map[string]string, len(l))
@@ -224,10 +180,6 @@ func makeInitialismsMap(additionalInitialisms []string) map[string]string {
 	targetWordRegex = regexp.MustCompile(`(?i)(` + strings.Join(l, "|") + `)`)
 
 	return m
-}
-
-func ToCamelCaseWithInitialism(str string) string {
-	return replaceInitialism(ToCamelCase(str))
 }
 
 func replaceInitialism(s string) string {
@@ -244,18 +196,18 @@ func replaceInitialism(s string) string {
 
 // mediaTypeToCamelCase converts a media type to a PascalCase representation
 func mediaTypeToCamelCase(s string) string {
-	// ToCamelCase doesn't - and won't - add `/` to the characters it'll allow word boundary
+	// toCamelCase doesn't - and won't - add `/` to the characters it'll allow word boundary
 	s = strings.Replace(s, "/", "_", 1)
-	// including a _ to make sure that these are treated as word boundaries by `ToCamelCase`
+	// including a _ to make sure that these are treated as word boundaries by `toCamelCase`
 	s = strings.Replace(s, "*", "Wildcard_", 1)
 	s = strings.Replace(s, "+", "Plus_", 1)
 
-	return ToCamelCaseWithInitialism(s)
+	return toCamelCaseWithInitialism(s)
 }
 
-// SortedMapKeys takes a map with keys of type string and returns a slice of those
+// sortedMapKeys takes a map with keys of type string and returns a slice of those
 // keys sorted lexicographically.
-func SortedMapKeys[T any](m map[string]T) []string {
+func sortedMapKeys[T any](m map[string]T) []string {
 	keys := make([]string, 0, len(m))
 	for k := range m {
 		keys = append(keys, k)
@@ -264,67 +216,14 @@ func SortedMapKeys[T any](m map[string]T) []string {
 	return keys
 }
 
-// SortedSchemaKeys returns the keys of the given SchemaRef dictionary in sorted
-// order, since Golang scrambles dictionary keys. This isn't a generic key sort, because
-// we support an extension to grant specific orders to schemas to help control output
-// ordering.
-func SortedSchemaKeys(dict map[string]*openapi3.SchemaRef) []string {
-	keys := make([]string, len(dict))
-	orders := make(map[string]int64, len(dict))
-	i := 0
-
-	for key, v := range dict {
-		keys[i], orders[key] = key, int64(len(dict))
-		i++
-
-		if order, ok := schemaXOrder(v); ok {
-			orders[key] = order
-		}
-	}
-
-	sort.Slice(keys, func(i, j int) bool {
-		if i, j := orders[keys[i]], orders[keys[j]]; i != j {
-			return i < j
-		}
-		return keys[i] < keys[j]
-	})
-	return keys
-}
-
-func schemaXOrder(v *openapi3.SchemaRef) (int64, bool) {
-	if v == nil {
-		return 0, false
-	}
-
-	// YAML parsing picks up the x-order as a float64
-	if order, ok := v.Extensions[extOrder].(float64); ok {
-		return int64(order), true
-	}
-
-	if v.Value == nil {
-		return 0, false
-	}
-
-	// if v.Value is set, then this is actually a `$ref`, and we should check if there's an x-order set on that
-
-	// YAML parsing picks up the x-order as a float64
-	if order, ok := v.Value.Extensions[extOrder].(float64); ok {
-		return int64(order), true
-	}
-
-	return 0, false
-}
-
-// RefPathToObjName returns the name of referenced object without changes.
+// refPathToObjName returns the name of referenced object without changes.
 //
 //	#/components/schemas/Foo -> Foo
 //	#/components/parameters/Bar -> Bar
 //	#/components/responses/baz_baz -> baz_baz
-//	document.json#/Foo -> Foo
-//	http://deepmap.com/schemas/document.json#/objObj -> objObj
 //
 // Does not check refPath correctness.
-func RefPathToObjName(refPath string) string {
+func refPathToObjName(refPath string) string {
 	parts := strings.Split(refPath, "/")
 	if len(parts) > 0 {
 		return parts[len(parts)-1]
@@ -332,12 +231,12 @@ func RefPathToObjName(refPath string) string {
 	return ""
 }
 
-// RefPathToGoType takes a $ref value and converts it to a Go typename.
+// refPathToGoType takes a $ref value and converts it to a Go typename.
 // #/components/schemas/Foo -> Foo
 // #/components/parameters/Bar -> Bar
 // #/components/responses/Baz -> Baz
 // Remote components (document.json#/Foo) are not supported
-func RefPathToGoType(refPath string) (string, error) {
+func refPathToGoType(refPath string) (string, error) {
 	pathParts := strings.Split(refPath, "/")
 	depth := len(pathParts)
 
@@ -348,31 +247,12 @@ func RefPathToGoType(refPath string) (string, error) {
 	// lastPart now stores the final element of the type path. This is what
 	// we use as the base for a type name.
 	lastPart := pathParts[len(pathParts)-1]
-	return SchemaNameToTypeName(lastPart), nil
+	return schemaNameToTypeName(lastPart), nil
 }
 
-// IsGoTypeReference takes a $ref value and checks if it has link to go type.
-// #/components/schemas/Foo                     -> true
-// ./local/file.yml#/components/parameters/Bar  -> true
-// ./local/file.yml                             -> false
-// IsGoTypeReference can be used to check whether RefPathToGoType($ref) is possible.
-func IsGoTypeReference(ref string) bool {
-	return ref != "" && !IsWholeDocumentReference(ref)
-}
-
-// IsWholeDocumentReference takes a $ref value and checks if it is whole document reference.
-// #/components/schemas/Foo                             -> false
-// ./local/file.yml#/components/parameters/Bar          -> false
-// ./local/file.yml                                     -> true
-// http://deepmap.com/schemas/document.json             -> true
-// http://deepmap.com/schemas/document.json#/Foo        -> false
-func IsWholeDocumentReference(ref string) bool {
-	return ref != "" && !strings.ContainsAny(ref, "#")
-}
-
-// OrderedParamsFromUri returns the argument names, in order, in a given URI string, so for
+// orderedParamsFromUri returns the argument names, in order, in a given URI string, so for
 // /path/{param1}/{.param2*}/{?param3}, it would return param1, param2, param3
-func OrderedParamsFromUri(uri string) []string {
+func orderedParamsFromUri(uri string) []string {
 	matches := pathParamRE.FindAllStringSubmatch(uri, -1)
 	result := make([]string, len(matches))
 	for i, m := range matches {
@@ -381,14 +261,14 @@ func OrderedParamsFromUri(uri string) []string {
 	return result
 }
 
-// ReplacePathParamsWithStr replaces path parameters of the form {param} with %s
-func ReplacePathParamsWithStr(uri string) string {
+// replacePathParamsWithStr replaces path parameters of the form {param} with %s
+func replacePathParamsWithStr(uri string) string {
 	return pathParamRE.ReplaceAllString(uri, "%s")
 }
 
-// SortParamsByPath reorders the given parameter definitions to match those in the path URI.
-func SortParamsByPath(path string, in []ParameterDefinition) ([]ParameterDefinition, error) {
-	pathParams := OrderedParamsFromUri(path)
+// sortParamsByPath reorders the given parameter definitions to match those in the path URI.
+func sortParamsByPath(path string, in []ParameterDefinition) ([]ParameterDefinition, error) {
+	pathParams := orderedParamsFromUri(path)
 	n := len(in)
 	if len(pathParams) != n {
 		return nil, fmt.Errorf("path '%s' has %d positional parameters, but spec has %d declared",
@@ -406,32 +286,32 @@ func SortParamsByPath(path string, in []ParameterDefinition) ([]ParameterDefinit
 	return out, nil
 }
 
-// IsGoKeyword returns whether the given string is a go keyword
-func IsGoKeyword(str string) bool {
+// isGoKeyword returns whether the given string is a go keyword
+func isGoKeyword(str string) bool {
 	return token.IsKeyword(str)
 }
 
-// IsPredeclaredGoIdentifier returns whether the given string
+// isPredeclaredGoIdentifier returns whether the given string
 // is a predefined go identifier.
 //
 // See https://golang.org/ref/spec#Predeclared_identifiers
-func IsPredeclaredGoIdentifier(str string) bool {
+func isPredeclaredGoIdentifier(str string) bool {
 	_, exists := predeclaredSet[str]
 	return exists
 }
 
-// IsGoIdentity checks if the given string can be used as an identity
+// isGoIdentity checks if the given string can be used as an identity
 // in the generated code like a type name or constant name.
 //
 // See https://golang.org/ref/spec#Identifiers
-func IsGoIdentity(str string) bool {
+func isGoIdentity(str string) bool {
 	for i, c := range str {
 		if !isValidRuneForGoID(i, c) {
 			return false
 		}
 	}
 
-	return IsGoKeyword(str)
+	return isGoKeyword(str)
 }
 
 func isValidRuneForGoID(index int, char rune) bool {
@@ -442,19 +322,19 @@ func isValidRuneForGoID(index int, char rune) bool {
 	return unicode.IsLetter(char) || char == '_' || unicode.IsNumber(char)
 }
 
-// IsValidGoIdentity checks if the given string can be used as a
+// isValidGoIdentity checks if the given string can be used as a
 // name of variable, constant, or type.
-func IsValidGoIdentity(str string) bool {
-	if IsGoIdentity(str) {
+func isValidGoIdentity(str string) bool {
+	if isGoIdentity(str) {
 		return false
 	}
 
-	return !IsPredeclaredGoIdentifier(str)
+	return !isPredeclaredGoIdentifier(str)
 }
 
-// SanitizeGoIdentity deletes and replaces the illegal runes in the given
+// sanitizeGoIdentity deletes and replaces the illegal runes in the given
 // string to use the string as a valid identity.
-func SanitizeGoIdentity(str string) string {
+func sanitizeGoIdentity(str string) string {
 	sanitized := []rune(str)
 
 	for i, c := range sanitized {
@@ -467,11 +347,11 @@ func SanitizeGoIdentity(str string) string {
 
 	str = string(sanitized)
 
-	if IsGoKeyword(str) || IsPredeclaredGoIdentifier(str) {
+	if isGoKeyword(str) || isPredeclaredGoIdentifier(str) {
 		str = "_" + str
 	}
 
-	if !IsValidGoIdentity(str) {
+	if !isValidGoIdentity(str) {
 		panic("here is a bug")
 	}
 
@@ -531,9 +411,9 @@ func typeNamePrefix(name string) (prefix string) {
 	return
 }
 
-// SchemaNameToTypeName converts a GoSchema name to a valid Go type name. It converts to camel case, and makes sure the name is
-// valid in Go
-func SchemaNameToTypeName(name string) string {
+// schemaNameToTypeName converts a GoSchema name to a valid Go type name.
+// It converts to camel case, and makes sure the name is valid in Go
+func schemaNameToTypeName(name string) string {
 	return typeNamePrefix(name) + nameNormalizer(name)
 }
 
@@ -543,7 +423,7 @@ func SchemaNameToTypeName(name string) string {
 // differently, in that if you want additionalProperties code to be generated,
 // you must specify an additionalProperties type
 // If additionalProperties it true/false, this field will be non-nil.
-func SchemaHasAdditionalProperties(schema *openapi3.Schema) bool {
+func schemaHasAdditionalProperties(schema *openapi3.Schema) bool {
 	if schema.AdditionalProperties.Has != nil && *schema.AdditionalProperties.Has {
 		return true
 	}
@@ -554,29 +434,29 @@ func SchemaHasAdditionalProperties(schema *openapi3.Schema) bool {
 	return false
 }
 
-// PathToTypeName converts a path, like Object/field1/nestedField into a go
+// pathToTypeName converts a path, like Object/field1/nestedField into a go
 // type name.
-func PathToTypeName(path []string) string {
+func pathToTypeName(path []string) string {
 	for i, p := range path {
 		path[i] = nameNormalizer(p)
 	}
 	return strings.Join(path, "_")
 }
 
-// StringToGoComment renders a possible multi-line string as a valid Go-Comment.
+// stringToGoComment renders a possible multi-line string as a valid Go-Comment.
 // Each line is prefixed as a comment.
-func StringToGoComment(in string) string {
+func stringToGoComment(in string) string {
 	return stringToGoCommentWithPrefix(in, "")
 }
 
-// StringWithTypeNameToGoComment renders a possible multi-line string as a
+// stringWithTypeNameToGoComment renders a possible multi-line string as a
 // valid Go-Comment, including the name of the type being referenced. Each line
 // is prefixed as a comment.
-func StringWithTypeNameToGoComment(in, typeName string) string {
+func stringWithTypeNameToGoComment(in, typeName string) string {
 	return stringToGoCommentWithPrefix(in, typeName)
 }
 
-func DeprecationComment(reason string) string {
+func deprecationComment(reason string) string {
 	content := "Deprecated:" // The colon is required at the end even without reason
 	if reason != "" {
 		content += fmt.Sprintf(" %s", reason)
@@ -611,9 +491,9 @@ func stringToGoCommentWithPrefix(in, prefix string) string {
 	return in
 }
 
-// EscapePathElements breaks apart a path, and looks at each element. If it's
+// escapePathElements breaks apart a path, and looks at each element. If it's
 // not a path parameter, eg, {param}, it will URL-escape the element.
-func EscapePathElements(path string) string {
+func escapePathElements(path string) string {
 	elems := strings.Split(path, "/")
 	for i, e := range elems {
 		if strings.HasPrefix(e, "{") && strings.HasSuffix(e, "}") {
@@ -632,7 +512,7 @@ func EscapePathElements(path string) string {
 func renameSchema(schemaName string, schemaRef *openapi3.SchemaRef) (string, error) {
 	// References will not change type names.
 	if schemaRef.Ref != "" {
-		return SchemaNameToTypeName(schemaName), nil
+		return schemaNameToTypeName(schemaName), nil
 	}
 	schema := schemaRef.Value
 
@@ -643,14 +523,14 @@ func renameSchema(schemaName string, schemaRef *openapi3.SchemaRef) (string, err
 		}
 		return typeName, nil
 	}
-	return SchemaNameToTypeName(schemaName), nil
+	return schemaNameToTypeName(schemaName), nil
 }
 
 // renameParameter generates the name for a parameter, taking x-go-name into
 // account
 func renameParameter(parameterName string, parameterRef *openapi3.ParameterRef) (string, error) {
 	if parameterRef.Ref != "" {
-		return SchemaNameToTypeName(parameterName), nil
+		return schemaNameToTypeName(parameterName), nil
 	}
 	parameter := parameterRef.Value
 
@@ -661,14 +541,14 @@ func renameParameter(parameterName string, parameterRef *openapi3.ParameterRef) 
 		}
 		return typeName, nil
 	}
-	return SchemaNameToTypeName(parameterName), nil
+	return schemaNameToTypeName(parameterName), nil
 }
 
 // renameResponse generates the name for a parameter, taking x-go-name into
 // account
 func renameResponse(responseName string, responseRef *openapi3.ResponseRef) (string, error) {
 	if responseRef.Ref != "" {
-		return SchemaNameToTypeName(responseName), nil
+		return schemaNameToTypeName(responseName), nil
 	}
 	response := responseRef.Value
 
@@ -679,14 +559,14 @@ func renameResponse(responseName string, responseRef *openapi3.ResponseRef) (str
 		}
 		return typeName, nil
 	}
-	return SchemaNameToTypeName(responseName), nil
+	return schemaNameToTypeName(responseName), nil
 }
 
 // renameRequestBody generates the name for a parameter, taking x-go-name into
 // account
 func renameRequestBody(requestBodyName string, requestBodyRef *openapi3.RequestBodyRef) (string, error) {
 	if requestBodyRef.Ref != "" {
-		return SchemaNameToTypeName(requestBodyName), nil
+		return schemaNameToTypeName(requestBodyName), nil
 	}
 	requestBody := requestBodyRef.Value
 
@@ -697,7 +577,7 @@ func renameRequestBody(requestBodyName string, requestBodyRef *openapi3.RequestB
 		}
 		return typeName, nil
 	}
-	return SchemaNameToTypeName(requestBodyName), nil
+	return schemaNameToTypeName(requestBodyName), nil
 }
 
 // isAdditionalPropertiesExplicitFalse determines whether an openapi3.Schema is explicitly defined as `additionalProperties: false`

@@ -96,7 +96,7 @@ func createBodyDefinition(operationID string, bodyOrRef *openapi3.RequestBodyRef
 
 	body := bodyOrRef.Value
 	var targetContentType string
-	for _, contentType := range SortedMapKeys(body.Content) {
+	for _, contentType := range sortedMapKeys(body.Content) {
 		if contentType == "application/json" {
 			targetContentType = contentType
 			break

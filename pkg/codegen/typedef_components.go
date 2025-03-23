@@ -12,7 +12,7 @@ import (
 func getComponentsSchemas(schemas map[string]*openapi3.SchemaRef) ([]TypeDefinition, error) {
 	types := make([]TypeDefinition, 0)
 	// We're going to define Go types for every object under components/schemas
-	for _, schemaName := range SortedSchemaKeys(schemas) {
+	for _, schemaName := range sortedSchemaKeys(schemas) {
 		schemaRef := schemas[schemaName]
 
 		goSchema, err := GenerateGoSchema(schemaRef, []string{schemaName})
@@ -41,7 +41,7 @@ func getComponentsSchemas(schemas map[string]*openapi3.SchemaRef) ([]TypeDefinit
 // components/parameters section of the Swagger spec.
 func getComponentParameters(params map[string]*openapi3.ParameterRef) ([]TypeDefinition, error) {
 	var types []TypeDefinition
-	for _, paramName := range SortedMapKeys(params) {
+	for _, paramName := range sortedMapKeys(params) {
 		paramOrRef := params[paramName]
 
 		goType, err := paramToGoType(paramOrRef.Value, nil)
@@ -63,11 +63,11 @@ func getComponentParameters(params map[string]*openapi3.ParameterRef) ([]TypeDef
 
 		if paramOrRef.Ref != "" {
 			// Generate a reference type for referenced parameters
-			refType, err := RefPathToGoType(paramOrRef.Ref)
+			refType, err := refPathToGoType(paramOrRef.Ref)
 			if err != nil {
 				return nil, fmt.Errorf("error generating Go type for (%s) in parameter %s: %w", paramOrRef.Ref, paramName, err)
 			}
-			typeDef.Name = SchemaNameToTypeName(refType)
+			typeDef.Name = schemaNameToTypeName(refType)
 		}
 
 		types = append(types, typeDef)
@@ -80,7 +80,7 @@ func getComponentParameters(params map[string]*openapi3.ParameterRef) ([]TypeDef
 func getComponentsRequestBodies(bodies map[string]*openapi3.RequestBodyRef) ([]TypeDefinition, error) {
 	var types []TypeDefinition
 
-	for _, requestBodyName := range SortedMapKeys(bodies) {
+	for _, requestBodyName := range sortedMapKeys(bodies) {
 		requestBodyRef := bodies[requestBodyName]
 
 		// As for responses, we will only generate Go code for JSON bodies,
@@ -110,11 +110,11 @@ func getComponentsRequestBodies(bodies map[string]*openapi3.RequestBodyRef) ([]T
 
 			if requestBodyRef.Ref != "" {
 				// Generate a reference type for referenced bodies
-				refType, err := RefPathToGoType(requestBodyRef.Ref)
+				refType, err := refPathToGoType(requestBodyRef.Ref)
 				if err != nil {
 					return nil, fmt.Errorf("error generating Go type for (%s) in body %s: %w", requestBodyRef.Ref, requestBodyName, err)
 				}
-				typeDef.Name = SchemaNameToTypeName(refType)
+				typeDef.Name = schemaNameToTypeName(refType)
 			}
 			types = append(types, typeDef)
 		}
@@ -127,7 +127,7 @@ func getComponentsRequestBodies(bodies map[string]*openapi3.RequestBodyRef) ([]T
 func getContentResponses(responses openapi3.ResponseBodies) ([]TypeDefinition, error) {
 	var types []TypeDefinition
 
-	for _, responseName := range SortedMapKeys(responses) {
+	for _, responseName := range sortedMapKeys(responses) {
 		responseOrRef := responses[responseName]
 
 		// We have to generate the response object. We're only going to
@@ -142,7 +142,7 @@ func getContentResponses(responses openapi3.ResponseBodies) ([]TypeDefinition, e
 			}
 		}
 
-		SortedMapKeys := SortedMapKeys(response.Content)
+		SortedMapKeys := sortedMapKeys(response.Content)
 		for _, mediaType := range SortedMapKeys {
 			response := response.Content[mediaType]
 			if !isMediaTypeJson(mediaType) {
@@ -168,11 +168,11 @@ func getContentResponses(responses openapi3.ResponseBodies) ([]TypeDefinition, e
 
 			if responseOrRef.Ref != "" {
 				// Generate a reference type for referenced parameters
-				refType, err := RefPathToGoType(responseOrRef.Ref)
+				refType, err := refPathToGoType(responseOrRef.Ref)
 				if err != nil {
 					return nil, fmt.Errorf("error generating Go type for (%s) in parameter %s: %w", responseOrRef.Ref, responseName, err)
 				}
-				typeDef.Name = SchemaNameToTypeName(refType)
+				typeDef.Name = schemaNameToTypeName(refType)
 			}
 
 			if jsonCount > 1 {
