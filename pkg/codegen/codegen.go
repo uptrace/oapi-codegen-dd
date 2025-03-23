@@ -131,7 +131,7 @@ func createParseContextFromDocument(doc *openapi3.T, cfg *Configuration) (*Parse
 			}
 			pathDefs, pathSchemas := generateParamsTypes(pathParams, operationID+"Path")
 			if len(pathDefs) > 0 {
-				pathParamsDef = &pathDefs[0]
+				pathParamsDef = &pathDefs[len(pathDefs)-1]
 				typeDefs = append(typeDefs, pathDefs...)
 			}
 			if len(pathSchemas) > 0 {
@@ -141,7 +141,7 @@ func createParseContextFromDocument(doc *openapi3.T, cfg *Configuration) (*Parse
 			queryParams := filterParameterDefinitionByType(allParams, "query")
 			queryDefs, querySchemas := generateParamsTypes(queryParams, operationID+"Query")
 			if len(queryDefs) > 0 {
-				queryDef = &queryDefs[0]
+				queryDef = &queryDefs[len(queryDefs)-1]
 				typeDefs = append(typeDefs, queryDefs...)
 			}
 			if len(querySchemas) > 0 {
@@ -151,7 +151,7 @@ func createParseContextFromDocument(doc *openapi3.T, cfg *Configuration) (*Parse
 			headerParams := filterParameterDefinitionByType(allParams, "header")
 			headerDefs, headerSchemas := generateParamsTypes(headerParams, operationID+"Headers")
 			if len(headerDefs) > 0 {
-				headerDef = &headerDefs[0]
+				headerDef = &headerDefs[len(headerDefs)-1]
 				typeDefs = append(typeDefs, headerDefs...)
 			}
 			if len(headerSchemas) > 0 {
