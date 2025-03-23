@@ -163,7 +163,8 @@ func createObjectSchema(schema *openapi3.Schema, ref string, path []string) (GoS
 			}
 		}
 
-		outSchema.GoType = GenStructFromSchema(outSchema)
+		fields := genFieldsFromProperties(outSchema.Properties)
+		outSchema.GoType = outSchema.createGoStruct(fields)
 	}
 
 	// Check for x-go-type-name. It behaves much like x-go-type, however, it will

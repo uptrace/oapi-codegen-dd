@@ -92,10 +92,9 @@ func createBodyDefinition(operationID string, bodyOrRef *openapi3.RequestBodyRef
 		return nil, nil, nil
 	}
 
-	body := bodyOrRef.Value
-
 	td := TypeDefinition{}
 
+	body := bodyOrRef.Value
 	var targetContentType string
 	for _, contentType := range SortedMapKeys(body.Content) {
 		if contentType == "application/json" {
@@ -132,19 +131,9 @@ func createBodyDefinition(operationID string, bodyOrRef *openapi3.RequestBodyRef
 		return nil, nil, fmt.Errorf("error generating request body definition: %w", err)
 	}
 
-	// If the body is a pre-defined type
-	if content.Schema != nil && IsGoTypeReference(content.Schema.Ref) {
-		// Convert the reference path to Go type
-		refType, err := RefPathToGoType(content.Schema.Ref)
-		if err != nil {
-			return nil, nil, fmt.Errorf("error turning reference (%s) into a Go type: %w", content.Schema.Ref, err)
-		}
-		bodySchema.RefType = refType
-	}
-
 	// If the request has a body, but it's not a user defined
 	// type under #/components, we'll define a type for it, so
-	// that we have an easy to use type for marshaling.
+	// that we have an easy-to-use type for marshaling.
 	if bodySchema.RefType == "" {
 		if targetContentType == "application/x-www-form-urlencoded" {
 			// Apply the appropriate structure tag if the request
@@ -154,7 +143,8 @@ func createBodyDefinition(operationID string, bodyOrRef *openapi3.RequestBodyRef
 			}
 
 			// Regenerate the Golang struct adding the new form tag.
-			bodySchema.GoType = GenStructFromSchema(bodySchema)
+			fields := genFieldsFromProperties(bodySchema.Properties)
+			bodySchema.GoType = bodySchema.createGoStruct(fields)
 		}
 
 		td = TypeDefinition{

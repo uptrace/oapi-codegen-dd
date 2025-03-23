@@ -233,21 +233,3 @@ func additionalPropertiesType(schema GoSchema) string {
 	}
 	return addPropsType
 }
-
-func GenStructFromSchema(schema GoSchema) string {
-	// Start out with struct {
-	objectParts := []string{"struct {"}
-	// Append all the field definitions
-	objectParts = append(objectParts, genFieldsFromProperties(schema.Properties)...)
-	// Close the struct
-	if schema.HasAdditionalProperties {
-		objectParts = append(objectParts,
-			fmt.Sprintf("AdditionalProperties map[string]%s `json:\"-\"`",
-				additionalPropertiesType(schema)))
-	}
-	if len(schema.UnionElements) != 0 {
-		objectParts = append(objectParts, "union json.RawMessage")
-	}
-	objectParts = append(objectParts, "}")
-	return strings.Join(objectParts, "\n")
-}
