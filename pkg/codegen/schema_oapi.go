@@ -140,16 +140,16 @@ func oapiSchemaToGoType(schema *base.Schema, ref string, path []string) (GoSchem
 		case "byte":
 			goType = "[]byte"
 		case "email":
-			goType = "oapi_codegen.Email"
+			goType = "openapi_types.Email"
 		case "date":
-			goType = "oapi_codegen.Date"
+			goType = "openapi_types.Date"
 		case "date-time":
 			goType = "time.Time"
 		case "json":
 			goType = "runtime.RawMessage"
 			skipOptionalPointer = true
 		case "binary":
-			goType = "oapi_codegen.File"
+			goType = "openapi_types.File"
 		case "uuid":
 			goType = "uuid.UUID"
 		}
