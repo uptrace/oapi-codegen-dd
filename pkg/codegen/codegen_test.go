@@ -3,6 +3,7 @@ package codegen
 import (
 	_ "embed"
 	"go/format"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -126,8 +127,11 @@ func TestSmartum(t *testing.T) {
 		// UseSingleOutput: true,
 	}
 
+	docContents, err := os.ReadFile("testdata/smartum.yml")
+	require.NoError(t, err)
+
 	// Run our code generation:
-	code, errs := CreateParseContext("testdata/smartum.yml", config)
+	code, errs := CreateParseContext(docContents, config)
 	if errs != nil {
 		t.FailNow()
 	}

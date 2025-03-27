@@ -40,13 +40,13 @@ func Generate(doc libopenapi.Document, cfg *Configuration) (string, error) {
 	return FormatCode(codes["all"]), nil
 }
 
-// CreateParseContext creates a ParseContext from an OpenAPI file and a ParseConfig.
-func CreateParseContext(file string, cfg *Configuration) (*ParseContext, []error) {
+// CreateParseContext creates a ParseContext from an OpenAPI contents and a ParseConfig.
+func CreateParseContext(docContents []byte, cfg *Configuration) (*ParseContext, []error) {
 	if cfg == nil {
 		cfg = NewDefaultConfiguration()
 	}
 
-	doc, err := loadDocumentFromFile(file)
+	doc, err := loadDocumentFromContents(docContents)
 	if err != nil {
 		return nil, []error{err}
 	}

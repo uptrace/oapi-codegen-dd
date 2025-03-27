@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/pb33f/libopenapi"
+	"github.com/pb33f/libopenapi/datamodel"
 )
 
 func loadDocumentFromFile(filepath string) (libopenapi.Document, error) {
@@ -17,7 +18,10 @@ func loadDocumentFromFile(filepath string) (libopenapi.Document, error) {
 }
 
 func loadDocumentFromContents(contents []byte) (libopenapi.Document, error) {
-	doc, err := libopenapi.NewDocument(contents)
+	docConfig := &datamodel.DocumentConfiguration{
+		SkipCircularReferenceCheck: true,
+	}
+	doc, err := libopenapi.NewDocumentWithConfiguration(contents, docConfig)
 	if err != nil {
 		return nil, fmt.Errorf("error creating document: %w", err)
 	}
