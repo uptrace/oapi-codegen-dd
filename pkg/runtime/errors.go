@@ -1,5 +1,12 @@
 package runtime
 
+import "errors"
+
+// ErrValidationEmail is the sentinel error returned when an email fails validation
+var (
+	ErrValidationEmail = errors.New("email: failed to pass regex validation")
+)
+
 // ClientAPIError represents type for client API errors.
 type ClientAPIError struct {
 	err error
