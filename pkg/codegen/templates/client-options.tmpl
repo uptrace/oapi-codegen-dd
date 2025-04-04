@@ -53,6 +53,10 @@ func (o *{{$op.ID | ucFirst}}RequestOptions) Validate() error {
     }
     {{end -}}
 
+    if len(errors) == 0 {
+        return nil
+    }
+
     return errors
 }
 

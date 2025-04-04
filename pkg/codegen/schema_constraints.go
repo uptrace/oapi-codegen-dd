@@ -47,7 +47,7 @@ func newConstraints(schema *base.Schema, opts ConstraintsContext) Constraints {
 
 	isInt := slices.Contains(schema.Type, "integer")
 	isFloat := slices.Contains(schema.Type, "number")
-	var validationsTags []string
+	var validationTags []string
 
 	name := opts.name
 	hasNilType := opts.hasNilType
@@ -68,7 +68,9 @@ func newConstraints(schema *base.Schema, opts ConstraintsContext) Constraints {
 		nullable = true
 	}
 	if required {
-		validationsTags = append(validationsTags, "required")
+		validationTags = append(validationTags, "required")
+	} else if nullable {
+		validationTags = append(validationTags, "omitempty")
 	}
 
 	readOnly := false
@@ -94,9 +96,9 @@ func newConstraints(schema *base.Schema, opts ConstraintsContext) Constraints {
 			}
 		}
 		if isInt {
-			validationsTags = append(validationsTags, fmt.Sprintf("%s=%d", minTag, int64(minValue)))
+			validationTags = append(validationTags, fmt.Sprintf("%s=%d", minTag, int64(minValue)))
 		} else if isFloat {
-			validationsTags = append(validationsTags, fmt.Sprintf("%s=%g", minTag, minValue))
+			validationTags = append(validationTags, fmt.Sprintf("%s=%g", minTag, minValue))
 		}
 	}
 
@@ -113,29 +115,47 @@ func newConstraints(schema *base.Schema, opts ConstraintsContext) Constraints {
 			}
 		}
 		if isInt {
-			validationsTags = append(validationsTags, fmt.Sprintf("%s=%d", maxTag, int64(maxValue)))
+			validationTags = append(validationTags, fmt.Sprintf("%s=%d", maxTag, int64(maxValue)))
 		} else if isFloat {
-			validationsTags = append(validationsTags, fmt.Sprintf("%s=%g", maxTag, maxValue))
+			validationTags = append(validationTags, fmt.Sprintf("%s=%g", maxTag, maxValue))
 		}
 	}
 
 	minLength := int64(0)
 	if schema.MinLength != nil {
 		minLength = *schema.MinLength
-		validationsTags = append(validationsTags, fmt.Sprintf("min=%d", minLength))
+		validationTags = append(validationTags, fmt.Sprintf("min=%d", minLength))
 	}
 
 	maxLength := int64(0)
 	if schema.MaxLength != nil {
 		maxLength = *schema.MaxLength
-		validationsTags = append(validationsTags, fmt.Sprintf("max=%d", maxLength))
+		validationTags = append(validationTags, fmt.Sprintf("max=%d", maxLength))
 	}
 
-	// place required first in the list, then sort the rest
-	sort.Slice(validationsTags, func(i, j int) bool {
-		a, b := validationsTags[i], validationsTags[j]
-		if a == "required" || b == "required" {
-			return a == "required"
+	if len(validationTags) == 1 && validationTags[0] == "omitempty" {
+		validationTags = nil
+	}
+
+	// place required, omitempty first in the list, then sort the rest
+	sort.Slice(validationTags, func(i, j int) bool {
+		a, b := validationTags[i], validationTags[j]
+
+		// Define priority order
+		priority := func(tag string) int {
+			switch tag {
+			case "required":
+				return 0
+			case "omitempty":
+				return 1
+			default:
+				return 2
+			}
+		}
+
+		pa, pb := priority(a), priority(b)
+		if pa != pb {
+			return pa < pb
 		}
 		return a < b
 	})
@@ -149,6 +169,6 @@ func newConstraints(schema *base.Schema, opts ConstraintsContext) Constraints {
 		Max:            maxValue,
 		MinLength:      minLength,
 		MaxLength:      maxLength,
-		ValidationTags: validationsTags,
+		ValidationTags: validationTags,
 	}
 }

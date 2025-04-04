@@ -63,8 +63,28 @@ func TestNewConstraints(t *testing.T) {
 			Max:      float64(100),
 			Nullable: true,
 			ValidationTags: []string{
+				"omitempty",
 				"gte=10",
 				"lt=100",
+			},
+		}, res)
+	})
+
+	t.Run("optional string with max length", func(t *testing.T) {
+		maxLn := int64(100)
+		schema := &base.Schema{
+			Type:      []string{"string"},
+			MaxLength: &maxLn,
+		}
+
+		res := newConstraints(schema, ConstraintsContext{})
+
+		assert.Equal(t, Constraints{
+			MaxLength: 100,
+			Nullable:  true,
+			ValidationTags: []string{
+				"omitempty",
+				"max=100",
 			},
 		}, res)
 	})
