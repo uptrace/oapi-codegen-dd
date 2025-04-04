@@ -93,6 +93,10 @@ func convertFieldErrorMessage(fe validator.FieldError) string {
 		return fmt.Sprintf("must be less than %s", fe.Param())
 	case "lte":
 		return fmt.Sprintf("must be less than or equal to %s", fe.Param())
+	case "min":
+		return fmt.Sprintf("length must be greater than or equal to %s", fe.Param())
+	case "max":
+		return fmt.Sprintf("length must be less than or equal to %s", fe.Param())
 	default:
 		return fmt.Sprintf("is not valid (%s)", fe.Tag())
 	}
