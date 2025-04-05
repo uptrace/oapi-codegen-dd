@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	"github.com/pb33f/libopenapi/datamodel/high/base"
-	"github.com/pb33f/libopenapi/orderedmap"
-	"gopkg.in/yaml.v3"
 )
 
 // GoSchema describes an OpenAPI schema, with lots of helper fields to use in the templating engine.
@@ -65,22 +63,6 @@ func (s GoSchema) TypeDecl() string {
 
 func (s GoSchema) IsZero() bool {
 	return s.TypeDecl() == ""
-}
-
-// AddProperty adds a new property to the current GoSchema, and returns an error
-// if it collides. Two identical fields will not collide, but two properties by
-// the same name, but different definition, will collide. It's safe to merge the
-// fields of two schemas with overlapping properties if those properties are
-// identical.
-func (s GoSchema) AddProperty(p Property) error {
-	// Scan all existing properties for a conflict
-	for _, e := range s.Properties {
-		if e.JsonFieldName == p.JsonFieldName && !e.IsEqual(p) {
-			return fmt.Errorf("property '%s' already exists with a different type", e.JsonFieldName)
-		}
-	}
-	s.Properties = append(s.Properties, p)
-	return nil
 }
 
 func (s GoSchema) GetAdditionalTypeDefs() []TypeDefinition {
@@ -164,14 +146,11 @@ func GenerateGoSchema(schemaProxy *base.SchemaProxy, ref string, path []string) 
 		return mergedSchema, nil
 	}
 
-	extensions := schema.Extensions
-	if extensions == nil {
-		extensions = orderedmap.New[string, *yaml.Node]()
-	}
+	extensions := extractExtensions(schema.Extensions)
 	// Check x-go-type, which will completely override the definition of this
 	// schema with the provided type.
-	if extension, ok := extensions.Get(extPropGoType); ok {
-		typeName, err := extString(extension.Value)
+	if extension, ok := extensions[extPropGoType]; ok {
+		typeName, err := parseString(extension)
 		if err != nil {
 			return outSchema, fmt.Errorf("invalid value for %q: %w", extPropGoType, err)
 		}
@@ -183,8 +162,8 @@ func GenerateGoSchema(schemaProxy *base.SchemaProxy, ref string, path []string) 
 
 	// Check x-go-type-skip-optional-pointer, which will override if the type
 	// should be a pointer or not when the field is optional.
-	if extension, ok := extensions.Get(extPropGoTypeSkipOptionalPointer); ok {
-		skipOptionalPointer, err := extParsePropGoTypeSkipOptionalPointer(extension.Value)
+	if extension, ok := extensions[extPropGoTypeSkipOptionalPointer]; ok {
+		skipOptionalPointer, err := parseBooleanValue(extension)
 		if err != nil {
 			return outSchema, fmt.Errorf("invalid value for %q: %w", extPropGoTypeSkipOptionalPointer, err)
 		}

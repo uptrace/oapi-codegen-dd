@@ -10,12 +10,12 @@ type SpecLocation string
 
 const (
 	SpecLocationPath     SpecLocation = "path"
-	SpecLocationQuery                 = "query"
-	SpecLocationHeader                = "header"
-	SpecLocationBody                  = "body"
-	SpecLocationResponse              = "response"
-	SpecLocationSchema                = "schema"
-	SpecLocationUnion                 = "union"
+	SpecLocationQuery    SpecLocation = "query"
+	SpecLocationHeader   SpecLocation = "header"
+	SpecLocationBody     SpecLocation = "body"
+	SpecLocationResponse SpecLocation = "response"
+	SpecLocationSchema   SpecLocation = "schema"
+	SpecLocationUnion    SpecLocation = "union"
 )
 
 // TypeDefinition describes a Go type definition in generated code.
@@ -42,11 +42,16 @@ func (t TypeDefinition) IsOptional() bool {
 // based on the predefined spec error path.
 func (t TypeDefinition) GetErrorResponse(errTypes map[string]string, alias string) string {
 	unknownRes := `return "unknown error"`
-	if errTypes == nil || errTypes[t.JsonName] == "" {
+	key := t.JsonName
+	if key == "" {
+		key = t.Name
+	}
+
+	if errTypes == nil || errTypes[key] == "" {
 		return unknownRes
 	}
 
-	path := errTypes[t.JsonName]
+	path := errTypes[key]
 
 	var callPath []keyValue[string, Property]
 	schema := t.Schema
@@ -69,6 +74,7 @@ func (t TypeDefinition) GetErrorResponse(errTypes map[string]string, alias strin
 	var res []string
 	fstPair := callPath[0]
 	goName, prop := fstPair.key, fstPair.value
+	isStringType := prop.Schema.GoType == "string"
 	res = append(res, fmt.Sprintf("res := %s.%s", alias, goName))
 	if prop.Constraints.Nullable {
 		res = append(res, fmt.Sprintf("if res == nil { %s }", unknownRes))
@@ -76,7 +82,6 @@ func (t TypeDefinition) GetErrorResponse(errTypes map[string]string, alias strin
 
 	last := 0
 	ix := 0
-	isStringType := false
 	for _, pair := range callPath[1:] {
 		name, p := pair.key, pair.value
 		res = append(res, fmt.Sprintf("res%d := res.%s", ix, name))
@@ -93,7 +98,11 @@ func (t TypeDefinition) GetErrorResponse(errTypes map[string]string, alias strin
 		return unknownRes
 	}
 
-	res = append(res, fmt.Sprintf("return res%d", last))
+	if last > 0 {
+		res = append(res, fmt.Sprintf("return res%d", last))
+	} else {
+		res = append(res, "return res")
+	}
 
 	return strings.Join(res, "\n")
 }

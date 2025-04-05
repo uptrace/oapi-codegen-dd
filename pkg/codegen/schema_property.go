@@ -34,8 +34,16 @@ func (p Property) GoTypeDef() string {
 func createPropertyGoFieldName(jsonName string, extensions map[string]any) string {
 	goFieldName := jsonName
 	if extension, ok := extensions[extGoName]; ok {
-		if extGoFieldName, err := extParseGoFieldName(extension); err == nil {
+		if extGoFieldName, err := parseString(extension); err == nil {
 			goFieldName = extGoFieldName
+		}
+	}
+
+	if extension, ok := extensions[extOapiCodegenOnlyHonourGoName]; ok {
+		if use, err := parseBooleanValue(extension); err == nil {
+			if use {
+				return goFieldName
+			}
 		}
 	}
 
@@ -70,7 +78,7 @@ func genFieldsFromProperties(props []Property) []string {
 			// This comment has to be on its own line for godoc & IDEs to pick up
 			var deprecationReason string
 			if extension, ok := p.Extensions[extDeprecationReason]; ok {
-				if extOmitEmpty, err := extParseDeprecationReason(extension); err == nil {
+				if extOmitEmpty, err := parseString(extension); err == nil {
 					deprecationReason = extOmitEmpty
 				}
 			}
@@ -81,7 +89,7 @@ func genFieldsFromProperties(props []Property) []string {
 		// Check x-go-type-skip-optional-pointer, which will override if the type
 		// should be a pointer or not when the field is optional.
 		if extension, ok := p.Extensions[extPropGoTypeSkipOptionalPointer]; ok {
-			if skipOptionalPointer, err := extParsePropGoTypeSkipOptionalPointer(extension); err == nil {
+			if skipOptionalPointer, err := parseBooleanValue(extension); err == nil {
 				p.Schema.SkipOptionalPointer = skipOptionalPointer
 			}
 		}
@@ -96,7 +104,7 @@ func genFieldsFromProperties(props []Property) []string {
 
 		// Support x-omitempty
 		if extOmitEmptyValue, ok := p.Extensions[extPropOmitEmpty]; ok {
-			if extOmitEmpty, err := extParseOmitEmpty(extOmitEmptyValue); err == nil {
+			if extOmitEmpty, err := parseBooleanValue(extOmitEmptyValue); err == nil {
 				omitEmpty = extOmitEmpty
 			}
 		}
@@ -121,7 +129,7 @@ func genFieldsFromProperties(props []Property) []string {
 
 		// Support x-go-json-ignore
 		if extension, ok := p.Extensions[extPropGoJsonIgnore]; ok {
-			if goJsonIgnore, err := extParseGoJsonIgnore(extension); err == nil && goJsonIgnore {
+			if goJsonIgnore, err := parseBooleanValue(extension); err == nil && goJsonIgnore {
 				fieldTags["json"] = "-"
 			}
 		}

@@ -78,7 +78,7 @@ func TestMain(t *testing.M) {
 `)
 
 	var outputData any
-	json.Unmarshal(output, &outputData)
+	_ = json.Unmarshal(output, &outputData)
 
 	output, _ = json.Marshal(outputData)
 	outputJSON = string(output)
@@ -87,7 +87,7 @@ func TestMain(t *testing.M) {
 	outputIndentJSON = string(output)
 
 	var outputNonexistentData any
-	json.Unmarshal(outputNonexistent, &outputNonexistentData)
+	_ = json.Unmarshal(outputNonexistent, &outputNonexistentData)
 	output, _ = json.Marshal(outputNonexistentData)
 	outputNonexistentJSON = string(output)
 

@@ -6,25 +6,30 @@ import (
 	"strings"
 
 	"github.com/pb33f/libopenapi/datamodel/high/base"
-	"github.com/pb33f/libopenapi/orderedmap"
-	"gopkg.in/yaml.v3"
 )
 
 func createObjectSchema(schema *base.Schema, ref string, path []string) (GoSchema, error) {
 	var outType string
+	var (
+		description string
+		hasNilType  bool
+	)
+	if schema != nil {
+		description = schema.Description
+		hasNilType = slices.Contains(schema.Type, "null")
+	}
+
 	outSchema := GoSchema{
-		Description:   schema.Description,
+		Description:   description,
 		OpenAPISchema: schema,
 		Constraints: newConstraints(schema, ConstraintsContext{
-			hasNilType: slices.Contains(schema.Type, "null"),
+			hasNilType: hasNilType,
 		}),
 	}
 
-	var schemaExtensions *orderedmap.Map[string, *yaml.Node]
-	if schema != nil && schema.Extensions != nil {
-		schemaExtensions = schema.Extensions
-	} else {
-		schemaExtensions = orderedmap.New[string, *yaml.Node]()
+	schemaExtensions := make(map[string]any)
+	if schema != nil {
+		schemaExtensions = extractExtensions(schema.Extensions)
 	}
 
 	if schema != nil &&
@@ -132,7 +137,7 @@ func createObjectSchema(schema *base.Schema, ref string, path []string) (GoSchem
 				// for them, which will be based on the field names we followed
 				// to get to the type.
 				typeName := pathToTypeName(propertyPath) // schemaNameToTypeName(pathToTypeName(propertyPath))
-				specLocation := SpecLocation("")
+				var specLocation SpecLocation = SpecLocationSchema
 				if len(pSchema.UnionElements) != 0 {
 					specLocation = SpecLocationUnion
 				}
@@ -218,8 +223,8 @@ func createObjectSchema(schema *base.Schema, ref string, path []string) (GoSchem
 	// Check for x-go-type-name. It behaves much like x-go-type, however, it will
 	// create a type definition for the named type, and use the named type in place
 	// of this schema.
-	if extension, ok := schemaExtensions.Get(extGoTypeName); ok {
-		typeName, err := extString(extension.Value)
+	if extension, ok := schemaExtensions[extGoTypeName]; ok {
+		typeName, err := parseString(extension)
 		if err != nil {
 			return outSchema, fmt.Errorf("invalid value for %q: %w", extGoTypeName, err)
 		}

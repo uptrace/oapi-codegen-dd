@@ -1,5 +1,9 @@
 # yaml-language-server: $schema=../../configuration-schema.json
 package: anyofallofoneof
-output: gen.go
 skip-prune: true
-use-single-output: true
+generate:
+  client: false
+output:
+  use-single-fle: false
+name-mapping:
+  client: HTTPClient

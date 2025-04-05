@@ -165,10 +165,6 @@ func toCamelCaseWithInitialism(s string) string {
 	return strings.Join(parts, "")
 }
 
-// func toCamelCaseWithInitialism(str string) string {
-// 	return replaceInitialism(toCamelCase(str))
-// }
-
 func makeInitialismMap(additionalInitialisms []string) map[string]string {
 	l := append(initialismList, additionalInitialisms...)
 
@@ -265,26 +261,6 @@ func orderedParamsFromUri(uri string) []string {
 // replacePathParamsWithStr replaces path parameters of the form {param} with %s
 func replacePathParamsWithStr(uri string) string {
 	return pathParamRE.ReplaceAllString(uri, "%s")
-}
-
-// sortParamsByPath reorders the given parameter definitions to match those in the path URI.
-func sortParamsByPath(path string, in []ParameterDefinition) ([]ParameterDefinition, error) {
-	pathParams := orderedParamsFromUri(path)
-	n := len(in)
-	if len(pathParams) != n {
-		return nil, fmt.Errorf("path '%s' has %d positional parameters, but spec has %d declared",
-			path, len(pathParams), n)
-	}
-	out := make([]ParameterDefinition, len(in))
-	for i, name := range pathParams {
-		p := ParameterDefinitions(in).FindByName(name)
-		if p == nil {
-			return nil, fmt.Errorf("path '%s' refers to parameter '%s', which doesn't exist in specification",
-				path, name)
-		}
-		out[i] = *p
-	}
-	return out, nil
 }
 
 // isGoKeyword returns whether the given string is a go keyword
@@ -499,9 +475,10 @@ func renameSchema(schemaName string, schemaRef *base.SchemaProxy) (string, error
 		return schemaNameToTypeName(schemaName), nil
 	}
 	schema := schemaRef.Schema()
+	exts := extractExtensions(schema.Extensions)
 
-	if extension, ok := schema.Extensions.Get(extGoName); ok {
-		typeName, err := extString(extension)
+	if extension, ok := exts[extGoName]; ok {
+		typeName, err := parseString(extension)
 		if err != nil {
 			return "", fmt.Errorf("invalid value for %q: %w", extPropGoType, err)
 		}
@@ -517,8 +494,9 @@ func renameParameter(parameterName string, parameterRef *v3.Parameter) (string, 
 	}
 	parameter := parameterRef
 
-	if extension, ok := parameter.Extensions.Get(extGoName); ok {
-		typeName, err := extString(extension)
+	exts := extractExtensions(parameter.Extensions)
+	if extension, ok := exts[extGoName]; ok {
+		typeName, err := parseString(extension)
 		if err != nil {
 			return "", fmt.Errorf("invalid value for %q: %w", extPropGoType, err)
 		}
@@ -535,8 +513,9 @@ func renameResponse(responseName string, responseRef *base.SchemaProxy) (string,
 	}
 	response := responseRef.Schema()
 
-	if extension, ok := response.Extensions.Get(extGoName); ok {
-		typeName, err := extString(extension)
+	exts := extractExtensions(response.Extensions)
+	if extension, ok := exts[extGoName]; ok {
+		typeName, err := parseString(extension)
 		if err != nil {
 			return "", fmt.Errorf("invalid value for %q: %w", extPropGoType, err)
 		}
@@ -553,8 +532,9 @@ func renameRequestBody(requestBodyName string, requestBodyRef *base.SchemaProxy)
 	}
 	requestBody := requestBodyRef.Schema()
 
-	if extension, ok := requestBody.Extensions.Get(extGoName); ok {
-		typeName, err := extString(extension)
+	exts := extractExtensions(requestBody.Extensions)
+	if extension, ok := exts[extGoName]; ok {
+		typeName, err := parseString(extension)
 		if err != nil {
 			return "", fmt.Errorf("invalid value for %q: %w", extPropGoType, err)
 		}

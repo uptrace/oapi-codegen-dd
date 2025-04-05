@@ -172,6 +172,15 @@ func getOperationResponses(operationID string, responses *v3high.Responses) (*Re
 		}
 	}
 
+	if successDefinition == nil {
+		successDefinition = &ResponseContentDefinition{
+			IsSuccess:    true,
+			Description:  "No Content",
+			ResponseName: "struct{}",
+		}
+		successCode = 204
+	}
+
 	res := &ResponseDefinition{
 		SuccessStatusCode: successCode,
 		Success:           successDefinition,

@@ -214,7 +214,7 @@ func isAdditionalPropertiesExplicitFalse(s *base.Schema) bool {
 		return false
 	}
 
-	return s.AdditionalProperties.IsB() == false
+	return !s.AdditionalProperties.IsB()
 }
 
 func getSchemaType(schema *base.Schema) []string {

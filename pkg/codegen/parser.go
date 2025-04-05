@@ -20,6 +20,12 @@ import (
 //go:embed templates
 var templates embed.FS
 
+type GeneratedCode map[string]string
+
+func (g GeneratedCode) GetCombined() string {
+	return g["all"]
+}
+
 // Parser uses the provided ParseContext to generate Go code for the API.
 type Parser struct {
 	tpl *template.Template
@@ -82,12 +88,12 @@ func NewParser(cfg Configuration, ctx *ParseContext) (*Parser, error) {
 
 // Parse generates Go code for the API using the provided ParseContext.
 // It returns a map of generated code for each type of definition.
-func (p *Parser) Parse() (map[string]string, error) {
+func (p *Parser) Parse() (GeneratedCode, error) {
 	typesOut := make(map[string]string)
 
-	useSingleOutput := p.cfg.UseSingleOutput
-	withHeader := !useSingleOutput
-	if useSingleOutput {
+	useSingleFile := p.cfg.Output != nil && p.cfg.Output.UseSingleFile
+	withHeader := !useSingleFile
+	if useSingleFile {
 		out, err := p.ParseTemplates([]string{"header-inc.tmpl"}, EnumContext{
 			Imports:    p.ctx.Imports,
 			Config:     p.cfg,
@@ -99,7 +105,7 @@ func (p *Parser) Parse() (map[string]string, error) {
 		typesOut["header"] = out
 	}
 
-	if len(p.ctx.Operations) > 0 {
+	if len(p.ctx.Operations) > 0 && p.cfg.Generate.Client {
 		opsCtx := &TplOperationsContext{
 			Operations: p.ctx.Operations,
 			Imports:    p.ctx.Imports,
@@ -187,7 +193,7 @@ func (p *Parser) Parse() (map[string]string, error) {
 		typesOut["unions_with_additional"] = FormatCode(out)
 	}
 
-	if useSingleOutput {
+	if useSingleFile {
 		res := ""
 		if header, ok := typesOut["header"]; ok {
 			res += header + "\n"
@@ -197,7 +203,7 @@ func (p *Parser) Parse() (map[string]string, error) {
 		for _, code := range typesOut {
 			res += code + "\n"
 		}
-		typesOut = map[string]string{"all": res}
+		typesOut = map[string]string{"all": FormatCode(res)}
 	}
 
 	return typesOut, nil

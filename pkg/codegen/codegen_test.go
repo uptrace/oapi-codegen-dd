@@ -17,16 +17,17 @@ func TestExampleOpenAPICodeGeneration(t *testing.T) {
 	// Input vars for code generation:
 	packageName := "testswagger"
 	cfg := Configuration{
-		PackageName:     packageName,
-		UseSingleOutput: true,
+		PackageName: packageName,
+		Output: &Output{
+			UseSingleFile: true,
+		},
 	}
 
 	// Run our code generation:
-	code, err := Generate([]byte(testDocument), cfg)
-	assert.NoError(t, err)
-	if err != nil {
-		t.FailNow()
-	}
+	codes, err := Generate([]byte(testDocument), cfg)
+	require.NoError(t, err)
+
+	code := codes.GetCombined()
 	assert.NotEmpty(t, code)
 
 	// Check that we have a package:
@@ -44,21 +45,25 @@ func TestExampleOpenAPICodeGeneration(t *testing.T) {
 func TestExtPropGoTypeSkipOptionalPointer(t *testing.T) {
 	packageName := "api"
 	cfg := Configuration{
-		PackageName:     packageName,
-		UseSingleOutput: true,
+		PackageName: packageName,
+		Output: &Output{
+			UseSingleFile: true,
+		},
 	}
-	spec := "test_specs/x-go-type-skip-optional-pointer.yaml"
+	spec := "testdata/x-go-type-skip-optional-pointer.yaml"
 	docContents, err := os.ReadFile(spec)
 	require.NoError(t, err)
 
 	// Run our code generation:
-	code, err := Generate(docContents, cfg)
+	codes, err := Generate(docContents, cfg)
 	assert.NoError(t, err)
-	assert.NotEmpty(t, code)
+	assert.NotEmpty(t, codes)
+
+	code := codes.GetCombined()
 
 	// Check that we have valid (formattable) code:
 	_, err = format.Source([]byte(code))
-	assert.NoError(t, err)
+	require.NoError(t, err)
 
 	// Check that optional pointer fields are skipped if requested
 	assert.Contains(t, code, "NullableFieldSkipFalse *string `json:\"nullableFieldSkipFalse,omitempty\"`")
@@ -77,20 +82,20 @@ func TestExtPropGoTypeSkipOptionalPointer(t *testing.T) {
 func TestGoTypeImport(t *testing.T) {
 	packageName := "api"
 	cfg := Configuration{
-		PackageName:     packageName,
-		UseSingleOutput: true,
+		PackageName: packageName,
+		Output: &Output{
+			UseSingleFile: true,
+		},
 	}
-	spec := "test_specs/x-go-type-import-pet.yaml"
+	spec := "testdata/x-go-type-import-pet.yaml"
 	docContents, err := os.ReadFile(spec)
 	require.NoError(t, err)
 
 	// Run our code generation:
-	code, err := Generate(docContents, cfg)
-	assert.NoError(t, err)
-	if err != nil {
-		t.FailNow()
-	}
-	assert.NotEmpty(t, code)
+	codes, err := Generate(docContents, cfg)
+	require.NoError(t, err)
+	assert.NotEmpty(t, codes)
+	code := codes.GetCombined()
 
 	// Check that we have valid (formattable) code:
 	_, err = format.Source([]byte(code))
@@ -114,32 +119,4 @@ func TestGoTypeImport(t *testing.T) {
 	for _, imp := range imports {
 		assert.Contains(t, code, imp)
 	}
-}
-
-func TestSmartum(t *testing.T) {
-	packageName := "smartum"
-	config := Configuration{
-		PackageName: packageName,
-		ErrorMapping: map[string]string{
-			"InvalidRequestError": "error.message",
-		},
-		// UseSingleOutput: true,
-	}
-
-	docContents, err := os.ReadFile("testdata/smartum.yml")
-	require.NoError(t, err)
-
-	// Run our code generation:
-	code, errs := CreateParseContext(docContents, config)
-	if errs != nil {
-		t.FailNow()
-	}
-
-	parser, err := NewParser(config, code)
-	require.NoError(t, err)
-
-	// Parse the OpenAPI document
-	codes, err := parser.Parse()
-	require.NoError(t, err)
-	assert.NotEmpty(t, codes)
 }

@@ -98,7 +98,7 @@ func oapiSchemaToGoType(schema *base.Schema, ref string, path []string) (GoSchem
 
 	if slices.Contains(t, "number") {
 		// We default to float for "number"
-		goType := "float32"
+		var goType string
 		switch f {
 		case "double":
 			goType = "float64"

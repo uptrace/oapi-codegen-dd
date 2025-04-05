@@ -1,8 +1,8 @@
 # yaml-language-server: $schema=../../../configuration-schema.json
 package: xomitempty
-output: gen.go
+# to make sure that all types are generated, even if they're unreferenced
+skip-prune: true
 generate:
-  models: true
-output-options:
-  # to make sure that all types are generated, even if they're unreferenced
-  skip-prune: true
+  client: false
+output:
+  use-single-file: true

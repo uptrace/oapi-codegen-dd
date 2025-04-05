@@ -1,9 +1,9 @@
 {{ template "header" $ }}
 
-{{- define "httpRequestDoer" -}}
+{{ define "httpRequestDoer" -}}
 // HttpRequestDoer performs HTTP requests.
 type HttpRequestDoer interface {
-Do(context context.Context, req *http.Request) *http.Response
+Do(context context.Context, req *http.Request) (*http.Response, error)
 }
 {{- end -}}
 
@@ -22,24 +22,25 @@ type RequestEditorFn func(ctx context.Context, req *http.Request) error
 
 {{ template "httpRequestDoer" $ }}
 
-// Client is the client for the API implementing the Client interface.
+{{ $clientName := .Config.NameMapping.client }}
+// {{$clientName}} is the client for the API implementing the {{$clientName}} interface.
 // baseURL is the base URL for the API.
 // httpClient is the HTTP client to use for making requests.
 // logger is the logger to use for logging.
 // requestEditors is a list of callbacks for modifying requests which are generated before sending over the network.
-type Client struct {
+type {{$clientName}} struct {
     baseURL     string
     httpClient  HttpRequestDoer
     requestEditors []RequestEditorFn
 }
 
 // ClientOption allows setting custom parameters during construction.
-type ClientOption func(*Client) error
+type {{$clientName}}Option func(*{{$clientName}}) error
 
 // NewClient creates a new client, with reasonable defaults.
-func NewClient(baseURL string, opts ...ClientOption) (*Client, error) {
+func NewClient(baseURL string, opts ...{{$clientName}}Option) (*{{$clientName}}, error) {
     // create a client with sane default values
-    res := &Client{
+    res := &{{$clientName}}{
       baseURL: strings.TrimSuffix(baseURL, "/"),
     }
 
@@ -55,8 +56,8 @@ func NewClient(baseURL string, opts ...ClientOption) (*Client, error) {
 
 // WithHTTPClient allows overriding the default Doer, which is
 // automatically created using http.Client.
-func WithHTTPClient(doer HttpRequestDoer) ClientOption {
-    return func(c *Client) error {
+func WithHTTPClient(doer HttpRequestDoer) {{$clientName}}Option {
+    return func(c *{{$clientName}}) error {
         c.httpClient = doer
         return nil
     }
@@ -64,15 +65,15 @@ func WithHTTPClient(doer HttpRequestDoer) ClientOption {
 
 // WithRequestEditorFn allows setting up a callback function, which will be
 // called right before sending the request. This can be used to mutate the request.
-func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
-    return func(c *Client) error {
+func WithRequestEditorFn(fn RequestEditorFn) {{$clientName}}Option {
+    return func(c *{{$clientName}}) error {
         c.requestEditors = append(c.requestEditors, fn)
         return nil
     }
 }
 
 // ClientInterface is the interface for the API client.
-type ClientInterface interface {
+type {{$clientName}}Interface interface {
     {{- range .Operations }}{{$op := .}}
         {{ toGoComment $op.Summary $op.ID}}
         {{$op.ID}}(ctx context.Context{{- if $op.HasRequestOptions }}, options *{{$op.ID | ucFirst}}RequestOptions{{end}}, reqEditors ...RequestEditorFn) (*{{$op.Response.Success.ResponseName}}, error)
@@ -82,7 +83,7 @@ type ClientInterface interface {
 
 {{range .Operations}}{{$op := .}}
 {{ toGoComment $op.Summary $op.ID}}
-func (c *Client) {{$op.ID}}(ctx context.Context{{ if $op.HasRequestOptions }}, options *{{$op.ID | ucFirst}}RequestOptions{{end}}, reqEditors ...RequestEditorFn) (*{{$op.Response.Success.ResponseName}}, error) {
+func (c *{{$clientName}}) {{$op.ID}}(ctx context.Context{{ if $op.HasRequestOptions }}, options *{{$op.ID | ucFirst}}RequestOptions{{end}}, reqEditors ...RequestEditorFn) (*{{$op.Response.Success.ResponseName}}, error) {
     var err error
     url := c.baseURL + "{{$op.Path}}"
     req, err := createRequest(ctx, url, "{{$op.Method}}", {{ if $op.HasRequestOptions }}options{{ else }}nil{{ end }})
@@ -139,7 +140,7 @@ func (c *Client) {{$op.ID}}(ctx context.Context{{ if $op.HasRequestOptions }}, o
 {{end -}}
 
 // applyEditors applies all the request editors to the request.
-func (c *Client) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
+func (c *{{$clientName}}) applyEditors(ctx context.Context, req *http.Request, additionalEditors []RequestEditorFn) error {
     for _, r := range c.requestEditors {
         if err := r(ctx, req); err != nil {
             return err
@@ -236,4 +237,4 @@ func replacePathPlaceholders(url string, pathParams map[string]any) string {
     return url
 }
 
-var _ ClientInterface = (*Client)(nil)
+var _ {{$clientName}}Interface = (*{{$clientName}})(nil)

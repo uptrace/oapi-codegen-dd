@@ -97,8 +97,9 @@ func (pd ParameterDefinition) GoVariableName() string {
 
 func (pd ParameterDefinition) GoName() string {
 	goName := pd.ParamName
-	if extension, ok := pd.Spec.Extensions.Get(extGoName); ok {
-		if extGoFieldName, err := extParseGoFieldName(extension); err == nil {
+	exts := extractExtensions(pd.Spec.Extensions)
+	if extension, ok := exts[extGoName]; ok {
+		if extGoFieldName, err := parseString(extension); err == nil {
 			goName = extGoFieldName
 		}
 	}

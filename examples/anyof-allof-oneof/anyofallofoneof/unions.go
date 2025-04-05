@@ -8,34 +8,12 @@ import (
 	"github.com/doordash/oapi-codegen/v3/pkg/runtime"
 )
 
-type GetFooResponse = map[string]any
-
-type Client struct {
-	Name string `json:"name" validate:"required"`
-}
-
 type ClientAndMaybeIdentity struct {
 	union json.RawMessage
 }
 
 type ClientOrIdentity struct {
 	union json.RawMessage
-}
-
-// ClientWithId defines model for ClientWithId.
-type ClientWithID struct {
-	Name string `json:"name" validate:"required"`
-	ID   int    `json:"id" validate:"required"`
-}
-
-type Identity struct {
-	Issuer string `json:"issuer" validate:"required"`
-}
-
-type IdentityWithDuplicateField struct {
-	Issuer struct {
-		Name string `json:"name" validate:"required"`
-	} `json:"issuer" validate:"required"`
 }
 
 // AsClient returns the union data inside the ClientAndMaybeIdentity as a Client

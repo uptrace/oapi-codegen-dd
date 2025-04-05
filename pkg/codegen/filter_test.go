@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestFilterOperationsByTag(t *testing.T) {
@@ -16,14 +17,17 @@ func TestFilterOperationsByTag(t *testing.T) {
 					Tags: []string{"hippo", "giraffe", "cat"},
 				},
 			},
-			UseSingleOutput: true,
+			Output: &Output{
+				UseSingleFile: true,
+			},
 		}
 
 		// Run our code generation:
 		code, err := Generate([]byte(testDocument), cfg)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotEmpty(t, code)
-		assert.Contains(t, code, `type CatDeadCause string`)
+
+		assert.Contains(t, code.GetCombined(), `type CatDeadCause string`)
 	})
 
 	t.Run("exclude tags", func(t *testing.T) {
@@ -34,14 +38,16 @@ func TestFilterOperationsByTag(t *testing.T) {
 					Tags: []string{"hippo", "giraffe", "cat"},
 				},
 			},
-			UseSingleOutput: true,
+			Output: &Output{
+				UseSingleFile: true,
+			},
 		}
 
 		// Run our code generation:
 		code, err := Generate([]byte(testDocument), opts)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotEmpty(t, code)
-		assert.NotContains(t, code, `"/cat"`)
+		assert.NotContains(t, code.GetCombined(), `"/cat"`)
 	})
 }
 
@@ -56,14 +62,16 @@ func TestFilterOperationsByOperationID(t *testing.T) {
 					OperationIDs: []string{"getCatStatus"},
 				},
 			},
-			UseSingleOutput: true,
+			Output: &Output{
+				UseSingleFile: true,
+			},
 		}
 
 		// Run our code generation:
 		code, err := Generate([]byte(testDocument), opts)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotEmpty(t, code)
-		assert.Contains(t, code, `type CatDeadCause string`)
+		assert.Contains(t, code.GetCombined(), `type CatDeadCause string`)
 	})
 
 	t.Run("exclude operation ids", func(t *testing.T) {
@@ -78,8 +86,8 @@ func TestFilterOperationsByOperationID(t *testing.T) {
 
 		// Run our code generation:
 		code, err := Generate([]byte(testDocument), opts)
-		assert.NoError(t, err)
+		require.NoError(t, err)
 		assert.NotEmpty(t, code)
-		assert.NotContains(t, code, `"/cat"`)
+		assert.NotContains(t, code.GetCombined(), `"/cat"`)
 	})
 }

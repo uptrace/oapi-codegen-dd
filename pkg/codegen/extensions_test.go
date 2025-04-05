@@ -44,7 +44,7 @@ func Test_extTypeName(t *testing.T) {
 				err := json.Unmarshal(tt.args.extPropValue, &extPropValue)
 				assert.NoError(t, err)
 			}
-			got, err := extString(extPropValue)
+			got, err := parseString(extPropValue)
 			if tt.wantErr {
 				assert.Error(t, err)
 				return
@@ -93,12 +93,12 @@ func Test_extParsePropGoTypeSkipOptionalPointer(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// kin-openapi no longer returns these as RawMessage
-			var extPropValue interface{}
+			var extPropValue any
 			if tt.args.extPropValue != nil {
 				err := json.Unmarshal(tt.args.extPropValue, &extPropValue)
 				assert.NoError(t, err)
 			}
-			got, err := extParsePropGoTypeSkipOptionalPointer(extPropValue)
+			got, err := parseBooleanValue(extPropValue)
 			if tt.wantErr {
 				assert.Error(t, err)
 				return

@@ -26,35 +26,27 @@ type operationsCollection struct {
 }
 
 // Generate creates Go code from an OpenAPI document and a configuration in single file output.
-func Generate(docContents []byte, cfg Configuration) (string, error) {
+func Generate(docContents []byte, cfg Configuration) (GeneratedCode, error) {
+	cfg = cfg.Merge(NewDefaultConfiguration())
 	parseCtx, errs := CreateParseContext(docContents, cfg)
 	if errs != nil {
-		return "", fmt.Errorf("error creating parse context: %w", errs[0])
+		return nil, fmt.Errorf("error creating parse context: %w", errs[0])
 	}
 	if parseCtx == nil {
-		return "", ErrEmptySchema
+		return nil, ErrEmptySchema
 	}
 
 	parser, err := NewParser(cfg, parseCtx)
 	if err != nil {
-		return "", fmt.Errorf("error creating parser: %w", err)
+		return nil, fmt.Errorf("error creating parser: %w", err)
 	}
 
-	codes, err := parser.Parse()
-	if err != nil {
-		return "", fmt.Errorf("error parsing: %w", err)
-	}
-
-	// original behavior is single file output
-	return FormatCode(codes["all"]), nil
+	return parser.Parse()
 }
 
 // CreateParseContext creates a ParseContext from an OpenAPI contents and a ParseConfig.
 func CreateParseContext(docContents []byte, cfg Configuration) (*ParseContext, []error) {
-	// TODO: merge config with default values
-	if cfg.PackageName == "" {
-		cfg = NewDefaultConfiguration()
-	}
+	cfg = cfg.Merge(NewDefaultConfiguration())
 
 	doc, err := loadDocumentFromContents(docContents)
 	if err != nil {
@@ -166,11 +158,15 @@ func createParseContextFromDocument(doc libopenapi.Document, cfg Configuration) 
 			collected = true
 		}
 
-		if !collected && td.Name != "" && td.SpecLocation != "" {
-			if _, found := groupedTypeDefs[td.SpecLocation]; !found {
-				groupedTypeDefs[td.SpecLocation] = []TypeDefinition{}
+		if !collected && td.Name != "" {
+			specLocation := td.SpecLocation
+			if specLocation == "" {
+				specLocation = SpecLocationSchema
 			}
-			groupedTypeDefs[td.SpecLocation] = append(groupedTypeDefs[td.SpecLocation], td)
+			if _, found := groupedTypeDefs[specLocation]; !found {
+				groupedTypeDefs[specLocation] = []TypeDefinition{}
+			}
+			groupedTypeDefs[specLocation] = append(groupedTypeDefs[specLocation], td)
 		}
 	}
 
