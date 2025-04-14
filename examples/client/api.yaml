@@ -15,6 +15,12 @@ paths:
                 $ref: "#/components/schemas/ClientType"
     put:
       operationId: updateClient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClientType"
       responses:
         400:
           description: Bad Request

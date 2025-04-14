@@ -5,10 +5,51 @@ package client
 import (
 	"encoding/json"
 
+	"github.com/doordash/oapi-codegen/v3/pkg/runtime"
 	"github.com/go-playground/validator/v10"
 )
 
 var clientOptionsValidate = validator.New(validator.WithRequiredStructEnabled())
+
+// UpdateClientRequestOptions is the options needed to make a request to UpdateClient.
+type UpdateClientRequestOptions struct {
+	Body *UpdateClientBody
+}
+
+// Validate validates all the fields in the options.
+// Use it if fields validation was not run.
+func (o *UpdateClientRequestOptions) Validate() error {
+	var errors runtime.ValidationErrors
+
+	if err := clientOptionsValidate.Struct(o.Body); err != nil {
+		errors = append(errors, runtime.NewValidationErrorsFromErrors("Body", []error{err})...)
+	}
+	if len(errors) == 0 {
+		return nil
+	}
+
+	return errors
+}
+
+// GetPathParams returns the path params as a map.
+func (o *UpdateClientRequestOptions) GetPathParams() (map[string]any, error) {
+	return nil, nil
+}
+
+// GetQuery returns the query params as a map.
+func (o *UpdateClientRequestOptions) GetQuery() (map[string]any, error) {
+	return nil, nil
+}
+
+// GetBody returns the payload in any type that can be marshalled to JSON by the client.
+func (o *UpdateClientRequestOptions) GetBody() any {
+	return o.Body
+}
+
+// GetHeader returns the headers as a map.
+func (o *UpdateClientRequestOptions) GetHeader() (map[string]string, error) {
+	return nil, nil
+}
 
 func asMap[V any](v any) (map[string]V, error) {
 	if v == nil {

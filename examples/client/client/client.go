@@ -78,7 +78,7 @@ func WithRequestEditorFn(fn RequestEditorFn) ClientOption {
 type ClientInterface interface {
 	GetClient(ctx context.Context, reqEditors ...RequestEditorFn) (*GetClientResponse, error)
 
-	UpdateClient(ctx context.Context, reqEditors ...RequestEditorFn) (*struct{}, error)
+	UpdateClient(ctx context.Context, options *UpdateClientRequestOptions, reqEditors ...RequestEditorFn) (*struct{}, error)
 }
 
 func (c *Client) GetClient(ctx context.Context, reqEditors ...RequestEditorFn) (*GetClientResponse, error) {
@@ -118,10 +118,10 @@ func (c *Client) GetClient(ctx context.Context, reqEditors ...RequestEditorFn) (
 	return target, nil
 }
 
-func (c *Client) UpdateClient(ctx context.Context, reqEditors ...RequestEditorFn) (*struct{}, error) {
+func (c *Client) UpdateClient(ctx context.Context, options *UpdateClientRequestOptions, reqEditors ...RequestEditorFn) (*struct{}, error) {
 	var err error
 	reqURL := c.baseURL + "/client"
-	req, err := createRequest(ctx, reqURL, "PUT", nil)
+	req, err := createRequest(ctx, reqURL, "PUT", options)
 	if err != nil {
 		return nil, fmt.Errorf("error creating request: %w", err)
 	}
