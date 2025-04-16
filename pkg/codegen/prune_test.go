@@ -13,8 +13,8 @@ func TestFindReferences(t *testing.T) {
 
 		model, _ := doc.BuildV3Model()
 
-		refs := findComponentRefs(&model.Model)
-		assert.Len(t, refs, 14)
+		refs := findOperationRefs(&model.Model)
+		assert.Len(t, refs, 5)
 	})
 
 	t.Run("only cat", func(t *testing.T) {
@@ -36,8 +36,8 @@ func TestFindReferences(t *testing.T) {
 		assert.Nil(t, errs)
 		m2, _ := doc2.BuildV3Model()
 
-		refs := findComponentRefs(&m2.Model)
-		assert.Len(t, refs, 7)
+		refs := findOperationRefs(&m2.Model)
+		assert.Len(t, refs, 3)
 	})
 
 	t.Run("only dog", func(t *testing.T) {
@@ -58,8 +58,8 @@ func TestFindReferences(t *testing.T) {
 		assert.Nil(t, errs)
 		m2, _ := doc2.BuildV3Model()
 
-		refs := findComponentRefs(&m2.Model)
-		assert.Len(t, refs, 7)
+		refs := findOperationRefs(&m2.Model)
+		assert.Len(t, refs, 3)
 	})
 }
 
@@ -76,8 +76,8 @@ func TestFilterOnlyCat(t *testing.T) {
 		},
 	}
 
-	refs := findComponentRefs(&model.Model)
-	assert.Len(t, refs, 14)
+	refs := findOperationRefs(&model.Model)
+	assert.Len(t, refs, 5)
 	assert.Equal(t, 5, model.Model.Components.Schemas.Len())
 
 	filterOperations(&model.Model, cfg)
@@ -86,8 +86,8 @@ func TestFilterOnlyCat(t *testing.T) {
 	assert.Nil(t, errs)
 	m2, _ := doc2.BuildV3Model()
 
-	refs = findComponentRefs(&m2.Model)
-	assert.Len(t, refs, 7)
+	refs = findOperationRefs(&m2.Model)
+	assert.Len(t, refs, 3)
 
 	assert.NotEmpty(t, m2.Model.Paths.PathItems.GetOrZero("/cat"), "/cat path should still be in spec")
 	assert.NotEmpty(t, m2.Model.Paths.PathItems.GetOrZero("/cat").Get, "GET /cat operation should still be in spec")
@@ -117,8 +117,8 @@ func TestFilterOnlyDog(t *testing.T) {
 		},
 	}
 
-	refs := findComponentRefs(m)
-	assert.Len(t, refs, 14)
+	refs := findOperationRefs(m)
+	assert.Len(t, refs, 5)
 
 	filterOperations(m, cfg)
 
@@ -126,8 +126,8 @@ func TestFilterOnlyDog(t *testing.T) {
 	assert.Nil(t, errs)
 	m2, _ := doc2.BuildV3Model()
 
-	refs = findComponentRefs(&m2.Model)
-	assert.Len(t, refs, 7)
+	refs = findOperationRefs(&m2.Model)
+	assert.Len(t, refs, 3)
 
 	assert.Equal(t, 5, m2.Model.Components.Schemas.Len())
 
