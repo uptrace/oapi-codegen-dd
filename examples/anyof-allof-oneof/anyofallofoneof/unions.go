@@ -4,8 +4,6 @@ package anyofallofoneof
 
 import (
 	"encoding/json"
-
-	"github.com/doordash/oapi-codegen/v3/pkg/runtime"
 )
 
 type ClientAndMaybeIdentity struct {
@@ -30,18 +28,6 @@ func (t *ClientAndMaybeIdentity) FromClient(v Client) error {
 	return err
 }
 
-// MergeClient performs a merge with any union data inside the ClientAndMaybeIdentity, using the provided Client
-func (t *ClientAndMaybeIdentity) MergeClient(v Client) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
 // AsIdentity returns the union data inside the ClientAndMaybeIdentity as a Identity
 func (t *ClientAndMaybeIdentity) AsIdentity() (Identity, error) {
 	var body Identity
@@ -53,18 +39,6 @@ func (t *ClientAndMaybeIdentity) AsIdentity() (Identity, error) {
 func (t *ClientAndMaybeIdentity) FromIdentity(v Identity) error {
 	b, err := json.Marshal(v)
 	t.union = b
-	return err
-}
-
-// MergeIdentity performs a merge with any union data inside the ClientAndMaybeIdentity, using the provided Identity
-func (t *ClientAndMaybeIdentity) MergeIdentity(v Identity) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
 	return err
 }
 
@@ -92,18 +66,6 @@ func (t *ClientOrIdentity) FromClient(v Client) error {
 	return err
 }
 
-// MergeClient performs a merge with any union data inside the ClientOrIdentity, using the provided Client
-func (t *ClientOrIdentity) MergeClient(v Client) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
-	return err
-}
-
 // AsIdentity returns the union data inside the ClientOrIdentity as a Identity
 func (t *ClientOrIdentity) AsIdentity() (Identity, error) {
 	var body Identity
@@ -115,18 +77,6 @@ func (t *ClientOrIdentity) AsIdentity() (Identity, error) {
 func (t *ClientOrIdentity) FromIdentity(v Identity) error {
 	b, err := json.Marshal(v)
 	t.union = b
-	return err
-}
-
-// MergeIdentity performs a merge with any union data inside the ClientOrIdentity, using the provided Identity
-func (t *ClientOrIdentity) MergeIdentity(v Identity) error {
-	b, err := json.Marshal(v)
-	if err != nil {
-		return err
-	}
-
-	merged, err := runtime.JSONMerge(t.union, b)
-	t.union = merged
 	return err
 }
 

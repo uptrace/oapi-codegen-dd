@@ -33,32 +33,6 @@
             t.union = b
             return err
         }
-
-        // Merge{{ .Method }} performs a merge with any union data inside the {{$typeName}}, using the provided {{.}}
-        func (t *{{$typeName}}) Merge{{ .Method }} (v {{.}}) error {
-            {{if $discriminator -}}
-                {{range $value, $type := $discriminator.Mapping -}}
-                    {{if eq $type $element -}}
-                        {{$hasProperty := false -}}
-                        {{range $properties -}}
-                            {{if eq .GoName $discriminator.PropertyName -}}
-                                t.{{$discriminator.PropertyName}} = "{{$value}}"
-                                {{$hasProperty = true -}}
-                            {{end -}}
-                        {{end -}}
-                        {{if not $hasProperty}}v.{{$discriminator.PropertyName}} = "{{$value}}"{{end}}
-                    {{end -}}
-                {{end -}}
-            {{end -}}
-            b, err := json.Marshal(v)
-            if err != nil {
-              return err
-            }
-
-            merged, err := runtime.JSONMerge(t.union, b)
-            t.union = merged
-            return err
-        }
     {{end}}
 
     {{if $discriminator}}
