@@ -49,12 +49,12 @@ func Generate(docContents []byte, cfg Configuration) (GeneratedCode, error) {
 func CreateParseContext(docContents []byte, cfg Configuration) (*ParseContext, []error) {
 	cfg = cfg.Merge(NewDefaultConfiguration())
 
-	doc, err := loadDocumentFromContents(docContents)
+	doc, err := FilterDocument(docContents, cfg)
 	if err != nil {
-		return nil, []error{err}
+		return nil, []error{fmt.Errorf("error filtering document: %w", err)}
 	}
 
-	res, err := createParseContextFromDocument(doc, cfg)
+	res, err := CreateParseContextFromDocument(doc, cfg)
 	if err != nil {
 		return nil, []error{err}
 	}
@@ -62,19 +62,8 @@ func CreateParseContext(docContents []byte, cfg Configuration) (*ParseContext, [
 	return res, nil
 }
 
-func createParseContextFromDocument(doc libopenapi.Document, cfg Configuration) (*ParseContext, error) {
-	doc, err := filterOutDocument(doc, cfg.Filter)
-	if err != nil {
-		return nil, fmt.Errorf("error filtering document: %w", err)
-	}
-
-	if !cfg.SkipPrune {
-		doc, err = pruneSchema(doc)
-		if err != nil {
-			return nil, fmt.Errorf("error pruning unused components: %w", err)
-		}
-	}
-
+func CreateParseContextFromDocument(doc libopenapi.Document, cfg Configuration) (*ParseContext, error) {
+	cfg = cfg.Merge(NewDefaultConfiguration())
 	parseOptions := ParseOptions{
 		OmitDescription: cfg.Generate.OmitDescription,
 	}
