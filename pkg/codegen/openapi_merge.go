@@ -130,6 +130,10 @@ func mergeSchemaProxy(src *base.SchemaProxy, other *base.SchemaProxy) {
 		return
 	}
 
+	if src.Schema() == nil {
+		return
+	}
+
 	for key, value := range other.Schema().Properties.FromOldest() {
 		srcKeySchema, exists := src.Schema().Properties.Get(key)
 		if exists {
