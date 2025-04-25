@@ -13,6 +13,11 @@ func CreateDocument(docContents []byte, cfg Configuration) (libopenapi.Document,
 		return nil, err
 	}
 
+	_, errs := doc.BuildV3Model()
+	if len(errs) > 0 {
+		return nil, errs[0]
+	}
+
 	doc, err = filterOutDocument(doc, cfg.Filter)
 	if err != nil {
 		return nil, fmt.Errorf("error filtering document: %w", err)
