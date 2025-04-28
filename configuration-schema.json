@@ -3,6 +3,7 @@
   "title": "Configuration",
   "description": "Configuration defines code generation customizations.",
   "type": "object",
+  "additionalProperties": false,
   "properties": {
     "package": {
       "type": "string",
