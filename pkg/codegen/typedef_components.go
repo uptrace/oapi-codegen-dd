@@ -136,23 +136,14 @@ func getComponentsRequestBodies(bodies *orderedmap.Map[string, *v3high.RequestBo
 	return types, nil
 }
 
-// getContentResponses generates type definitions for any custom types defined in the
+// getComponentResponses generates type definitions for any custom types defined in the
 // components/responses section of the OpenAPI spec.
-func getContentResponses(responses *orderedmap.Map[string, *v3high.Response], options ParseOptions) ([]TypeDefinition, error) {
+func getComponentResponses(responses *orderedmap.Map[string, *v3high.Response], options ParseOptions) ([]TypeDefinition, error) {
 	var types []TypeDefinition
 
 	for responseName, response := range responses.FromOldest() {
-		// We have to generate the response object. We're only going to
-		// handle media types that conform to JSON. Other responses should
-		// simply be specified as strings or byte arrays.
-
-		jsonCount := 0
-		for mediaType := range response.Content.KeysFromOldest() {
-			if isMediaTypeJson(mediaType) {
-				jsonCount++
-			}
-		}
-
+		// We have to generate the response object.
+		// We're only going to handle media types that conform to JSON.
 		for mediaType, content := range response.Content.FromOldest() {
 			if !isMediaTypeJson(mediaType) {
 				continue
@@ -188,11 +179,10 @@ func getContentResponses(responses *orderedmap.Map[string, *v3high.Response], op
 					return nil, fmt.Errorf("error generating Go type for (%s) in parameter %s: %w",
 						content.Schema.GetReference(), responseName, err)
 				}
-				typeDef.Name = schemaNameToTypeName(refType)
-			}
-
-			if jsonCount > 1 {
-				typeDef.Name = typeDef.Name + mediaTypeToCamelCase(mediaType)
+				renamed := schemaNameToTypeName(refType)
+				// typeDef.Name = renamed
+				typeDef.Schema.RefType = renamed
+				typeDef.Schema.DefineViaAlias = true
 			}
 
 			types = append(types, typeDef)

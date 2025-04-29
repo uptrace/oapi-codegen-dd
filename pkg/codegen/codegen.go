@@ -153,13 +153,18 @@ func CreateParseContextFromDocument(doc libopenapi.Document, cfg Configuration) 
 		}
 	}
 
+	respErrs, err := collectResponseErrors(responseErrors, typeDefs)
+	if err != nil {
+		return nil, fmt.Errorf("error collecting response errors: %w", err)
+	}
+
 	return &ParseContext{
 		Operations:      operations,
 		TypeDefinitions: groupedTypeDefs,
 		Enums:           enums,
 		UnionTypes:      unionTypes,
 		Imports:         importMap(imprts).GoImports(),
-		ResponseErrors:  responseErrors,
+		ResponseErrors:  respErrs,
 		TypeRegistry:    registry,
 	}, nil
 }
@@ -332,7 +337,7 @@ func collectComponentDefinitions(model *v3high.Document, options ParseOptions) (
 
 	// Responses
 	if model.Components.Responses != nil {
-		componentResponses, err := getContentResponses(model.Components.Responses, options)
+		componentResponses, err := getComponentResponses(model.Components.Responses, options)
 		if err != nil {
 			return nil, fmt.Errorf("error getting content responses: %w", err)
 		}
@@ -340,4 +345,31 @@ func collectComponentDefinitions(model *v3high.Document, options ParseOptions) (
 	}
 
 	return typeDefs, nil
+}
+
+// collectResponseErrors collects the response errors from the type definitions.
+// We need non-alias types for the response errors, so we could generate Error function.
+func collectResponseErrors(errNames []string, types []TypeDefinition) ([]string, error) {
+	tds := make(map[string]TypeDefinition)
+	for _, typeDef := range types {
+		tds[typeDef.Name] = typeDef
+	}
+
+	var res []string
+	for _, errName := range errNames {
+		name := errName
+		for {
+			typ, found := tds[name]
+			if !found {
+				return nil, fmt.Errorf("error finding type %s", name)
+			}
+			if !typ.IsAlias() {
+				res = append(res, name)
+				break
+			}
+			name = typ.Schema.RefType
+		}
+	}
+
+	return res, nil
 }

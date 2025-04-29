@@ -29,7 +29,6 @@ type HttpRequestDoer interface {
 // Client is the client for the API implementing the Client interface.
 // baseURL is the base URL for the API.
 // httpClient is the HTTP client to use for making requests.
-// logger is the logger to use for logging.
 // requestEditors is a list of callbacks for modifying requests which are generated before sending over the network.
 type Client struct {
 	baseURL        string
