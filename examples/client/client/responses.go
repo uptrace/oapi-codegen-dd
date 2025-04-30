@@ -12,6 +12,6 @@ type UpdateClientErrorResponse struct {
 }
 
 func (r UpdateClientErrorResponse) Error() string {
-	res := r.Code
-	return res
+	res0 := r.Code
+	return res0
 }

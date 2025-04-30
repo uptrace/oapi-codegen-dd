@@ -42,28 +42,34 @@ func (t TypeDefinition) IsOptional() bool {
 // based on the predefined spec error path.
 func (t TypeDefinition) GetErrorResponse(errTypes map[string]string, alias string) string {
 	unknownRes := `return "unknown error"`
+
 	key := t.JsonName
 	if key == "" {
 		key = t.Name
 	}
 
-	if errTypes == nil || errTypes[key] == "" {
+	path, ok := errTypes[key]
+	if !ok || path == "" {
 		return unknownRes
 	}
 
-	path := errTypes[key]
+	var (
+		schema   = t.Schema
+		callPath []keyValue[string, Property]
+	)
 
-	var callPath []keyValue[string, Property]
-	schema := t.Schema
 	for _, part := range strings.Split(path, ".") {
+		found := false
 		for _, prop := range schema.Properties {
 			if prop.JsonFieldName == part {
-				goName := prop.GoName
+				callPath = append(callPath, keyValue[string, Property]{prop.GoName, prop})
 				schema = prop.Schema
-				callPath = append(callPath, keyValue[string, Property]{goName, prop})
-				// next part
+				found = true
 				break
 			}
+		}
+		if !found {
+			return unknownRes
 		}
 	}
 
@@ -71,40 +77,42 @@ func (t TypeDefinition) GetErrorResponse(errTypes map[string]string, alias strin
 		return unknownRes
 	}
 
-	var res []string
-	fstPair := callPath[0]
-	goName, prop := fstPair.key, fstPair.value
-	isStringType := prop.Schema.GoType == "string"
-	res = append(res, fmt.Sprintf("res := %s.%s", alias, goName))
-	if prop.Constraints.Nullable {
-		res = append(res, fmt.Sprintf("if res == nil { %s }", unknownRes))
-	}
+	var (
+		code     []string
+		prevVar  = alias
+		varName  string
+		varIndex = 0
+	)
 
-	last := 0
-	ix := 0
-	for _, pair := range callPath[1:] {
-		name, p := pair.key, pair.value
-		res = append(res, fmt.Sprintf("res%d := res.%s", ix, name))
-		if p.Constraints.Nullable {
-			res = append(res, fmt.Sprintf("if res%d == nil { %s }", ix, unknownRes))
-			res = append(res, fmt.Sprintf("res%d := *res%d", ix+1, ix))
-			ix += 1
+	for _, pair := range callPath {
+		name, prop := pair.key, pair.value
+
+		varName = fmt.Sprintf("res%d", varIndex)
+		code = append(code, fmt.Sprintf("%s := %s.%s", varName, prevVar, name))
+
+		if prop.Constraints.Nullable {
+			code = append(code, fmt.Sprintf("if %s == nil { %s }", varName, unknownRes))
+
+			// Prepare for next access with dereference
+			varIndex++
+			derefVar := fmt.Sprintf("res%d", varIndex)
+			code = append(code, fmt.Sprintf("%s := *%s", derefVar, varName))
+			prevVar = derefVar
+		} else {
+			prevVar = varName
 		}
-		isStringType = p.Schema.GoType == "string"
-		last = ix
+
+		varIndex++
 	}
 
-	if !isStringType {
+	// Final field check
+	lastProp := callPath[len(callPath)-1].value
+	if lastProp.Schema.GoType != "string" {
 		return unknownRes
 	}
 
-	if last > 0 {
-		res = append(res, fmt.Sprintf("return res%d", last))
-	} else {
-		res = append(res, "return res")
-	}
-
-	return strings.Join(res, "\n")
+	code = append(code, fmt.Sprintf("return %s", prevVar))
+	return strings.Join(code, "\n")
 }
 
 // TypeRegistry is a registry of type names.
