@@ -43,12 +43,10 @@
         "type": "string"
       }
     },
-    "name-mapping": {
+    "client": {
       "type": "object",
-      "description": "NameMapping defines a mapping from spec names to Go names.",
-      "additionalProperties": {
-        "type": "string"
-      }
+      "description": "Client defines options for the generated client.",
+      "$ref": "#/definitions/Client"
     },
     "user-templates": {
       "type": "object",
@@ -168,6 +166,21 @@
       "required": [
         "package"
       ]
+    },
+    "Client": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the generated client struct."
+        },
+        "timeout": {
+          "type": "string",
+          "description": "Timeout for the generated client."
+        }
+      },
+      "required": []
     }
   }
 }

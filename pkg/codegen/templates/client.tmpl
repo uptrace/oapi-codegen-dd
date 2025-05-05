@@ -24,7 +24,7 @@ type RequestEditorFn func(ctx context.Context, req *http.Request) error
 
 {{ template "httpRequestDoer" $ }}
 
-{{ $clientName := $config.NameMapping.client }}
+{{ $clientName := $config.Client.Name }}
 // {{$clientName}} is the client for the API implementing the {{$clientName}} interface.
 // baseURL is the base URL for the API.
 // httpClient is the HTTP client to use for making requests.

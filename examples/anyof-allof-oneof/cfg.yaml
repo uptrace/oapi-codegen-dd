@@ -5,5 +5,6 @@ generate:
   client: false
 output:
   use-single-file: false
-name-mapping:
-  client: HTTPClient
+client:
+  name: HTTPClient
+  timeout: 10s
