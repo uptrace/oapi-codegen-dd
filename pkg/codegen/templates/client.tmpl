@@ -245,4 +245,9 @@ func replacePathPlaceholders(reqURL string, pathParams map[string]any) string {
     return reqURL
 }
 
+{{ define "clientHelperFunctions" -}}
+{{ end }}
+
+{{ template "clientHelperFunctions" $ }}
+
 var _ {{$clientName}}Interface = (*{{$clientName}})(nil)
