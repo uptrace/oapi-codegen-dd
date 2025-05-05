@@ -156,6 +156,8 @@ func (c *{{$clientName}}) applyEditors(ctx context.Context, req *http.Request, a
     return nil
 }
 
+{{ template "clientHelperMethods" $ }}
+
 type RequestOptions interface {
     GetPathParams() (map[string]any, error)
     GetQuery() (map[string]any, error)
@@ -244,6 +246,9 @@ func replacePathPlaceholders(reqURL string, pathParams map[string]any) string {
     }
     return reqURL
 }
+
+{{ define "clientHelperMethods" -}}
+{{ end }}
 
 {{ define "clientHelperFunctions" -}}
 {{ end }}
