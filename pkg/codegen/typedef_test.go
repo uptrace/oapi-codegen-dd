@@ -62,6 +62,36 @@ return res1`
 		assert.Equal(t, expected, res)
 	})
 
+	t.Run("property with name error", func(t *testing.T) {
+		typ := TypeDefinition{
+			Name: "ResError",
+			Schema: GoSchema{
+				Properties: []Property{
+					{
+						GoName:        "ErrorData",
+						JsonFieldName: "error",
+						Schema: GoSchema{
+							Properties: []Property{
+								{
+									GoName:        "Message",
+									JsonFieldName: "message",
+									Schema: GoSchema{
+										GoType: "string",
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		}
+		res := typ.GetErrorResponse(map[string]string{"ResError": "error.message"}, "e")
+		expected := `res0 := e.ErrorData
+res1 := res0.Message
+return res1`
+		assert.Equal(t, expected, res)
+	})
+
 	t.Run("nested property without pointer", func(t *testing.T) {
 		typ := TypeDefinition{
 			Name: "ResError",
