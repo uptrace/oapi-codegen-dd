@@ -189,6 +189,12 @@ func mergeSchemaProxy(src *base.SchemaProxy, other *base.SchemaProxy, docModel *
 	if other.Schema().Not != nil {
 		src.Schema().Not = other.Schema().Not
 	}
+
+	if other.Schema().Extensions != nil && other.Schema().Extensions.Len() > 0 {
+		for key, value := range other.Schema().Extensions.FromOldest() {
+			src.Schema().Extensions.Set(key, value)
+		}
+	}
 }
 
 func mergeResponses(src, other *v3.Response, docModel *libopenapi.DocumentModel[v3.Document]) {

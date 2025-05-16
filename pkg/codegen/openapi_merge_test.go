@@ -14,7 +14,7 @@ import (
 
 func loadTestDocuments(t *testing.T, partialPath string) (libopenapi.Document, libopenapi.Document) {
 	t.Helper()
-	partialContent, err := os.ReadFile(partialPath)
+	partialContent, err := os.ReadFile("testdata/" + partialPath)
 	require.NoError(t, err)
 
 	srcDoc, err := LoadDocumentFromContents([]byte(testDocument))
@@ -27,7 +27,7 @@ func loadTestDocuments(t *testing.T, partialPath string) (libopenapi.Document, l
 
 func loadUserDocuments(t *testing.T, partialPath string) (libopenapi.Document, libopenapi.Document) {
 	t.Helper()
-	partialContent, err := os.ReadFile(partialPath)
+	partialContent, err := os.ReadFile("testdata/" + partialPath)
 	require.NoError(t, err)
 
 	srcDoc, err := LoadDocumentFromContents([]byte(userDocument))
@@ -81,9 +81,26 @@ func getPropertyKeys(schemaPr *base.SchemaProxy) []string {
 	return keys
 }
 
+func getPropertyNamesWithExtensions(schemaPr *base.SchemaProxy) []keyValue[string, string] {
+	if schemaPr == nil {
+		return nil
+	}
+
+	var res []keyValue[string, string]
+	for key, value := range schemaPr.Schema().Properties.FromOldest() {
+		vSchema := value.Schema()
+		exts := extractExtensions(vSchema.Extensions)
+		for name, extRaw := range exts {
+			ext, _ := parseString(extRaw)
+			res = append(res, keyValue[string, string]{key: key, value: fmt.Sprintf("%s: %s", name, ext)})
+		}
+	}
+	return res
+}
+
 func TestMergeDocuments(t *testing.T) {
 	t.Run("empty document", func(t *testing.T) {
-		srcDoc, partialDoc := loadTestDocuments(t, "testdata/partial-paths-empty.yml")
+		srcDoc, partialDoc := loadTestDocuments(t, "partial-paths-empty.yml")
 
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
@@ -95,7 +112,7 @@ func TestMergeDocuments(t *testing.T) {
 	})
 
 	t.Run("new path appended", func(t *testing.T) {
-		srcDoc, partialDoc := loadTestDocuments(t, "testdata/partial-paths-new.yml")
+		srcDoc, partialDoc := loadTestDocuments(t, "partial-paths-new.yml")
 
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
@@ -119,7 +136,7 @@ func TestMergeDocuments(t *testing.T) {
 	})
 
 	t.Run("new method appended", func(t *testing.T) {
-		srcDoc, partialDoc := loadTestDocuments(t, "testdata/partial-paths-user-patch.yml")
+		srcDoc, partialDoc := loadTestDocuments(t, "partial-paths-user-patch.yml")
 
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
@@ -138,7 +155,7 @@ func TestMergeDocuments(t *testing.T) {
 	})
 
 	t.Run("new params appended", func(t *testing.T) {
-		srcDoc, partialDoc := loadTestDocuments(t, "testdata/partial-paths-existing-params.yml")
+		srcDoc, partialDoc := loadTestDocuments(t, "partial-paths-existing-params.yml")
 
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
@@ -164,7 +181,7 @@ func TestMergeDocuments(t *testing.T) {
 	})
 
 	t.Run("new request body appended", func(t *testing.T) {
-		srcDoc, partialDoc := loadUserDocuments(t, "testdata/partial-paths-req-body-new.yml")
+		srcDoc, partialDoc := loadUserDocuments(t, "partial-paths-req-body-new.yml")
 
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
@@ -184,7 +201,7 @@ func TestMergeDocuments(t *testing.T) {
 	})
 
 	t.Run("request bodies merged", func(t *testing.T) {
-		srcDoc, partialDoc := loadUserDocuments(t, "testdata/partial-paths-req-body-existing.yml")
+		srcDoc, partialDoc := loadUserDocuments(t, "partial-paths-req-body-existing.yml")
 
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
@@ -287,6 +304,39 @@ func TestMergeDocuments(t *testing.T) {
 		assert.Equal(t, expectedApiKeyEnums, actualApiKeyEnums)
 	})
 
+	t.Run("extensions merged", func(t *testing.T) {
+		srcDoc, partialDoc := loadUserDocuments(t, "partial-paths-user-extensions.yml")
+
+		res, err := MergeDocuments(srcDoc, partialDoc)
+		require.NoError(t, err)
+
+		v3Model, errs := res.BuildV3Model()
+		if errs != nil {
+			t.Fatalf("error building document: %v", errs)
+		}
+		model := v3Model.Model
+
+		userPath, exists := model.Paths.PathItems.Get("/user")
+		require.True(t, exists)
+		assert.NotNil(t, userPath.Put)
+
+		reqBody := userPath.Put.RequestBody
+		require.NotNil(t, reqBody)
+		expectedProps := []keyValue[string, string]{
+			{"name", "x-go-name: new-name"},
+			{"city", "x-go-name: new-city"},
+		}
+		props := getPropertyNamesWithExtensions(reqBody.Content.Value("application/json").Schema)
+		assert.Equal(t, expectedProps, props)
+
+		user := model.Components.Schemas.Value("User")
+		userProps := getPropertyNamesWithExtensions(user)
+		expectedUserProps := []keyValue[string, string]{
+			{"name", "x-go-name: NewComponentUserName"},
+		}
+		assert.Equal(t, expectedUserProps, userProps)
+	})
+
 	t.Run("request body previously inlined can use overwriting ref", func(t *testing.T) {
 		srcDoc, partialDoc := loadPaymentIntentDocuments(t, "partial-intent-req-body-ref.yml")
 
@@ -358,7 +408,7 @@ func TestMergeDocuments(t *testing.T) {
 	})
 
 	t.Run("new response code appended", func(t *testing.T) {
-		srcDoc, partialDoc := loadUserDocuments(t, "testdata/partial-paths-user-new-response.yml")
+		srcDoc, partialDoc := loadUserDocuments(t, "partial-paths-user-new-response.yml")
 
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
@@ -381,7 +431,7 @@ func TestMergeDocuments(t *testing.T) {
 	})
 
 	t.Run("same response code properties merged", func(t *testing.T) {
-		srcDoc, partialDoc := loadUserDocuments(t, "testdata/partial-paths-user-existing-response.yml")
+		srcDoc, partialDoc := loadUserDocuments(t, "partial-paths-user-existing-response.yml")
 
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
@@ -408,7 +458,7 @@ func TestMergeDocuments(t *testing.T) {
 	})
 
 	t.Run("new schema is injected", func(t *testing.T) {
-		srcDoc, partialDoc := loadTestDocuments(t, "testdata/partial-schema-person.yml")
+		srcDoc, partialDoc := loadTestDocuments(t, "partial-schema-person.yml")
 
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
@@ -419,7 +469,7 @@ func TestMergeDocuments(t *testing.T) {
 	})
 
 	t.Run("new properties can be added to existing", func(t *testing.T) {
-		srcDoc, partialDoc := loadTestDocuments(t, "testdata/partial-schema-cat-alive.yml")
+		srcDoc, partialDoc := loadTestDocuments(t, "partial-schema-cat-alive.yml")
 
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
@@ -430,7 +480,7 @@ func TestMergeDocuments(t *testing.T) {
 	})
 
 	t.Run("new nested properties can be added to existing", func(t *testing.T) {
-		srcDoc, partialDoc := loadTestDocuments(t, "testdata/partial-schema-location.yml")
+		srcDoc, partialDoc := loadTestDocuments(t, "partial-schema-location.yml")
 
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
@@ -453,7 +503,7 @@ func TestMergeDocuments(t *testing.T) {
 	})
 
 	t.Run("all-of, any-of appended", func(t *testing.T) {
-		srcDoc, partialDoc := loadTestDocuments(t, "testdata/partial-schema-user.yml")
+		srcDoc, partialDoc := loadTestDocuments(t, "partial-schema-user.yml")
 
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)

@@ -58,6 +58,7 @@ paths:
               properties:
                 name:
                   type: string
+                  x-go-name: old-name
       responses:
         200:
           description: Success
@@ -87,4 +88,5 @@ components:
       properties:
         name:
           type: string
+          x-go-name: ComponentUserName
           description: User name
