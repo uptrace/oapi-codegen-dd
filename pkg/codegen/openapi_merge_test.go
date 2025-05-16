@@ -344,6 +344,8 @@ func TestMergeDocuments(t *testing.T) {
 		// instead of original user_id we have user object with id and name
 		userData := reqBody.Content.Value("application/x-www-form-urlencoded").Schema.Schema().Properties.Value("user_data")
 		require.NotNil(t, userData)
+		userDataRef := userData.GoLow().GetReference()
+		assert.Equal(t, "#/components/schemas/User", userDataRef)
 		expectedUserDataProps := []string{"id", "name"}
 		userDataProps := getPropertyKeys(userData)
 		assert.Equal(t, expectedUserDataProps, userDataProps)

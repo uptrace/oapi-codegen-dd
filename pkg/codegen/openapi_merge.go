@@ -159,7 +159,7 @@ func mergeSchemaProxy(src *base.SchemaProxy, other *base.SchemaProxy, docModel *
 				continue
 			}
 
-			if ok := setFromExtension(srcKeySchema, value, docModel); ok {
+			if setFromExtension(srcKeySchema, value, docModel) {
 				continue
 			}
 
@@ -225,9 +225,21 @@ func setFromExtension(src, other *base.SchemaProxy, docModel *libopenapi.Documen
 	}
 
 	refName, _ := parseString(exts[extSrcMergeRef])
-	ref := docModel.Index.FindComponent(refName)
+
+	const prefix = "#/components/schemas/"
+	if !strings.HasPrefix(refName, prefix) {
+		return false
+	}
+
+	schemaName := strings.TrimPrefix(refName, prefix)
+	if schemaName == "" {
+		return false
+	}
+
+	ref := docModel.Model.Components.Schemas.Value(schemaName)
 	if ref != nil {
-		src.GoLow().SetReference(refName, ref.Node)
+		src.GoLow().SetReference(refName, ref.GoLow().GetReferenceNode())
+		src.Schema().Properties = nil
 		return true
 	}
 
