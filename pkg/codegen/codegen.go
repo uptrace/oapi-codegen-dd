@@ -66,6 +66,7 @@ func CreateParseContextFromDocument(doc libopenapi.Document, cfg Configuration) 
 	cfg = cfg.Merge(NewDefaultConfiguration())
 	parseOptions := ParseOptions{
 		OmitDescription: cfg.Generate.OmitDescription,
+		DefaultIntType:  cfg.Generate.DefaultIntType,
 	}
 
 	builtModel, errs := doc.BuildV3Model()

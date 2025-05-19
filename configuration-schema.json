@@ -93,7 +93,11 @@
         "omit-description": {
           "type": "boolean",
           "description": "OmitDescription specifies whether to omit schema description from the spec in the generated code. Defaults to false."
-        }
+        },
+        "default-int-type": {
+          "type": "string",
+          "description": "DefaultIntType specifies the default integer type to use in the generated code. Can be 'int', 'int32', or 'int64'. Defaults to 'int'."
+        },
       },
       "required": []
     },

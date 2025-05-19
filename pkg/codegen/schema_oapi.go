@@ -63,9 +63,12 @@ func oapiSchemaToGoType(schema *base.Schema, ref string, path []string, options 
 		}, nil
 	}
 
+	goType := options.DefaultIntType
+	if goType == "" {
+		goType = "int"
+	}
+
 	if slices.Contains(t, "integer") {
-		// We default to int if format doesn't ask for something else.
-		goType := "int"
 		switch f {
 		case "int64":
 			goType = "int64"

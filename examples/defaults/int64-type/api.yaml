@@ -1,0 +1,25 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Generate models
+paths:
+  /client:
+    get:
+      operationId: getClient
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Person"
+components:
+  schemas:
+    Person:
+      type: object
+      properties:
+        id:
+          type: integer
+        age:
+          type: integer
+          format: int32

@@ -36,6 +36,7 @@ type Parser struct {
 
 type ParseOptions struct {
 	OmitDescription bool
+	DefaultIntType  string
 }
 
 type EnumContext struct {
