@@ -134,11 +134,13 @@ func genFieldsFromProperties(props []Property, options ParseOptions) []string {
 			fieldTags["json"] = p.JsonFieldName
 			if p.NeedsFormTag {
 				fieldTags["form"] = p.JsonFieldName
+				fieldTags["url"] = p.JsonFieldName
 			}
 		} else {
 			fieldTags["json"] = p.JsonFieldName + ",omitempty"
 			if p.NeedsFormTag {
 				fieldTags["form"] = p.JsonFieldName + ",omitempty"
+				fieldTags["url"] = p.JsonFieldName + ",omitempty"
 			}
 		}
 
