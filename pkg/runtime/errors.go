@@ -55,8 +55,20 @@ func WithStatusCode(code int) ClientAPIErrorOption {
 }
 
 type ValidationError struct {
-	Field string `json:"field"`
-	Error string `json:"error"`
+	Field   string `json:"field"`
+	Message string `json:"message"`
+}
+
+func (e *ValidationError) Error() string {
+	field := e.Field
+	if field != "" {
+		field = fmt.Sprintf("%s ", field)
+	}
+	return fmt.Sprintf("%s%s", field, e.Message)
+}
+
+func NewValidationError(field, message string) *ValidationError {
+	return &ValidationError{Field: field, Message: message}
 }
 
 type ValidationErrors []ValidationError
@@ -64,7 +76,11 @@ type ValidationErrors []ValidationError
 func (ve ValidationErrors) Error() string {
 	var messages []string
 	for _, e := range ve {
-		messages = append(messages, fmt.Sprintf("%s %s", e.Field, e.Error))
+		field := e.Field
+		if field != "" {
+			field = fmt.Sprintf("%s ", field)
+		}
+		messages = append(messages, fmt.Sprintf("%s%s", field, e.Message))
 	}
 	return strings.Join(messages, "\n")
 }
@@ -87,8 +103,8 @@ func NewValidationErrorsFromErrors(prefix string, errs []error) ValidationErrors
 		if errors.As(err, &validationErrors) {
 			for _, ve := range validationErrors {
 				result = append(result, ValidationError{
-					Field: prefix + ve.Field(),
-					Error: convertFieldErrorMessage(ve),
+					Field:   prefix + ve.Field(),
+					Message: convertFieldErrorMessage(ve),
 				})
 			}
 		}

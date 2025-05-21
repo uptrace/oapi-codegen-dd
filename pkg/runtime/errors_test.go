@@ -30,6 +30,18 @@ func TestNewClientAPIError(t *testing.T) {
 	})
 }
 
+func TestNewValidationError(t *testing.T) {
+	t.Run("empty field", func(t *testing.T) {
+		err := NewValidationError("", "is required")
+		assert.Equal(t, "is required", err.Error())
+	})
+
+	t.Run("non-empty field", func(t *testing.T) {
+		err := NewValidationError("foo", "is required")
+		assert.Equal(t, "foo is required", err.Error())
+	})
+}
+
 func TestNewValidationErrorsFromError(t *testing.T) {
 	validate := validator.New(validator.WithRequiredStructEnabled())
 	type Foo struct {
