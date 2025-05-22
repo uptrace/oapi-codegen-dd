@@ -59,7 +59,7 @@ type ValidationError struct {
 	Message string `json:"message"`
 }
 
-func (e *ValidationError) Error() string {
+func (e ValidationError) Error() string {
 	field := e.Field
 	if field != "" {
 		field = fmt.Sprintf("%s ", field)
