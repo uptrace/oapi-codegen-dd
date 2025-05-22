@@ -15,7 +15,6 @@ import (
 
 	"github.com/doordash/oapi-codegen/v3/pkg/runtime"
 	"github.com/go-playground/validator/v10"
-	"github.com/google/go-querystring/query"
 )
 
 // RequestEditorFn is the function signature for the RequestEditor callback function
@@ -143,11 +142,13 @@ type RequestOptions interface {
 	GetHeader() (map[string]string, error)
 }
 
+// RequestOptionsParameters holds the parameters for creating a request.
 type RequestOptionsParameters struct {
-	options     RequestOptions
-	reqURL      string
-	method      string
-	contentType string
+	options      RequestOptions
+	reqURL       string
+	method       string
+	contentType  string
+	bodyEncoding map[string]runtime.FieldEncoding
 }
 
 // createRequest creates a new POST request with the given URL, payload and headers.
@@ -206,11 +207,10 @@ func createRequest(ctx context.Context, params RequestOptionsParameters) (*http.
 	if payload != nil {
 		// Check if request should be form-encoded
 		if strings.HasPrefix(contentType, "application/x-www-form-urlencoded") {
-			formValues, err := query.Values(payload)
+			encodedPayload, err = runtime.EncodeFormFields(payload, params.bodyEncoding)
 			if err != nil {
 				return nil, fmt.Errorf("error encoding form values: %w", err)
 			}
-			encodedPayload = formValues.Encode()
 			bodyReader = strings.NewReader(encodedPayload)
 		} else {
 			// Default to JSON encoding

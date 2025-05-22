@@ -1,5 +1,5 @@
-# yaml-language-server: $schema=../../configuration-schema.json
-package: client
+# yaml-language-server: $schema=../../../configuration-schema.json
+package: example2
 output:
   use-single-file: false
 error-mapping:

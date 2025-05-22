@@ -1,0 +1,10 @@
+# yaml-language-server: $schema=../../../configuration-schema.json
+package: example1
+output:
+  use-single-file: false
+error-mapping:
+  Error: message
+  UpdateClientErrorResponse: code
+generate:
+  client: true
+  omit-description: true

@@ -1,0 +1,61 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Generate models
+paths:
+  /order:
+    post:
+      operationId: createOrder
+      requestBody:
+        content:
+          application/x-www-form-urlencoded:
+            encoding:
+              client_type:
+                explode: true
+                style: deepObject
+            schema:
+              properties:
+                user_id:
+                  type: string
+                client_type:
+                  $ref: '#/components/schemas/ClientType'
+      responses:
+        200:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                type: object
+components:
+  schemas:
+    ClientType:
+      type: object
+      description: "Client type description"
+      required:
+        - name
+      properties:
+        name:
+          type: string
+          description: "Client name description"
+        address:
+          $ref: '#/components/schemas/Address'
+        type:
+          type: string
+          description: "Client type description"
+          enum:
+            - "individual"
+            - "company"
+
+    Address:
+      type: object
+      required:
+        - street
+        - city
+        - zip
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        zip:
+          type: string

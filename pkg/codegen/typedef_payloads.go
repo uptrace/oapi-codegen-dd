@@ -39,6 +39,7 @@ func (r RequestBodyDefinition) IsOptional() bool {
 }
 
 // RequestBodyEncoding describes the encoding options for a request body.
+// @see https://spec.openapis.org/oas/v3.1.0#fixed-fields-12
 type RequestBodyEncoding struct {
 	ContentType string
 	Style       string
