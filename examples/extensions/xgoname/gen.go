@@ -2,12 +2,26 @@
 
 package xgoname
 
+import (
+	"github.com/go-playground/validator/v10"
+)
+
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
+
 type Client struct {
 	Name string   `json:"name" validate:"required"`
 	ID   *float32 `json:"id,omitempty"`
 }
 
+func (c Client) Validate() error {
+	return schemaTypesValidate.Struct(c)
+}
+
 type ClientRenamedByExtension struct {
 	Name              string   `json:"name" validate:"required"`
 	AccountIdentifier *float32 `json:"id,omitempty"`
+}
+
+func (c ClientRenamedByExtension) Validate() error {
+	return schemaTypesValidate.Struct(c)
 }

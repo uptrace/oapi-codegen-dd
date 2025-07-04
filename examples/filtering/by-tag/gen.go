@@ -311,6 +311,12 @@ type GetPurchaseResponse struct {
 	ID int `json:"id" validate:"required"`
 }
 
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
+
 type Purchase struct {
 	ID int `json:"id" validate:"required"`
+}
+
+func (p Purchase) Validate() error {
+	return schemaTypesValidate.Struct(p)
 }

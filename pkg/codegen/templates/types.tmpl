@@ -1,6 +1,6 @@
 {{ template "header" $ }}
 
-{{ $isParam := or (eq .SpecLocation "path") (eq .SpecLocation "query") (eq .SpecLocation "header") (eq .SpecLocation "body") }}
+{{ $isParam := or (eq .SpecLocation "path") (eq .SpecLocation "query") (eq .SpecLocation "header") (eq .SpecLocation "body") (eq .SpecLocation "schema") }}
 {{ $loc := str .SpecLocation }}
 {{ if $isParam }}
 var {{.SpecLocation}}TypesValidate = validator.New(validator.WithRequiredStructEnabled())
@@ -11,7 +11,7 @@ var {{.SpecLocation}}TypesValidate = validator.New(validator.WithRequiredStructE
 {{ $config := .config }}
 {{ $loc := .specLocation }}
 {{ $responseErrors := .responseErrors }}
-{{ $isParam := or (eq $loc "path") (eq $loc "query") (eq $loc "header") (eq $loc "body") }}
+{{ $isParam := or (eq $loc "path") (eq $loc "query") (eq $loc "header") (eq $loc "body") (eq $loc "schema") }}
 {{ $alias := .alias }}
 {{ if not $alias}}{{ $alias = $td.Name | fst | lower }}{{ end }}
 

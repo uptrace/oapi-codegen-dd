@@ -2,12 +2,26 @@
 
 package xoapicodegenextratags
 
+import (
+	"github.com/go-playground/validator/v10"
+)
+
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
+
 type Client struct {
 	Name string  `json:"name" validate:"required"`
 	ID   float32 `json:"id" validate:"required"`
 }
 
+func (c Client) Validate() error {
+	return schemaTypesValidate.Struct(c)
+}
+
 type ClientWithExtension struct {
 	Name string  `json:"name" validate:"required"`
 	ID   float32 `gorm:"primarykey" json:"id" safe-to-log:"true" validate:"required,min=1,max=256"`
+}
+
+func (c ClientWithExtension) Validate() error {
+	return schemaTypesValidate.Struct(c)
 }

@@ -2,6 +2,10 @@
 
 package namingconflict2
 
+import (
+	"github.com/go-playground/validator/v10"
+)
+
 type SourceType string
 
 const (
@@ -16,10 +20,16 @@ const (
 	PaymentSourceTypeAlipay            PaymentSourceType = "alipay"
 )
 
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
+
 type Payment struct {
 	Source *struct {
 		Type *PaymentSourceType `json:"type,omitempty"`
 	} `json:"source,omitempty"`
+}
+
+func (p Payment) Validate() error {
+	return schemaTypesValidate.Struct(p)
 }
 
 type Choice = SourceType
@@ -28,4 +38,8 @@ type SourceTypeAlipay struct {
 	DataString          *string `json:"data_string,omitempty"`
 	NativeURL           *string `json:"native_url,omitempty"`
 	StatementDescriptor *string `json:"statement_descriptor,omitempty"`
+}
+
+func (s SourceTypeAlipay) Validate() error {
+	return schemaTypesValidate.Struct(s)
 }

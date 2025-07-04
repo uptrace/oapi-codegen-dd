@@ -371,12 +371,22 @@ func (r UpdateClientErrorResponse) Error() string {
 	return res0
 }
 
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
+
 type Person struct {
 	Name       string `json:"name" validate:"required"`
 	Age        *int   `json:"age,omitempty"`
 	Employment *Job   `json:"employment,omitempty"`
 }
 
+func (p Person) Validate() error {
+	return schemaTypesValidate.Struct(p)
+}
+
 type Job struct {
 	Title string `json:"title" validate:"required"`
+}
+
+func (j Job) Validate() error {
+	return schemaTypesValidate.Struct(j)
 }

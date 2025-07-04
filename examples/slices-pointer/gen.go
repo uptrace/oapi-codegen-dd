@@ -2,13 +2,31 @@
 
 package slicespointer
 
+import (
+	"github.com/go-playground/validator/v10"
+)
+
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
+
 type Payments []string
 
+func (p Payments) Validate() error {
+	return schemaTypesValidate.Struct(p)
+}
+
 type Data map[string]any
+
+func (d Data) Validate() error {
+	return schemaTypesValidate.Struct(d)
+}
 
 type User struct {
 	Payments Payments       `json:"payments,omitempty"`
 	Data     Data           `json:"data,omitempty"`
 	Prefs    []string       `json:"prefs,omitempty"`
 	Address  map[string]any `json:"address,omitempty"`
+}
+
+func (u User) Validate() error {
+	return schemaTypesValidate.Struct(u)
 }

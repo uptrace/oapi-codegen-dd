@@ -2,6 +2,10 @@
 
 package namingconflict
 
+import (
+	"github.com/go-playground/validator/v10"
+)
+
 type Type string
 
 const (
@@ -9,11 +13,21 @@ const (
 	TypeSourceTypeACHCreditTransfer Type = "source_type_ach_credit_transfer"
 )
 
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
+
 type Source struct {
 	ACHCreditTransfer *SourceTypeACHCreditTransfer `json:"ach_credit_transfer,omitempty"`
+}
+
+func (s Source) Validate() error {
+	return schemaTypesValidate.Struct(s)
 }
 
 type SourceTypeACHCreditTransfer struct {
 	AccountNumber *string `json:"account_number,omitempty"`
 	BankName      *string `json:"bank_name,omitempty"`
+}
+
+func (s SourceTypeACHCreditTransfer) Validate() error {
+	return schemaTypesValidate.Struct(s)
 }

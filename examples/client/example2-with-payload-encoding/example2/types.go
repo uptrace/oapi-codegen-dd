@@ -2,14 +2,28 @@
 
 package example2
 
+import (
+	"github.com/go-playground/validator/v10"
+)
+
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
+
 type ClientType struct {
 	Name    string          `json:"name" validate:"required"`
 	Address *Address        `json:"address,omitempty"`
 	Type    *ClientTypeType `json:"type,omitempty"`
 }
 
+func (c ClientType) Validate() error {
+	return schemaTypesValidate.Struct(c)
+}
+
 type Address struct {
 	Street string `json:"street" validate:"required"`
 	City   string `json:"city" validate:"required"`
 	Zip    string `json:"zip" validate:"required"`
+}
+
+func (a Address) Validate() error {
+	return schemaTypesValidate.Struct(a)
 }

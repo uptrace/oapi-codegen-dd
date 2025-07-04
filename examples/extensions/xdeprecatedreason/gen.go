@@ -2,13 +2,27 @@
 
 package xdeprecatedreason
 
+import (
+	"github.com/go-playground/validator/v10"
+)
+
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
+
 type Client struct {
 	Name string   `json:"name" validate:"required"`
 	ID   *float32 `json:"id,omitempty"`
+}
+
+func (c Client) Validate() error {
+	return schemaTypesValidate.Struct(c)
 }
 
 type ClientWithExtension struct {
 	// Deprecated: Don't use because reasons
 	Name string   `json:"name" validate:"required"`
 	ID   *float32 `json:"id,omitempty"`
+}
+
+func (c ClientWithExtension) Validate() error {
+	return schemaTypesValidate.Struct(c)
 }

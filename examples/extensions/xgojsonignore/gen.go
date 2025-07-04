@@ -2,6 +2,12 @@
 
 package xgojsonignore
 
+import (
+	"github.com/go-playground/validator/v10"
+)
+
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
+
 type Client struct {
 	Name         string `json:"name" validate:"required"`
 	ComplexField *struct {
@@ -10,10 +16,18 @@ type Client struct {
 	} `json:"complexField,omitempty"`
 }
 
+func (c Client) Validate() error {
+	return schemaTypesValidate.Struct(c)
+}
+
 type ClientWithExtension struct {
 	Name         string `json:"name" validate:"required"`
 	ComplexField *struct {
 		Name        *string `json:"name,omitempty"`
 		AccountName *string `json:"accountName,omitempty"`
 	} `json:"-"`
+}
+
+func (c ClientWithExtension) Validate() error {
+	return schemaTypesValidate.Struct(c)
 }

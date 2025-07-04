@@ -5,19 +5,35 @@ package anyofwithextra
 import (
 	"encoding/json"
 	"fmt"
+
+	"github.com/go-playground/validator/v10"
 )
+
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
 
 type Client struct {
 	Name string `json:"name" validate:"required"`
+}
+
+func (c Client) Validate() error {
+	return schemaTypesValidate.Struct(c)
 }
 
 type ClientID struct {
 	ID *string `json:"id,omitempty"`
 }
 
+func (c ClientID) Validate() error {
+	return schemaTypesValidate.Struct(c)
+}
+
 type Address struct {
 	Street               *string        `json:"street,omitempty"`
 	AdditionalProperties map[string]any `json:"-"`
+}
+
+func (a Address) Validate() error {
+	return schemaTypesValidate.Struct(a)
 }
 
 // Getter for additional properties for Address. Returns the specified

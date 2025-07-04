@@ -3,11 +3,18 @@
 package multipleresponses
 
 import (
+	"github.com/go-playground/validator/v10"
 	"github.com/google/uuid"
 )
 
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
+
 type LinksSelf struct {
 	Self *string `json:"self,omitempty"`
+}
+
+func (l LinksSelf) Validate() error {
+	return schemaTypesValidate.Struct(l)
 }
 
 type Problem struct {
@@ -16,6 +23,10 @@ type Problem struct {
 	Detail   *string `json:"detail,omitempty"`
 	Instance *string `json:"instance,omitempty"`
 	Status   *int    `json:"status,omitempty"`
+}
+
+func (p Problem) Validate() error {
+	return schemaTypesValidate.Struct(p)
 }
 
 func (s Problem) Error() string {
@@ -28,4 +39,8 @@ type Booking struct {
 	PassengerName *string    `json:"passenger_name,omitempty"`
 	HasBicycle    *bool      `json:"has_bicycle,omitempty"`
 	HasDog        *bool      `json:"has_dog,omitempty"`
+}
+
+func (b Booking) Validate() error {
+	return schemaTypesValidate.Struct(b)
 }
