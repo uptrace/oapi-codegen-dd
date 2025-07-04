@@ -3,8 +3,11 @@
 package xgotype
 
 import (
+	"github.com/go-playground/validator/v10"
 	googleuuid "github.com/google/uuid"
 )
+
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
 
 type Client struct {
 	Name string   `json:"name" validate:"required"`

@@ -2,6 +2,10 @@
 
 package namingconflict2
 
+import (
+	"github.com/go-playground/validator/v10"
+)
+
 type SourceType string
 
 const (
@@ -15,6 +19,8 @@ const (
 	PaymentSourceTypeACHCreditTransfer PaymentSourceType = "ach_credit_transfer"
 	PaymentSourceTypeAlipay            PaymentSourceType = "alipay"
 )
+
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
 
 type Payment struct {
 	Source *struct {

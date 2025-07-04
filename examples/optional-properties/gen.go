@@ -310,6 +310,8 @@ type PostPaymentsBody = Purchase
 
 type PostPaymentsResponse = string
 
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
+
 type Purchase struct {
 	User *User `json:"user,omitempty"`
 }

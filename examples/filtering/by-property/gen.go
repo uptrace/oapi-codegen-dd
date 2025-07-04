@@ -371,6 +371,8 @@ func (r UpdateClientErrorResponse) Error() string {
 	return res0
 }
 
+var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
+
 type Person struct {
 	Name       string `json:"name" validate:"required"`
 	Age        *int   `json:"age,omitempty"`
