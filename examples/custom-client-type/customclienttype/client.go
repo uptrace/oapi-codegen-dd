@@ -34,6 +34,7 @@ type CustomClientType struct {
 	httpClient       HttpRequestDoer
 	requestEditors   []RequestEditorFn
 	httpCallRecorder runtime.HTTPCallRecorder
+	logger           runtime.Logger
 }
 
 // ClientOption allows setting custom parameters during construction.
@@ -77,6 +78,13 @@ func WithRequestEditorFn(fn RequestEditorFn) CustomClientTypeOption {
 func WithHTTPCallRecorder(httpCallRecorder runtime.HTTPCallRecorder) CustomClientTypeOption {
 	return func(c *CustomClientType) error {
 		c.httpCallRecorder = httpCallRecorder
+		return nil
+	}
+}
+
+func WithLogger(logger runtime.Logger) CustomClientTypeOption {
+	return func(c *CustomClientType) error {
+		c.logger = logger
 		return nil
 	}
 }

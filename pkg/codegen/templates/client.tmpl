@@ -135,6 +135,7 @@ if resp.StatusCode != {{$op.Response.SuccessStatusCode}} {
         httpClient HttpRequestDoer
         requestEditors []RequestEditorFn
         httpCallRecorder runtime.HTTPCallRecorder
+        logger runtime.Logger
     }
 {{- end -}}
 
@@ -189,6 +190,13 @@ func WithRequestEditorFn(fn RequestEditorFn) {{$clientName}}Option {
 func WithHTTPCallRecorder(httpCallRecorder runtime.HTTPCallRecorder) {{$clientName}}Option {
     return func(c *{{$clientName}}) error {
         c.httpCallRecorder = httpCallRecorder
+        return nil
+    }
+}
+
+func WithLogger(logger runtime.Logger) {{$clientName}}Option {
+    return func(c *{{$clientName}}) error {
+        c.logger = logger
         return nil
     }
 }
