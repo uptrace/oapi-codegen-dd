@@ -12,6 +12,7 @@ import (
 var (
 	ErrValidationEmail         = errors.New("email: failed to pass regex validation")
 	ErrFailedToUnmarshalAsAOrB = errors.New("failed to unmarshal as either A or B")
+	ErrMissingRequestOptions   = errors.New("request options must be set")
 )
 
 type ClientAPIErrorOption func(*ClientAPIError)
