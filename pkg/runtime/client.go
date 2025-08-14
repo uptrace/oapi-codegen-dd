@@ -97,8 +97,12 @@ func (c *Client) CreateRequest(ctx context.Context, params RequestOptionsParamet
 	}
 
 	if c.logger != nil {
-		body, _ := io.ReadAll(req.Body)
-		req.Body = io.NopCloser(bytes.NewReader(body))
+		var body []byte
+		if req.Body != nil {
+			body, _ = io.ReadAll(req.Body)
+			req.Body = io.NopCloser(bytes.NewReader(body))
+		}
+
 		c.logger(ctx, LogEntry{
 			Message: "Outgoing request",
 			Prefix:  "request.",

@@ -83,11 +83,25 @@ func TestClient_CreateRequest(t *testing.T) {
 			expectedURL:    "https://api.example.com/users",
 			expectedError:  false,
 		},
+		{
+			name: "creates POST request without body",
+			params: RequestOptionsParameters{
+				Options:     mockRequestOptions{},
+				RequestURL:  "https://api.example.com/users",
+				Method:      "POST",
+				ContentType: "application/json",
+			},
+			expectedMethod: "POST",
+			expectedURL:    "https://api.example.com/users",
+			expectedError:  false,
+		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := &Client{}
+			client := &Client{
+				logger: func(ctx context.Context, l LogEntry) {},
+			}
 			req, err := client.CreateRequest(context.Background(), tt.params)
 
 			if tt.expectedError {
