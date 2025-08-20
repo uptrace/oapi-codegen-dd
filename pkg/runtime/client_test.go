@@ -24,6 +24,10 @@ func (m mockRequestOptions) GetQuery() (map[string]any, error)      { return m.q
 func (m mockRequestOptions) GetBody() any                           { return m.body }
 func (m mockRequestOptions) GetHeader() (map[string]string, error)  { return m.header, nil }
 
+type mockHTTPCallRecorder struct {
+	data []HTTPCall
+}
+
 type MockHttpRequestDoer struct {
 	response *http.Response
 	err      error
@@ -31,6 +35,10 @@ type MockHttpRequestDoer struct {
 
 func (m *MockHttpRequestDoer) Do(_ context.Context, _ *http.Request) (*http.Response, error) {
 	return m.response, m.err
+}
+
+func (m *mockHTTPCallRecorder) Record(call HTTPCall) {
+	m.data = append(m.data, call)
 }
 
 func TestClient_GetBaseURL(t *testing.T) {
@@ -91,7 +99,9 @@ func TestClient_CreateRequest(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			client := &Client{}
+			client := &Client{
+				logger: func(ctx context.Context, l LogEntry) {},
+			}
 			req, err := client.CreateRequest(context.Background(), tt.params)
 
 			if tt.expectedError {
@@ -152,9 +162,11 @@ func TestClient_ExecuteRequest(t *testing.T) {
 				response: tt.mockResponse,
 				err:      tt.mockError,
 			}
+			recorder := &mockHTTPCallRecorder{data: []HTTPCall{}}
 
 			client := &Client{
-				httpClient: mockDoer,
+				httpClient:       mockDoer,
+				httpCallRecorder: recorder,
 			}
 
 			req, _ := http.NewRequest(http.MethodGet, "http://example.com", nil)
@@ -167,6 +179,8 @@ func TestClient_ExecuteRequest(t *testing.T) {
 
 			assert.NoError(t, err)
 			assert.Equal(t, tt.expectedStatus, resp.StatusCode)
+			assert.Equal(t, 1, len(recorder.data))
+			assert.Equal(t, "/test/{id}", recorder.data[0].Path)
 		})
 	}
 }
@@ -186,7 +200,7 @@ func TestNewAPIClient(t *testing.T) {
 		{
 			name:        "creates client with multiple options",
 			baseURL:     "https://api.example.com",
-			opts:        []APIClientOption{WithHTTPClient(&MockHttpRequestDoer{})},
+			opts:        []APIClientOption{WithHTTPClient(&MockHttpRequestDoer{}), WithHTTPCallRecorder(&mockHTTPCallRecorder{})},
 			expectError: false,
 		},
 	}
@@ -220,6 +234,15 @@ func TestWithRequestEditorFn(t *testing.T) {
 	err := WithRequestEditorFn(editor)(client)
 	assert.NoError(t, err)
 	assert.Len(t, client.requestEditors, 1)
+}
+
+func TestWithHTTPCallRecorder(t *testing.T) {
+	recorder := &mockHTTPCallRecorder{}
+	client := &Client{}
+
+	err := WithHTTPCallRecorder(recorder)(client)
+	assert.NoError(t, err)
+	assert.Equal(t, recorder, client.httpCallRecorder)
 }
 
 func TestReplacePathPlaceholders(t *testing.T) {
