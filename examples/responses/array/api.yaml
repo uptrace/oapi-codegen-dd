@@ -1,0 +1,42 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Files
+paths:
+  /files:
+    get:
+      operationId: getFiles
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  oneOf:
+                    - allOf:
+                        - $ref: '#/components/schemas/VariantA'
+                        - $ref: '#/components/schemas/VariantB'
+                    - $ref: '#/components/schemas/VariantC'
+          description:
+        default:
+          description: unexpected error
+components:
+  schemas:
+    VariantA:
+      type: object
+      properties:
+        a:
+          type: string
+
+    VariantB:
+      type: object
+      properties:
+        b:
+          type: string
+
+    VariantC:
+      type: object
+      properties:
+        c:
+          type: string

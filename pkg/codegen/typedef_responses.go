@@ -177,10 +177,15 @@ func getOperationResponses(operationID string, responses *v3high.Responses, opti
 		nameSuffixes := []string{tag, tag + codeName}
 		responseName := generateTypeName(options.currentTypes, baseName, nameSuffixes)
 
+		if contentSchema.ArrayType != nil {
+			contentSchema, _ = replaceInlineTypes(contentSchema, options)
+		}
+
 		td := TypeDefinition{
-			Name:         responseName,
-			Schema:       contentSchema,
-			SpecLocation: SpecLocationResponse,
+			Name:           responseName,
+			Schema:         contentSchema,
+			SpecLocation:   SpecLocationResponse,
+			NeedsMarshaler: needsMarshaler(contentSchema),
 		}
 		options.AddType(td)
 		typeDefinitions = append(typeDefinitions, td)
@@ -250,10 +255,14 @@ func getOperationResponses(operationID string, responses *v3high.Responses, opti
 				contentSchema.RefType = refType
 			}
 			responseName := operationID + typeSuffix
+			if contentSchema.ArrayType != nil {
+				contentSchema, _ = replaceInlineTypes(contentSchema, options)
+			}
 			td := TypeDefinition{
-				Name:         responseName,
-				Schema:       contentSchema,
-				SpecLocation: SpecLocationResponse,
+				Name:           responseName,
+				Schema:         contentSchema,
+				SpecLocation:   SpecLocationResponse,
+				NeedsMarshaler: needsMarshaler(contentSchema),
 			}
 			options.AddType(td)
 			typeDefinitions = append(typeDefinitions, td)

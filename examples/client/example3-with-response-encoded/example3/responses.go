@@ -2,6 +2,14 @@
 
 package example3
 
+import (
+	"bytes"
+	"encoding/json"
+	"fmt"
+
+	"github.com/doordash/oapi-codegen/v3/pkg/runtime"
+)
+
 type GetUserSingleResponse struct {
 	ID      string  `json:"id" validate:"required"`
 	Name    *string `json:"name,omitempty"`
@@ -12,10 +20,118 @@ type GetUserUnion1Response struct {
 	GetUserUnion1_Response_OneOf *GetUserUnion1_Response_OneOf `json:"-"`
 }
 
+func (g GetUserUnion1Response) MarshalJSON() ([]byte, error) {
+	// Collect each branch as an object JSON ({} if nil/null).
+	var parts []json.RawMessage
+
+	{
+		b, err := runtime.MarshalJSON(g.GetUserUnion1_Response_OneOf)
+		if err != nil {
+			return nil, fmt.Errorf("GetUserUnion1_Response_OneOf marshal: %w", err)
+		}
+		parts = append(parts, b)
+	}
+
+	return runtime.CoalesceOrMerge(parts...)
+}
+
+func (g *GetUserUnion1Response) UnmarshalJSON(data []byte) error {
+	trim := bytes.TrimSpace(data)
+	if bytes.Equal(trim, []byte("null")) {
+		// keep zero value (all branches nil)
+		return nil
+	}
+	if len(trim) == 0 {
+		return fmt.Errorf("JSON object expected, got %s", string(trim))
+	}
+
+	if g.GetUserUnion1_Response_OneOf == nil {
+		g.GetUserUnion1_Response_OneOf = &GetUserUnion1_Response_OneOf{}
+	}
+
+	if err := runtime.UnmarshalJSON(data, g.GetUserUnion1_Response_OneOf); err != nil {
+		return fmt.Errorf("GetUserUnion1_Response_OneOf unmarshal: %w", err)
+	}
+
+	return nil
+}
+
 type GetUserUnion2Response struct {
 	GetUserUnion2_Response_OneOf *GetUserUnion2_Response_OneOf `json:"-"`
 }
 
+func (g GetUserUnion2Response) MarshalJSON() ([]byte, error) {
+	// Collect each branch as an object JSON ({} if nil/null).
+	var parts []json.RawMessage
+
+	{
+		b, err := runtime.MarshalJSON(g.GetUserUnion2_Response_OneOf)
+		if err != nil {
+			return nil, fmt.Errorf("GetUserUnion2_Response_OneOf marshal: %w", err)
+		}
+		parts = append(parts, b)
+	}
+
+	return runtime.CoalesceOrMerge(parts...)
+}
+
+func (g *GetUserUnion2Response) UnmarshalJSON(data []byte) error {
+	trim := bytes.TrimSpace(data)
+	if bytes.Equal(trim, []byte("null")) {
+		// keep zero value (all branches nil)
+		return nil
+	}
+	if len(trim) == 0 {
+		return fmt.Errorf("JSON object expected, got %s", string(trim))
+	}
+
+	if g.GetUserUnion2_Response_OneOf == nil {
+		g.GetUserUnion2_Response_OneOf = &GetUserUnion2_Response_OneOf{}
+	}
+
+	if err := runtime.UnmarshalJSON(data, g.GetUserUnion2_Response_OneOf); err != nil {
+		return fmt.Errorf("GetUserUnion2_Response_OneOf unmarshal: %w", err)
+	}
+
+	return nil
+}
+
 type GetUserUnion3Response struct {
 	GetUserUnion3_Response_OneOf *GetUserUnion3_Response_OneOf `json:"-"`
+}
+
+func (g GetUserUnion3Response) MarshalJSON() ([]byte, error) {
+	// Collect each branch as an object JSON ({} if nil/null).
+	var parts []json.RawMessage
+
+	{
+		b, err := runtime.MarshalJSON(g.GetUserUnion3_Response_OneOf)
+		if err != nil {
+			return nil, fmt.Errorf("GetUserUnion3_Response_OneOf marshal: %w", err)
+		}
+		parts = append(parts, b)
+	}
+
+	return runtime.CoalesceOrMerge(parts...)
+}
+
+func (g *GetUserUnion3Response) UnmarshalJSON(data []byte) error {
+	trim := bytes.TrimSpace(data)
+	if bytes.Equal(trim, []byte("null")) {
+		// keep zero value (all branches nil)
+		return nil
+	}
+	if len(trim) == 0 {
+		return fmt.Errorf("JSON object expected, got %s", string(trim))
+	}
+
+	if g.GetUserUnion3_Response_OneOf == nil {
+		g.GetUserUnion3_Response_OneOf = &GetUserUnion3_Response_OneOf{}
+	}
+
+	if err := runtime.UnmarshalJSON(data, g.GetUserUnion3_Response_OneOf); err != nil {
+		return fmt.Errorf("GetUserUnion3_Response_OneOf unmarshal: %w", err)
+	}
+
+	return nil
 }

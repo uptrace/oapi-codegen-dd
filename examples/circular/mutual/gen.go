@@ -116,9 +116,7 @@ const (
 	FileLinkObjectFileLink FileLinkObject = "file_link"
 )
 
-type GetFilesResponse []struct {
-	GetFiles_Response_OneOf *GetFiles_Response_OneOf `json:"-"`
-}
+type GetFilesResponse []GetFiles_Response
 
 var schemaTypesValidate = validator.New(validator.WithRequiredStructEnabled())
 
@@ -298,6 +296,50 @@ func (u *User_Avatar) UnmarshalJSON(data []byte) error {
 
 	if err := runtime.UnmarshalJSON(data, u.User_Avatar_AnyOf); err != nil {
 		return fmt.Errorf("User_Avatar_AnyOf unmarshal: %w", err)
+	}
+
+	return nil
+}
+
+type GetFiles_Response struct {
+	GetFiles_Response_OneOf *GetFiles_Response_OneOf `json:"-"`
+}
+
+func (g GetFiles_Response) Validate() error {
+	return schemaTypesValidate.Struct(g)
+}
+
+func (g GetFiles_Response) MarshalJSON() ([]byte, error) {
+	// Collect each branch as an object JSON ({} if nil/null).
+	var parts []json.RawMessage
+
+	{
+		b, err := runtime.MarshalJSON(g.GetFiles_Response_OneOf)
+		if err != nil {
+			return nil, fmt.Errorf("GetFiles_Response_OneOf marshal: %w", err)
+		}
+		parts = append(parts, b)
+	}
+
+	return runtime.CoalesceOrMerge(parts...)
+}
+
+func (g *GetFiles_Response) UnmarshalJSON(data []byte) error {
+	trim := bytes.TrimSpace(data)
+	if bytes.Equal(trim, []byte("null")) {
+		// keep zero value (all branches nil)
+		return nil
+	}
+	if len(trim) == 0 {
+		return fmt.Errorf("JSON object expected, got %s", string(trim))
+	}
+
+	if g.GetFiles_Response_OneOf == nil {
+		g.GetFiles_Response_OneOf = &GetFiles_Response_OneOf{}
+	}
+
+	if err := runtime.UnmarshalJSON(data, g.GetFiles_Response_OneOf); err != nil {
+		return fmt.Errorf("GetFiles_Response_OneOf unmarshal: %w", err)
 	}
 
 	return nil
