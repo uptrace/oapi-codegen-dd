@@ -39,8 +39,7 @@ func (c *Client) GetOrder(ctx context.Context, options *GetOrderRequestOptions, 
 	var err error
 
 	queryEncoding := map[string]runtime.QueryEncoding{
-		"client_secret": {Style: "form"},
-		"expand":        {Style: "deepObject", Explode: &[]bool{true}[0]},
+		"expand": {Style: "deepObject", Explode: &[]bool{true}[0]},
 	}
 	reqParams := runtime.RequestOptionsParameters{
 		RequestURL:    c.apiClient.GetBaseURL() + "/order/{id}",
