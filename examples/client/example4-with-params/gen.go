@@ -38,13 +38,9 @@ type ClientInterface interface {
 func (c *Client) GetOrder(ctx context.Context, options *GetOrderRequestOptions, reqEditors ...runtime.RequestEditorFn) (*GetOrderResponse, error) {
 	var err error
 
-	queryEncoding := make(map[string]runtime.QueryEncoding)
-	queryEncoding["client_secret"] = runtime.QueryEncoding{
-		Style: "form",
-	}
-	queryEncoding["expand"] = runtime.QueryEncoding{
-		Style:   "deepObject",
-		Explode: &[]bool{true}[0],
+	queryEncoding := map[string]runtime.QueryEncoding{
+		"client_secret": {Style: "form"},
+		"expand":        {Style: "deepObject", Explode: &[]bool{true}[0]},
 	}
 	reqParams := runtime.RequestOptionsParameters{
 		RequestURL:    c.apiClient.GetBaseURL() + "/order/{id}",
