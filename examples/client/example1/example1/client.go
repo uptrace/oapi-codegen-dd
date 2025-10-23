@@ -91,7 +91,7 @@ func (c *Client) UpdateClient(ctx context.Context, options *UpdateClientRequestO
 	responseParser := func(ctx context.Context, resp *runtime.Response) (*struct{}, error) {
 		bodyBytes := resp.Content
 		if resp.StatusCode != 204 {
-			target := new(UpdateClientErrorResponse)
+			target := new(UpdateClientErrorResponseJSON)
 			err = json.Unmarshal(bodyBytes, target)
 			if err != nil {
 				return nil, fmt.Errorf("error decoding response: %w", err)

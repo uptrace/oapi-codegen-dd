@@ -26,11 +26,13 @@ func (e Error) Validate() error {
 	return schemaTypesValidate.Struct(e)
 }
 
-func (s Error) Error() string {
-	res0 := s.Message
-	if res0 == nil {
-		return "unknown error"
-	}
-	res1 := *res0
-	return res1
+type UpdateClientErrorResponse struct {
+	Code    *ErrorCode `json:"code,omitempty"`
+	Message *string    `json:"message,omitempty"`
 }
+
+func (u UpdateClientErrorResponse) Validate() error {
+	return schemaTypesValidate.Struct(u)
+}
+
+type ErrorCode = string

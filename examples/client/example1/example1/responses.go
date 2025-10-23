@@ -7,13 +7,30 @@ type GetClientResponse struct {
 	Type *GetClientResponseType `json:"type,omitempty"`
 }
 
-type GetClientErrorResponse = Error
-
-type UpdateClientErrorResponse struct {
-	Code string `json:"code" validate:"required"`
+type GetClientErrorResponse struct {
+	Code    *string `json:"code,omitempty"`
+	Message *string `json:"message,omitempty"`
 }
 
-func (r UpdateClientErrorResponse) Error() string {
+func (r GetClientErrorResponse) Error() string {
+	res0 := r.Message
+	if res0 == nil {
+		return "unknown error"
+	}
+	res1 := *res0
+	return res1
+}
+
+type UpdateClientErrorResponseJSON struct {
+	Code    *ErrorCode `json:"code,omitempty"`
+	Message *string    `json:"message,omitempty"`
+}
+
+func (r UpdateClientErrorResponseJSON) Error() string {
 	res0 := r.Code
-	return res0
+	if res0 == nil {
+		return "unknown error"
+	}
+	res1 := *res0
+	return res1
 }

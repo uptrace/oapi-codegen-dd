@@ -17,6 +17,12 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/ClientType"
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/error'
+          description: Error response.
         default:
           content:
             application/json:
@@ -34,18 +40,12 @@ paths:
             schema:
               $ref: "#/components/schemas/ClientType"
       responses:
-        400:
+        500:
           description: Bad Request
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: string
-                    description: "Error code description"
-                required:
-                - code
+                $ref: '#/components/schemas/UpdateClientErrorResponse'
 components:
   schemas:
     ClientType:
@@ -93,6 +93,19 @@ components:
         message:
           type: string
           description: "Error message description"
+
+    UpdateClientErrorResponse:
+      type: object
+      properties:
+        code:
+          $ref: '#/components/schemas/ErrorCode'
+        message:
+          type: string
+          description: "Error message description"
+
+    ErrorCode:
+      type: string
+      description: "Error code description"
 
   parameters:
     Merchant-Serial-Number:

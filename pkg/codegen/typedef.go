@@ -103,12 +103,6 @@ func (t TypeDefinition) GetErrorResponse(errTypes map[string]string, alias strin
 		varIndex++
 	}
 
-	// Final field check
-	lastProp := callPath[len(callPath)-1].value
-	if lastProp.Schema.GoType != "string" {
-		return unknownRes
-	}
-
 	code = append(code, fmt.Sprintf("return %s", prevVar))
 	return strings.Join(code, "\n")
 }
