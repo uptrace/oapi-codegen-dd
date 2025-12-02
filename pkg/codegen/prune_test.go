@@ -42,8 +42,8 @@ func TestFindReferences(t *testing.T) {
 
 		filterOperations(m, cfg)
 
-		_, doc2, _, errs := doc.RenderAndReload()
-		assert.Nil(t, errs)
+		_, doc2, _, err := doc.RenderAndReload()
+		assert.Nil(t, err)
 		m2, _ := doc2.BuildV3Model()
 
 		refs := findOperationRefs(&m2.Model)
@@ -64,8 +64,8 @@ func TestFindReferences(t *testing.T) {
 
 		filterOperations(&model.Model, cfg)
 
-		_, doc2, _, errs := doc.RenderAndReload()
-		assert.Nil(t, errs)
+		_, doc2, _, err := doc.RenderAndReload()
+		assert.Nil(t, err)
 		m2, _ := doc2.BuildV3Model()
 
 		refs := findOperationRefs(&m2.Model)
@@ -92,8 +92,8 @@ func TestFilterOnlyCat(t *testing.T) {
 
 	filterOperations(&model.Model, cfg)
 
-	_, doc2, _, errs := doc.RenderAndReload()
-	assert.Nil(t, errs)
+	_, doc2, _, err := doc.RenderAndReload()
+	assert.Nil(t, err)
 	m2, _ := doc2.BuildV3Model()
 
 	refs = findOperationRefs(&m2.Model)
@@ -132,8 +132,8 @@ func TestFilterOnlyDog(t *testing.T) {
 
 	filterOperations(m, cfg)
 
-	_, doc2, _, errs := doc.RenderAndReload()
-	assert.Nil(t, errs)
+	_, doc2, _, err := doc.RenderAndReload()
+	assert.Nil(t, err)
 	m2, _ := doc2.BuildV3Model()
 
 	refs = findOperationRefs(&m2.Model)

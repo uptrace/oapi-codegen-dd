@@ -18,13 +18,13 @@ import (
 	"github.com/pb33f/libopenapi"
 	v3high "github.com/pb33f/libopenapi/datamodel/high/v3"
 	"github.com/pb33f/libopenapi/orderedmap"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v4"
 )
 
 func filterOutDocument(doc libopenapi.Document, cfg FilterConfig) (libopenapi.Document, error) {
-	model, errs := doc.BuildV3Model()
-	if len(errs) > 0 {
-		return nil, errs[0]
+	model, err := doc.BuildV3Model()
+	if err != nil {
+		return nil, fmt.Errorf("error building model: %w", err)
 	}
 
 	filterOperations(&model.Model, cfg)
@@ -33,9 +33,9 @@ func filterOutDocument(doc libopenapi.Document, cfg FilterConfig) (libopenapi.Do
 	}
 	filterComponentSchemaProperties(&model.Model, cfg)
 
-	_, doc, _, errs = doc.RenderAndReload()
-	if errs != nil {
-		return nil, fmt.Errorf("error reloading document: %w", errs[0])
+	_, doc, _, err = doc.RenderAndReload()
+	if err != nil {
+		return nil, fmt.Errorf("error reloading document: %w", err)
 	}
 
 	return doc, nil

@@ -22,17 +22,17 @@ import (
 
 func pruneSchema(doc libopenapi.Document) (libopenapi.Document, error) {
 	for {
-		model, errs := doc.BuildV3Model()
-		if len(errs) > 0 {
-			return nil, errs[0]
+		model, err := doc.BuildV3Model()
+		if err != nil {
+			return nil, fmt.Errorf("error building model: %w", err)
 		}
 
 		refs := findOperationRefs(&model.Model)
 		countRemoved := removeOrphanedComponents(&model.Model, refs)
 
-		_, doc, _, errs = doc.RenderAndReload()
-		if errs != nil {
-			return nil, fmt.Errorf("error reloading document: %w", errs[0])
+		_, doc, _, err = doc.RenderAndReload()
+		if err != nil {
+			return nil, fmt.Errorf("error reloading document: %w", err)
 		}
 
 		if countRemoved < 1 {

@@ -23,14 +23,14 @@ import (
 const extSrcMergeRef = "x-src-merge-ref"
 
 func MergeDocuments(src, other libopenapi.Document) (libopenapi.Document, error) {
-	srcModel, errs := src.BuildV3Model()
-	if len(errs) > 0 {
-		return nil, fmt.Errorf("error building model for src: %w", errs[0])
+	srcModel, err := src.BuildV3Model()
+	if err != nil {
+		return nil, fmt.Errorf("error building model for src: %w", err)
 	}
 
-	otherModel, errs := other.BuildV3Model()
-	if len(errs) > 0 {
-		return nil, fmt.Errorf("error building model for other: %w", errs[0])
+	otherModel, err := other.BuildV3Model()
+	if err != nil {
+		return nil, fmt.Errorf("error building model for other: %w", err)
 	}
 
 	mergeOperations(srcModel, otherModel)
@@ -53,9 +53,9 @@ func MergeDocuments(src, other libopenapi.Document) (libopenapi.Document, error)
 		}
 	}
 
-	_, res, _, errs := src.RenderAndReload()
-	if errs != nil {
-		return nil, fmt.Errorf("error reloading document: %w", errs[0])
+	_, res, _, err := src.RenderAndReload()
+	if err != nil {
+		return nil, fmt.Errorf("error reloading document: %w", err)
 	}
 	return res, nil
 }

@@ -28,9 +28,9 @@ func loadUnionDocument(t *testing.T) v3.Document {
 	srcDoc, err := LoadDocumentFromContents(content)
 	require.NoError(t, err)
 
-	v3Model, errs := srcDoc.BuildV3Model()
-	if errs != nil {
-		t.Fatalf("error building document: %v", errs)
+	v3Model, err := srcDoc.BuildV3Model()
+	if err != nil {
+		t.Fatalf("error building model: %v", err)
 	}
 
 	return v3Model.Model

@@ -67,9 +67,9 @@ func loadPaymentIntentDocuments(t *testing.T, partialPath string) (libopenapi.Do
 func getSchemaProperties(t *testing.T, res libopenapi.Document, name string) ([]string, *base.SchemaProxy) {
 	t.Helper()
 
-	v3Model, errs := res.BuildV3Model()
-	if errs != nil {
-		t.Fatalf("error building document: %v", errs)
+	v3Model, err := res.BuildV3Model()
+	if err != nil {
+		t.Fatalf("error building document: %v", err)
 	}
 	model := v3Model.Model
 	schemaObj, exists := model.Components.Schemas.Get(name)
@@ -127,9 +127,9 @@ func TestMergeDocuments(t *testing.T) {
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
 
-		v3Model, errs := res.BuildV3Model()
-		if errs != nil {
-			t.Fatalf("error building document: %v", errs)
+		v3Model, err := res.BuildV3Model()
+		if err != nil {
+			t.Fatalf("error building document: %v", err)
 		}
 		model := v3Model.Model
 
@@ -151,9 +151,9 @@ func TestMergeDocuments(t *testing.T) {
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
 
-		v3Model, errs := res.BuildV3Model()
-		if errs != nil {
-			t.Fatalf("error building document: %v", errs)
+		v3Model, err := res.BuildV3Model()
+		if err != nil {
+			t.Fatalf("error building document: %v", err)
 		}
 		model := v3Model.Model
 
@@ -170,9 +170,9 @@ func TestMergeDocuments(t *testing.T) {
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
 
-		v3Model, errs := res.BuildV3Model()
-		if errs != nil {
-			t.Fatalf("error building document: %v", errs)
+		v3Model, err := res.BuildV3Model()
+		if err != nil {
+			t.Fatalf("error building document: %v", err)
 		}
 		model := v3Model.Model
 
@@ -196,9 +196,9 @@ func TestMergeDocuments(t *testing.T) {
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
 
-		v3Model, errs := res.BuildV3Model()
-		if errs != nil {
-			t.Fatalf("error building document: %v", errs)
+		v3Model, err := res.BuildV3Model()
+		if err != nil {
+			t.Fatalf("error building document: %v", err)
 		}
 		model := v3Model.Model
 
@@ -216,9 +216,9 @@ func TestMergeDocuments(t *testing.T) {
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
 
-		v3Model, errs := res.BuildV3Model()
-		if errs != nil {
-			t.Fatalf("error building document: %v", errs)
+		v3Model, err := res.BuildV3Model()
+		if err != nil {
+			t.Fatalf("error building document: %v", err)
 		}
 		model := v3Model.Model
 
@@ -239,9 +239,9 @@ func TestMergeDocuments(t *testing.T) {
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
 
-		v3Model, errs := res.BuildV3Model()
-		if errs != nil {
-			t.Fatalf("error building document: %v", errs)
+		v3Model, err := res.BuildV3Model()
+		if err != nil {
+			t.Fatalf("error building document: %v", err)
 		}
 		model := v3Model.Model
 
@@ -276,9 +276,9 @@ func TestMergeDocuments(t *testing.T) {
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
 
-		v3Model, errs := res.BuildV3Model()
-		if errs != nil {
-			t.Fatalf("error building document: %v", errs)
+		v3Model, err := res.BuildV3Model()
+		if err != nil {
+			t.Fatalf("error building document: %v", err)
 		}
 		model := v3Model.Model
 
@@ -320,9 +320,9 @@ func TestMergeDocuments(t *testing.T) {
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
 
-		v3Model, errs := res.BuildV3Model()
-		if errs != nil {
-			t.Fatalf("error building document: %v", errs)
+		v3Model, err := res.BuildV3Model()
+		if err != nil {
+			t.Fatalf("error building document: %v", err)
 		}
 		model := v3Model.Model
 
@@ -353,9 +353,9 @@ func TestMergeDocuments(t *testing.T) {
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
 
-		v3Model, errs := res.BuildV3Model()
-		if errs != nil {
-			t.Fatalf("error building document: %v", errs)
+		v3Model, err := res.BuildV3Model()
+		if err != nil {
+			t.Fatalf("error building document: %v", err)
 		}
 		model := v3Model.Model
 
@@ -385,9 +385,9 @@ func TestMergeDocuments(t *testing.T) {
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
 
-		v3Model, errs := res.BuildV3Model()
-		if errs != nil {
-			t.Fatalf("error building document: %v", errs)
+		v3Model, err := res.BuildV3Model()
+		if err != nil {
+			t.Fatalf("error building document: %v", err)
 		}
 		model := v3Model.Model
 
@@ -418,9 +418,9 @@ func TestMergeDocuments(t *testing.T) {
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
 
-		v3Model, errs := res.BuildV3Model()
-		if errs != nil {
-			t.Fatalf("error building document: %v", errs)
+		v3Model, err := res.BuildV3Model()
+		if err != nil {
+			t.Fatalf("error building document: %v", err)
 		}
 		model := v3Model.Model
 
@@ -456,9 +456,9 @@ func TestMergeDocuments(t *testing.T) {
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
 
-		v3Model, errs := res.BuildV3Model()
-		if errs != nil {
-			t.Fatalf("error building document: %v", errs)
+		v3Model, err := res.BuildV3Model()
+		if err != nil {
+			t.Fatalf("error building document: %v", err)
 		}
 		model := v3Model.Model
 
@@ -479,9 +479,9 @@ func TestMergeDocuments(t *testing.T) {
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
 
-		v3Model, errs := res.BuildV3Model()
-		if errs != nil {
-			t.Fatalf("error building document: %v", errs)
+		v3Model, err := res.BuildV3Model()
+		if err != nil {
+			t.Fatalf("error building document: %v", err)
 		}
 		model := v3Model.Model
 
@@ -569,9 +569,9 @@ func TestMergeDocuments(t *testing.T) {
 		res, err := MergeDocuments(srcDoc, partialDoc)
 		require.NoError(t, err)
 
-		v3Model, errs := res.BuildV3Model()
-		if errs != nil {
-			t.Fatalf("error building document: %v", errs)
+		v3Model, err := res.BuildV3Model()
+		if err != nil {
+			t.Fatalf("error building document: %v", err)
 		}
 		model := v3Model.Model
 

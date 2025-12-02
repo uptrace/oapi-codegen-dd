@@ -81,9 +81,9 @@ func CreateParseContextFromDocument(doc libopenapi.Document, cfg Configuration) 
 		currentTypes:           map[string]TypeDefinition{},
 	}
 
-	builtModel, errs := doc.BuildV3Model()
-	if len(errs) > 0 {
-		return nil, errs[0]
+	builtModel, err := doc.BuildV3Model()
+	if err != nil {
+		return nil, fmt.Errorf("error building model: %w", err)
 	}
 	model := &builtModel.Model
 

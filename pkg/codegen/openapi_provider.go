@@ -23,9 +23,8 @@ func CreateDocument(docContents []byte, cfg Configuration) (libopenapi.Document,
 		return nil, err
 	}
 
-	_, errs := doc.BuildV3Model()
-	if len(errs) > 0 {
-		return nil, errs[0]
+	if _, err = doc.BuildV3Model(); err != nil {
+		return nil, fmt.Errorf("error building model: %w", err)
 	}
 
 	doc, err = filterOutDocument(doc, cfg.Filter)

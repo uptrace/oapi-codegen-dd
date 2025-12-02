@@ -17,7 +17,7 @@ import (
 	"path/filepath"
 
 	"github.com/doordash/oapi-codegen-dd/v3/pkg/codegen"
-	"gopkg.in/yaml.v3"
+	"go.yaml.in/yaml/v4"
 )
 
 var (
