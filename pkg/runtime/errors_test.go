@@ -251,3 +251,97 @@ func TestValidationError_Unwrap(t *testing.T) {
 		assert.True(t, errors.As(validationErr, &ve))
 	})
 }
+
+func TestNewValidationErrorsFromErrors_MultipleErrors(t *testing.T) {
+	t.Run("handles multiple ValidationError instances", func(t *testing.T) {
+		errs := []error{
+			NewValidationError("foo", "is required"),
+			NewValidationError("bar", "is nice to have"),
+		}
+
+		result := NewValidationErrorsFromErrors("", errs)
+
+		assert.Len(t, result, 2)
+		assert.Equal(t, "foo", result[0].Field)
+		assert.Equal(t, "is required", result[0].Message)
+		assert.Equal(t, "bar", result[1].Field)
+		assert.Equal(t, "is nice to have", result[1].Message)
+
+		// Test the combined error message
+		expected := "foo is required\nbar is nice to have"
+		assert.Equal(t, expected, result.Error())
+	})
+
+	t.Run("handles ValidationErrors (plural) type", func(t *testing.T) {
+		// Create a ValidationErrors collection
+		ves := ValidationErrors{
+			NewValidationError("field1", "error1"),
+			NewValidationError("field2", "error2"),
+		}
+
+		// Pass it to NewValidationErrorsFromErrors
+		result := NewValidationErrorsFromErrors("", []error{ves})
+
+		// Should preserve all errors
+		assert.Len(t, result, 2)
+		assert.Equal(t, "field1", result[0].Field)
+		assert.Equal(t, "error1", result[0].Message)
+		assert.Equal(t, "field2", result[1].Field)
+		assert.Equal(t, "error2", result[1].Message)
+	})
+
+	t.Run("handles ValidationErrors with prefix", func(t *testing.T) {
+		ves := ValidationErrors{
+			NewValidationError("field1", "error1"),
+			NewValidationError("field2", "error2"),
+		}
+
+		result := NewValidationErrorsFromErrors("Body", []error{ves})
+
+		assert.Len(t, result, 2)
+		assert.Equal(t, "Body.field1", result[0].Field)
+		assert.Equal(t, "Body.field2", result[1].Field)
+	})
+
+	t.Run("NewValidationErrorFromError wraps ValidationErrors with prefix", func(t *testing.T) {
+		// Create a ValidationErrors collection
+		ves := ValidationErrors{
+			NewValidationError("foo", "is required"),
+			NewValidationError("bar", "is nice to have"),
+		}
+
+		// Pass it to NewValidationErrorFromError (singular)
+		// This wraps multiple errors into a single ValidationError
+		result := NewValidationErrorFromError("Body", ves)
+
+		// The field should be the first error's field with prefix
+		assert.Equal(t, "Body.foo", result.Field)
+		// The message should be just the first error's message
+		assert.Equal(t, "is required", result.Message)
+		// The full error string combines field and message
+		assert.Equal(t, "Body.foo is required", result.Error())
+		// The underlying error is preserved
+		assert.Equal(t, ves, result.Err)
+	})
+
+	t.Run("use NewValidationErrorsFromErrors for multiple errors", func(t *testing.T) {
+		// When you want to preserve all errors, use NewValidationErrorsFromErrors
+		errs := []error{
+			NewValidationError("foo", "is required"),
+			NewValidationError("bar", "is nice to have"),
+		}
+
+		result := NewValidationErrorsFromErrors("Body", errs)
+
+		// All errors are preserved with prefix
+		assert.Len(t, result, 2)
+		assert.Equal(t, "Body.foo", result[0].Field)
+		assert.Equal(t, "is required", result[0].Message)
+		assert.Equal(t, "Body.bar", result[1].Field)
+		assert.Equal(t, "is nice to have", result[1].Message)
+
+		// The combined error message
+		expected := "Body.foo is required\nBody.bar is nice to have"
+		assert.Equal(t, expected, result.Error())
+	})
+}

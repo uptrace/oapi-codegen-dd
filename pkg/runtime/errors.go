@@ -119,7 +119,7 @@ func NewValidationErrorFromError(field string, err error) ValidationError {
 		}
 	}
 
-	// Handle our ValidationErrors - take the first one
+	// Handle our ValidationErrors - take the first one (consistent with validator.ValidationErrors handling)
 	var ves ValidationErrors
 	if errors.As(err, &ves) && len(ves) > 0 {
 		if ves[0].Field != "" {
@@ -173,6 +173,7 @@ func NewValidationErrorsFromErrors(prefix string, errs []error) ValidationErrors
 	}
 
 	for _, err := range errs {
+		// Handle validator.ValidationErrors from go-playground/validator
 		if errors.As(err, &validationErrors) {
 			for _, ve := range validationErrors {
 				result = append(result, ValidationError{
@@ -183,8 +184,28 @@ func NewValidationErrorsFromErrors(prefix string, errs []error) ValidationErrors
 			continue
 		}
 
+		// Handle our ValidationErrors (plural) - unwrap and add all
+		var ves ValidationErrors
+		if errors.As(err, &ves) {
+			for _, ve := range ves {
+				if prefix != "" && ve.Field != "" {
+					ve.Field = prefix + ve.Field
+				} else if prefix != "" {
+					ve.Field = strings.TrimSuffix(prefix, ".")
+				}
+				result = append(result, ve)
+			}
+			continue
+		}
+
+		// Handle single ValidationError
 		var ve ValidationError
 		if errors.As(err, &ve) {
+			if prefix != "" && ve.Field != "" {
+				ve.Field = prefix + ve.Field
+			} else if prefix != "" {
+				ve.Field = strings.TrimSuffix(prefix, ".")
+			}
 			result = append(result, ve)
 		}
 	}
