@@ -37,7 +37,7 @@ func (u UpdateOrganizationQuery) Validate() error {
 	if u.Establishments != nil {
 		if v, ok := any(u.Establishments).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Establishments", err))
+				errors = errors.Append("Establishments", err)
 			}
 		}
 	}

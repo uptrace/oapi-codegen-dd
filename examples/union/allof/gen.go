@@ -26,7 +26,7 @@ func (o Order) Validate() error {
 	if o.Client != nil {
 		if v, ok := any(o.Client).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Client", err))
+				errors = errors.Append("Client", err)
 			}
 		}
 	}

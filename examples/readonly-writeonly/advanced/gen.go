@@ -82,15 +82,15 @@ type CreateUserBody struct {
 func (c CreateUserBody) Validate() error {
 	var errors runtime.ValidationErrors
 	if err := bodyTypesValidate.Var(c.Name, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Name", err))
+		errors = errors.Append("Name", err)
 	}
 	if v, ok := any(c.Email).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Email", err))
+			errors = errors.Append("Email", err)
 		}
 	}
 	if err := bodyTypesValidate.Var(c.Password, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Password", err))
+		errors = errors.Append("Password", err)
 	}
 	if len(errors) == 0 {
 		return nil
@@ -135,15 +135,15 @@ type UpdateUserBody struct {
 func (u UpdateUserBody) Validate() error {
 	var errors runtime.ValidationErrors
 	if err := bodyTypesValidate.Var(u.Name, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Name", err))
+		errors = errors.Append("Name", err)
 	}
 	if v, ok := any(u.Email).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Email", err))
+			errors = errors.Append("Email", err)
 		}
 	}
 	if err := bodyTypesValidate.Var(u.Password, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Password", err))
+		errors = errors.Append("Password", err)
 	}
 	if len(errors) == 0 {
 		return nil
@@ -299,21 +299,21 @@ type User struct {
 func (u User) Validate() error {
 	var errors runtime.ValidationErrors
 	if err := schemaTypesValidate.Var(u.ID, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("ID", err))
+		errors = errors.Append("ID", err)
 	}
 	if err := schemaTypesValidate.Var(u.Name, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Name", err))
+		errors = errors.Append("Name", err)
 	}
 	if v, ok := any(u.Email).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Email", err))
+			errors = errors.Append("Email", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(u.Password, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Password", err))
+		errors = errors.Append("Password", err)
 	}
 	if err := schemaTypesValidate.Var(u.CreatedAt, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("CreatedAt", err))
+		errors = errors.Append("CreatedAt", err)
 	}
 	if len(errors) == 0 {
 		return nil

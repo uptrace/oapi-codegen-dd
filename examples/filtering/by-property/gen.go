@@ -123,8 +123,12 @@ type UpdateClientRequestOptions struct {
 func (o *UpdateClientRequestOptions) Validate() error {
 	var errors runtime.ValidationErrors
 
-	if err := clientOptionsValidate.Struct(o.Body); err != nil {
-		errors = append(errors, runtime.NewValidationErrorsFromErrors("Body", []error{err})...)
+	if o.Body != nil {
+		if v, ok := any(o.Body).(runtime.Validator); ok {
+			if err := v.Validate(); err != nil {
+				errors = errors.Append("Body", err)
+			}
+		}
 	}
 	if len(errors) == 0 {
 		return nil
@@ -198,12 +202,12 @@ type Person struct {
 func (p Person) Validate() error {
 	var errors runtime.ValidationErrors
 	if err := schemaTypesValidate.Var(p.Name, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Name", err))
+		errors = errors.Append("Name", err)
 	}
 	if p.Employment != nil {
 		if v, ok := any(p.Employment).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Employment", err))
+				errors = errors.Append("Employment", err)
 			}
 		}
 	}

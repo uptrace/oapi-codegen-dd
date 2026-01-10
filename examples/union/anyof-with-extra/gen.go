@@ -27,7 +27,7 @@ func (c ClientWithExtra) Validate() error {
 	if c.ClientWithExtra_AnyOf != nil {
 		if v, ok := any(c.ClientWithExtra_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("ClientWithExtra_AnyOf", err))
+				errors = errors.Append("ClientWithExtra_AnyOf", err)
 			}
 		}
 	}

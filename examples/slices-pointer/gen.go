@@ -24,11 +24,11 @@ func (p Payments) Validate() error {
 	}
 	var errors runtime.ValidationErrors
 	if len(p) < 1 {
-		errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at least 1 items, got %d", len(p))))
+		errors = errors.Add("Array", fmt.Sprintf("must have at least 1 items, got %d", len(p)))
 	}
 	for i, item := range p {
 		if err := schemaTypesValidate.Var(item, "omitempty,min=3"); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+			errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 		}
 	}
 	if len(errors) == 0 {
@@ -50,12 +50,12 @@ func (u User) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(u.Payments).(runtime.Validator); ok && v != nil {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Payments", err))
+			errors = errors.Append("Payments", err)
 		}
 	}
 	if v, ok := any(u.Data).(runtime.Validator); ok && v != nil {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Data", err))
+			errors = errors.Append("Data", err)
 		}
 	}
 	if len(errors) == 0 {

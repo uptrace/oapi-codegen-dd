@@ -38,7 +38,7 @@ func (p PointRequest) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(p.Location).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Location", err))
+			errors = errors.Append("Location", err)
 		}
 	}
 	if len(errors) == 0 {
@@ -56,7 +56,7 @@ func (p PointRequestOneOf) Validate() error {
 	if p.PointRequestOneOf_OneOf != nil {
 		if v, ok := any(p.PointRequestOneOf_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("PointRequestOneOf_OneOf", err))
+				errors = errors.Append("PointRequestOneOf_OneOf", err)
 			}
 		}
 	}
@@ -108,7 +108,7 @@ func (t TimeBasedLocation) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(t.Time).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Time", err))
+			errors = errors.Append("Time", err)
 		}
 	}
 	if len(errors) == 0 {
@@ -136,7 +136,7 @@ func (t TimeInterval) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(t.Interval).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Interval", err))
+			errors = errors.Append("Interval", err)
 		}
 	}
 	if len(errors) == 0 {
@@ -154,7 +154,7 @@ func (t TimeIntervalType) Validate() error {
 	if t.TimeIntervalType_OneOf != nil {
 		if v, ok := any(t.TimeIntervalType_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("TimeIntervalType_OneOf", err))
+				errors = errors.Append("TimeIntervalType_OneOf", err)
 			}
 		}
 	}

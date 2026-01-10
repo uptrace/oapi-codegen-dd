@@ -30,7 +30,7 @@ func (a Address) Validate() error {
 	if a.City != nil {
 		if v, ok := any(a.City).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("City", err))
+				errors = errors.Append("City", err)
 			}
 		}
 	}

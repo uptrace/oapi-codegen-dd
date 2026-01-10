@@ -24,7 +24,7 @@ func (c CreateOrderBody) Validate() error {
 	if c.ClientType != nil {
 		if v, ok := any(c.ClientType).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("ClientType", err))
+				errors = errors.Append("ClientType", err)
 			}
 		}
 	}

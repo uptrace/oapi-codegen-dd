@@ -42,7 +42,7 @@ func (g GetUserUnion2Response) Validate() error {
 	if g.GetUserUnion2_Response_OneOf != nil {
 		if v, ok := any(g.GetUserUnion2_Response_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("GetUserUnion2_Response_OneOf", err))
+				errors = errors.Append("GetUserUnion2_Response_OneOf", err)
 			}
 		}
 	}
@@ -95,7 +95,7 @@ func (g GetUserUnion3Response) Validate() error {
 	if g.GetUserUnion3_Response_OneOf != nil {
 		if v, ok := any(g.GetUserUnion3_Response_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("GetUserUnion3_Response_OneOf", err))
+				errors = errors.Append("GetUserUnion3_Response_OneOf", err)
 			}
 		}
 	}

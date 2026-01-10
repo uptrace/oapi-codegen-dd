@@ -25,7 +25,7 @@ var validCreditCardPaymentTypeValues = map[CreditCardPaymentType]bool{
 // Validate checks if the CreditCardPaymentType value is valid
 func (c CreditCardPaymentType) Validate() error {
 	if !validCreditCardPaymentTypeValues[c] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid CreditCardPaymentType value: %v", c))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CreditCardPaymentType value, got: %v", c))
 	}
 	return nil
 }
@@ -44,7 +44,7 @@ var validBankTransferPaymentTypeValues = map[BankTransferPaymentType]bool{
 // Validate checks if the BankTransferPaymentType value is valid
 func (b BankTransferPaymentType) Validate() error {
 	if !validBankTransferPaymentTypeValues[b] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid BankTransferPaymentType value: %v", b))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid BankTransferPaymentType value, got: %v", b))
 	}
 	return nil
 }
@@ -63,7 +63,7 @@ var validDomesticAccountAccountTypeValues = map[DomesticAccountAccountType]bool{
 // Validate checks if the DomesticAccountAccountType value is valid
 func (d DomesticAccountAccountType) Validate() error {
 	if !validDomesticAccountAccountTypeValues[d] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid DomesticAccountAccountType value: %v", d))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid DomesticAccountAccountType value, got: %v", d))
 	}
 	return nil
 }
@@ -82,7 +82,7 @@ var validInternationalAccountAccountTypeValues = map[InternationalAccountAccount
 // Validate checks if the InternationalAccountAccountType value is valid
 func (i InternationalAccountAccountType) Validate() error {
 	if !validInternationalAccountAccountTypeValues[i] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid InternationalAccountAccountType value: %v", i))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid InternationalAccountAccountType value, got: %v", i))
 	}
 	return nil
 }
@@ -101,7 +101,7 @@ var validPersonalBeneficiaryBeneficiaryTypeValues = map[PersonalBeneficiaryBenef
 // Validate checks if the PersonalBeneficiaryBeneficiaryType value is valid
 func (p PersonalBeneficiaryBeneficiaryType) Validate() error {
 	if !validPersonalBeneficiaryBeneficiaryTypeValues[p] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid PersonalBeneficiaryBeneficiaryType value: %v", p))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid PersonalBeneficiaryBeneficiaryType value, got: %v", p))
 	}
 	return nil
 }
@@ -120,7 +120,7 @@ var validBusinessBeneficiaryBeneficiaryTypeValues = map[BusinessBeneficiaryBenef
 // Validate checks if the BusinessBeneficiaryBeneficiaryType value is valid
 func (b BusinessBeneficiaryBeneficiaryType) Validate() error {
 	if !validBusinessBeneficiaryBeneficiaryTypeValues[b] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid BusinessBeneficiaryBeneficiaryType value: %v", b))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid BusinessBeneficiaryBeneficiaryType value, got: %v", b))
 	}
 	return nil
 }
@@ -139,7 +139,7 @@ var validDigitalWalletPaymentTypeValues = map[DigitalWalletPaymentType]bool{
 // Validate checks if the DigitalWalletPaymentType value is valid
 func (d DigitalWalletPaymentType) Validate() error {
 	if !validDigitalWalletPaymentTypeValues[d] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid DigitalWalletPaymentType value: %v", d))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid DigitalWalletPaymentType value, got: %v", d))
 	}
 	return nil
 }
@@ -160,7 +160,7 @@ func (p PaymentMethod) Validate() error {
 	if p.PaymentMethod_AnyOf != nil {
 		if v, ok := any(p.PaymentMethod_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("PaymentMethod_AnyOf", err))
+				errors = errors.Append("PaymentMethod_AnyOf", err)
 			}
 		}
 	}
@@ -215,16 +215,16 @@ func (c CreditCardPayment) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(c.Type).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Type", err))
+			errors = errors.Append("Type", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(c.CardNumber, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("CardNumber", err))
+		errors = errors.Append("CardNumber", err)
 	}
 	if c.BillingAddress != nil {
 		if v, ok := any(c.BillingAddress).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("BillingAddress", err))
+				errors = errors.Append("BillingAddress", err)
 			}
 		}
 	}
@@ -299,12 +299,12 @@ func (b BankTransferPayment) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(b.Type).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Type", err))
+			errors = errors.Append("Type", err)
 		}
 	}
 	if v, ok := any(b.AccountDetails).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("AccountDetails", err))
+			errors = errors.Append("AccountDetails", err)
 		}
 	}
 	if len(errors) == 0 {
@@ -322,7 +322,7 @@ func (b BankTransferPayment_AccountDetails) Validate() error {
 	if b.BankTransferPayment_AccountDetails_AnyOf != nil {
 		if v, ok := any(b.BankTransferPayment_AccountDetails_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("BankTransferPayment_AccountDetails_AnyOf", err))
+				errors = errors.Append("BankTransferPayment_AccountDetails_AnyOf", err)
 			}
 		}
 	}
@@ -377,19 +377,19 @@ func (d DomesticAccount) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(d.AccountType).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("AccountType", err))
+			errors = errors.Append("AccountType", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(d.RoutingNumber, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("RoutingNumber", err))
+		errors = errors.Append("RoutingNumber", err)
 	}
 	if err := schemaTypesValidate.Var(d.AccountNumber, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("AccountNumber", err))
+		errors = errors.Append("AccountNumber", err)
 	}
 	if d.AccountHolder != nil {
 		if v, ok := any(d.AccountHolder).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("AccountHolder", err))
+				errors = errors.Append("AccountHolder", err)
 			}
 		}
 	}
@@ -462,26 +462,26 @@ func (i InternationalAccount) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(i.AccountType).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("AccountType", err))
+			errors = errors.Append("AccountType", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(i.Iban, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Iban", err))
+		errors = errors.Append("Iban", err)
 	}
 	if err := schemaTypesValidate.Var(i.SwiftCode, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("SwiftCode", err))
+		errors = errors.Append("SwiftCode", err)
 	}
 	if i.AccountHolder != nil {
 		if v, ok := any(i.AccountHolder).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("AccountHolder", err))
+				errors = errors.Append("AccountHolder", err)
 			}
 		}
 	}
 	if i.BeneficiaryDetails != nil {
 		if v, ok := any(i.BeneficiaryDetails).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("BeneficiaryDetails", err))
+				errors = errors.Append("BeneficiaryDetails", err)
 			}
 		}
 	}
@@ -551,7 +551,7 @@ func (i InternationalAccount_BeneficiaryDetails) Validate() error {
 	if i.InternationalAccount_BeneficiaryDetails_AnyOf != nil {
 		if v, ok := any(i.InternationalAccount_BeneficiaryDetails_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("InternationalAccount_BeneficiaryDetails_AnyOf", err))
+				errors = errors.Append("InternationalAccount_BeneficiaryDetails_AnyOf", err)
 			}
 		}
 	}
@@ -608,16 +608,16 @@ func (p PersonalBeneficiary) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(p.BeneficiaryType).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("BeneficiaryType", err))
+			errors = errors.Append("BeneficiaryType", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(p.FullName, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("FullName", err))
+		errors = errors.Append("FullName", err)
 	}
 	if p.DateOfBirth != nil {
 		if v, ok := any(p.DateOfBirth).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("DateOfBirth", err))
+				errors = errors.Append("DateOfBirth", err)
 			}
 		}
 	}
@@ -714,11 +714,11 @@ func (b BusinessBeneficiary) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(b.BeneficiaryType).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("BeneficiaryType", err))
+			errors = errors.Append("BeneficiaryType", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(b.CompanyName, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("CompanyName", err))
+		errors = errors.Append("CompanyName", err)
 	}
 	if len(errors) == 0 {
 		return nil
@@ -780,11 +780,11 @@ func (d DigitalWalletPayment) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(d.Type).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Type", err))
+			errors = errors.Append("Type", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(d.WalletID, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("WalletID", err))
+		errors = errors.Append("WalletID", err)
 	}
 	if len(errors) == 0 {
 		return nil

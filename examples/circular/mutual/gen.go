@@ -87,7 +87,7 @@ var validFileObjectValues = map[FileObject]bool{
 // Validate checks if the FileObject value is valid
 func (f FileObject) Validate() error {
 	if !validFileObjectValues[f] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid FileObject value: %v", f))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid FileObject value, got: %v", f))
 	}
 	return nil
 }
@@ -110,7 +110,7 @@ var validFilePurposeValues = map[FilePurpose]bool{
 // Validate checks if the FilePurpose value is valid
 func (f FilePurpose) Validate() error {
 	if !validFilePurposeValues[f] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid FilePurpose value: %v", f))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid FilePurpose value, got: %v", f))
 	}
 	return nil
 }
@@ -129,7 +129,7 @@ var validFileLinksObjectValues = map[FileLinksObject]bool{
 // Validate checks if the FileLinksObject value is valid
 func (f FileLinksObject) Validate() error {
 	if !validFileLinksObjectValues[f] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid FileLinksObject value: %v", f))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid FileLinksObject value, got: %v", f))
 	}
 	return nil
 }
@@ -148,7 +148,7 @@ var validFileLinkObjectValues = map[FileLinkObject]bool{
 // Validate checks if the FileLinkObject value is valid
 func (f FileLinkObject) Validate() error {
 	if !validFileLinkObjectValues[f] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid FileLinkObject value: %v", f))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid FileLinkObject value, got: %v", f))
 	}
 	return nil
 }
@@ -177,42 +177,42 @@ func (f File) Validate() error {
 	var errors runtime.ValidationErrors
 	if f.Filename != nil {
 		if err := schemaTypesValidate.Var(f.Filename, "omitempty,max=5000"); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Filename", err))
+			errors = errors.Append("Filename", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(f.ID, "required,max=5000"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("ID", err))
+		errors = errors.Append("ID", err)
 	}
 	if f.Author != nil {
 		if v, ok := any(f.Author).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Author", err))
+				errors = errors.Append("Author", err)
 			}
 		}
 	}
 	if f.Links != nil {
 		if v, ok := any(f.Links).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Links", err))
+				errors = errors.Append("Links", err)
 			}
 		}
 	}
 	if v, ok := any(f.Object).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Object", err))
+			errors = errors.Append("Object", err)
 		}
 	}
 	if v, ok := any(f.Purpose).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Purpose", err))
+			errors = errors.Append("Purpose", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(f.Size, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Size", err))
+		errors = errors.Append("Size", err)
 	}
 	if f.Title != nil {
 		if err := schemaTypesValidate.Var(f.Title, "omitempty,max=5000"); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Title", err))
+			errors = errors.Append("Title", err)
 		}
 	}
 	if len(errors) == 0 {
@@ -230,7 +230,7 @@ func (f File_Author) Validate() error {
 	if f.File_Author_AnyOf != nil {
 		if v, ok := any(f.File_Author_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("File_Author_AnyOf", err))
+				errors = errors.Append("File_Author_AnyOf", err)
 			}
 		}
 	}
@@ -284,15 +284,15 @@ type File_Links struct {
 func (f File_Links) Validate() error {
 	var errors runtime.ValidationErrors
 	if err := schemaTypesValidate.Var(f.Data, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Data", err))
+		errors = errors.Append("Data", err)
 	}
 	if v, ok := any(f.Object).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Object", err))
+			errors = errors.Append("Object", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(f.URL, "required,max=5000"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("URL", err))
+		errors = errors.Append("URL", err)
 	}
 	if len(errors) == 0 {
 		return nil
@@ -313,26 +313,26 @@ type FileLink struct {
 func (f FileLink) Validate() error {
 	var errors runtime.ValidationErrors
 	if err := schemaTypesValidate.Var(f.Created, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Created", err))
+		errors = errors.Append("Created", err)
 	}
 	if v, ok := any(f.File).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("File", err))
+			errors = errors.Append("File", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(f.ID, "required,max=5000"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("ID", err))
+		errors = errors.Append("ID", err)
 	}
 	if f.Object != nil {
 		if v, ok := any(f.Object).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Object", err))
+				errors = errors.Append("Object", err)
 			}
 		}
 	}
 	if f.URL != nil {
 		if err := schemaTypesValidate.Var(f.URL, "omitempty,max=5000"); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("URL", err))
+			errors = errors.Append("URL", err)
 		}
 	}
 	if len(errors) == 0 {
@@ -350,7 +350,7 @@ func (f FileLink_File) Validate() error {
 	if f.FileLink_File_AnyOf != nil {
 		if v, ok := any(f.FileLink_File_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("FileLink_File_AnyOf", err))
+				errors = errors.Append("FileLink_File_AnyOf", err)
 			}
 		}
 	}
@@ -402,12 +402,12 @@ type User struct {
 func (u User) Validate() error {
 	var errors runtime.ValidationErrors
 	if err := schemaTypesValidate.Var(u.ID, "required,max=50"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("ID", err))
+		errors = errors.Append("ID", err)
 	}
 	if u.Avatar != nil {
 		if v, ok := any(u.Avatar).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Avatar", err))
+				errors = errors.Append("Avatar", err)
 			}
 		}
 	}
@@ -426,7 +426,7 @@ func (u User_Avatar) Validate() error {
 	if u.User_Avatar_AnyOf != nil {
 		if v, ok := any(u.User_Avatar_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("User_Avatar_AnyOf", err))
+				errors = errors.Append("User_Avatar_AnyOf", err)
 			}
 		}
 	}
@@ -480,7 +480,7 @@ func (g GetFiles_Response) Validate() error {
 	for i, item := range g {
 		if v, ok := any(item).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+				errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 			}
 		}
 	}
@@ -499,7 +499,7 @@ func (g GetFiles_Response_Item) Validate() error {
 	if g.GetFiles_Response_OneOf != nil {
 		if v, ok := any(g.GetFiles_Response_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("GetFiles_Response_OneOf", err))
+				errors = errors.Append("GetFiles_Response_OneOf", err)
 			}
 		}
 	}

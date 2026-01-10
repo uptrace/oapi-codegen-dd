@@ -25,7 +25,7 @@ var validSpecificErrorIssuesAnyOf0IssueValues = map[SpecificErrorIssuesAnyOf0Iss
 // Validate checks if the SpecificErrorIssuesAnyOf0Issue value is valid
 func (s SpecificErrorIssuesAnyOf0Issue) Validate() error {
 	if !validSpecificErrorIssuesAnyOf0IssueValues[s] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid SpecificErrorIssuesAnyOf0Issue value: %v", s))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf0Issue value, got: %v", s))
 	}
 	return nil
 }
@@ -44,7 +44,7 @@ var validSpecificErrorIssuesAnyOf0DescriptionValues = map[SpecificErrorIssuesAny
 // Validate checks if the SpecificErrorIssuesAnyOf0Description value is valid
 func (s SpecificErrorIssuesAnyOf0Description) Validate() error {
 	if !validSpecificErrorIssuesAnyOf0DescriptionValues[s] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid SpecificErrorIssuesAnyOf0Description value: %v", s))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf0Description value, got: %v", s))
 	}
 	return nil
 }
@@ -63,7 +63,7 @@ var validSpecificErrorIssuesAnyOf1IssueValues = map[SpecificErrorIssuesAnyOf1Iss
 // Validate checks if the SpecificErrorIssuesAnyOf1Issue value is valid
 func (s SpecificErrorIssuesAnyOf1Issue) Validate() error {
 	if !validSpecificErrorIssuesAnyOf1IssueValues[s] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid SpecificErrorIssuesAnyOf1Issue value: %v", s))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf1Issue value, got: %v", s))
 	}
 	return nil
 }
@@ -82,7 +82,7 @@ var validSpecificErrorIssuesAnyOf1DescriptionValues = map[SpecificErrorIssuesAny
 // Validate checks if the SpecificErrorIssuesAnyOf1Description value is valid
 func (s SpecificErrorIssuesAnyOf1Description) Validate() error {
 	if !validSpecificErrorIssuesAnyOf1DescriptionValues[s] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid SpecificErrorIssuesAnyOf1Description value: %v", s))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf1Description value, got: %v", s))
 	}
 	return nil
 }
@@ -101,7 +101,7 @@ var validSpecificErrorIssuesAnyOf2IssueValues = map[SpecificErrorIssuesAnyOf2Iss
 // Validate checks if the SpecificErrorIssuesAnyOf2Issue value is valid
 func (s SpecificErrorIssuesAnyOf2Issue) Validate() error {
 	if !validSpecificErrorIssuesAnyOf2IssueValues[s] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid SpecificErrorIssuesAnyOf2Issue value: %v", s))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf2Issue value, got: %v", s))
 	}
 	return nil
 }
@@ -120,7 +120,7 @@ var validSpecificErrorIssuesAnyOf2DescriptionValues = map[SpecificErrorIssuesAny
 // Validate checks if the SpecificErrorIssuesAnyOf2Description value is valid
 func (s SpecificErrorIssuesAnyOf2Description) Validate() error {
 	if !validSpecificErrorIssuesAnyOf2DescriptionValues[s] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid SpecificErrorIssuesAnyOf2Description value: %v", s))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf2Description value, got: %v", s))
 	}
 	return nil
 }
@@ -139,7 +139,7 @@ var validCombinedErrorIssuesAnyOf0IssueValues = map[CombinedErrorIssuesAnyOf0Iss
 // Validate checks if the CombinedErrorIssuesAnyOf0Issue value is valid
 func (c CombinedErrorIssuesAnyOf0Issue) Validate() error {
 	if !validCombinedErrorIssuesAnyOf0IssueValues[c] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid CombinedErrorIssuesAnyOf0Issue value: %v", c))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf0Issue value, got: %v", c))
 	}
 	return nil
 }
@@ -158,7 +158,7 @@ var validCombinedErrorIssuesAnyOf0DescriptionValues = map[CombinedErrorIssuesAny
 // Validate checks if the CombinedErrorIssuesAnyOf0Description value is valid
 func (c CombinedErrorIssuesAnyOf0Description) Validate() error {
 	if !validCombinedErrorIssuesAnyOf0DescriptionValues[c] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid CombinedErrorIssuesAnyOf0Description value: %v", c))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf0Description value, got: %v", c))
 	}
 	return nil
 }
@@ -177,7 +177,7 @@ var validCombinedErrorIssuesAnyOf1IssueValues = map[CombinedErrorIssuesAnyOf1Iss
 // Validate checks if the CombinedErrorIssuesAnyOf1Issue value is valid
 func (c CombinedErrorIssuesAnyOf1Issue) Validate() error {
 	if !validCombinedErrorIssuesAnyOf1IssueValues[c] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid CombinedErrorIssuesAnyOf1Issue value: %v", c))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf1Issue value, got: %v", c))
 	}
 	return nil
 }
@@ -196,7 +196,7 @@ var validCombinedErrorIssuesAnyOf1DescriptionValues = map[CombinedErrorIssuesAny
 // Validate checks if the CombinedErrorIssuesAnyOf1Description value is valid
 func (c CombinedErrorIssuesAnyOf1Description) Validate() error {
 	if !validCombinedErrorIssuesAnyOf1DescriptionValues[c] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid CombinedErrorIssuesAnyOf1Description value: %v", c))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf1Description value, got: %v", c))
 	}
 	return nil
 }
@@ -215,7 +215,7 @@ var validCombinedErrorIssuesAnyOf2IssueValues = map[CombinedErrorIssuesAnyOf2Iss
 // Validate checks if the CombinedErrorIssuesAnyOf2Issue value is valid
 func (c CombinedErrorIssuesAnyOf2Issue) Validate() error {
 	if !validCombinedErrorIssuesAnyOf2IssueValues[c] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid CombinedErrorIssuesAnyOf2Issue value: %v", c))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf2Issue value, got: %v", c))
 	}
 	return nil
 }
@@ -234,7 +234,7 @@ var validCombinedErrorIssuesAnyOf2DescriptionValues = map[CombinedErrorIssuesAny
 // Validate checks if the CombinedErrorIssuesAnyOf2Description value is valid
 func (c CombinedErrorIssuesAnyOf2Description) Validate() error {
 	if !validCombinedErrorIssuesAnyOf2DescriptionValues[c] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid CombinedErrorIssuesAnyOf2Description value: %v", c))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf2Description value, got: %v", c))
 	}
 	return nil
 }
@@ -266,7 +266,7 @@ func (b BaseError) Validate() error {
 	if b.Issues != nil {
 		if v, ok := any(b.Issues).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Issues", err))
+				errors = errors.Append("Issues", err)
 			}
 		}
 	}
@@ -292,7 +292,7 @@ func (s SpecificError) Validate() error {
 	if s.Issues != nil {
 		if v, ok := any(s.Issues).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Issues", err))
+				errors = errors.Append("Issues", err)
 			}
 		}
 	}
@@ -312,7 +312,7 @@ func (s SpecificError_Issues) Validate() error {
 	for i, item := range s {
 		if v, ok := any(item).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+				errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 			}
 		}
 	}
@@ -331,7 +331,7 @@ func (s SpecificError_Issues_Item) Validate() error {
 	if s.SpecificError_Issues_AnyOf != nil {
 		if v, ok := any(s.SpecificError_Issues_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("SpecificError_Issues_AnyOf", err))
+				errors = errors.Append("SpecificError_Issues_AnyOf", err)
 			}
 		}
 	}
@@ -386,7 +386,7 @@ func (c CombinedError) Validate() error {
 	if c.Issues != nil {
 		if v, ok := any(c.Issues).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Issues", err))
+				errors = errors.Append("Issues", err)
 			}
 		}
 	}
@@ -406,7 +406,7 @@ func (c CombinedError_Issues) Validate() error {
 	for i, item := range c {
 		if v, ok := any(item).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+				errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 			}
 		}
 	}
@@ -425,7 +425,7 @@ func (c CombinedError_Issues_Item) Validate() error {
 	if c.CombinedError_Issues_AnyOf != nil {
 		if v, ok := any(c.CombinedError_Issues_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("CombinedError_Issues_AnyOf", err))
+				errors = errors.Append("CombinedError_Issues_AnyOf", err)
 			}
 		}
 	}
@@ -486,14 +486,14 @@ func (s SpecificError_Issues_AnyOf_0) Validate() error {
 	if s.Issue != nil {
 		if v, ok := any(s.Issue).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Issue", err))
+				errors = errors.Append("Issue", err)
 			}
 		}
 	}
 	if s.Description != nil {
 		if v, ok := any(s.Description).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Description", err))
+				errors = errors.Append("Description", err)
 			}
 		}
 	}
@@ -513,14 +513,14 @@ func (s SpecificError_Issues_AnyOf_1) Validate() error {
 	if s.Issue != nil {
 		if v, ok := any(s.Issue).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Issue", err))
+				errors = errors.Append("Issue", err)
 			}
 		}
 	}
 	if s.Description != nil {
 		if v, ok := any(s.Description).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Description", err))
+				errors = errors.Append("Description", err)
 			}
 		}
 	}
@@ -540,14 +540,14 @@ func (s SpecificError_Issues_AnyOf_2) Validate() error {
 	if s.Issue != nil {
 		if v, ok := any(s.Issue).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Issue", err))
+				errors = errors.Append("Issue", err)
 			}
 		}
 	}
 	if s.Description != nil {
 		if v, ok := any(s.Description).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Description", err))
+				errors = errors.Append("Description", err)
 			}
 		}
 	}
@@ -567,14 +567,14 @@ func (c CombinedError_Issues_AnyOf_0) Validate() error {
 	if c.Issue != nil {
 		if v, ok := any(c.Issue).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Issue", err))
+				errors = errors.Append("Issue", err)
 			}
 		}
 	}
 	if c.Description != nil {
 		if v, ok := any(c.Description).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Description", err))
+				errors = errors.Append("Description", err)
 			}
 		}
 	}
@@ -594,14 +594,14 @@ func (c CombinedError_Issues_AnyOf_1) Validate() error {
 	if c.Issue != nil {
 		if v, ok := any(c.Issue).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Issue", err))
+				errors = errors.Append("Issue", err)
 			}
 		}
 	}
 	if c.Description != nil {
 		if v, ok := any(c.Description).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Description", err))
+				errors = errors.Append("Description", err)
 			}
 		}
 	}
@@ -621,14 +621,14 @@ func (c CombinedError_Issues_AnyOf_2) Validate() error {
 	if c.Issue != nil {
 		if v, ok := any(c.Issue).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Issue", err))
+				errors = errors.Append("Issue", err)
 			}
 		}
 	}
 	if c.Description != nil {
 		if v, ok := any(c.Description).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Description", err))
+				errors = errors.Append("Description", err)
 			}
 		}
 	}

@@ -192,8 +192,12 @@ type GetUserRequestOptions struct {
 func (o *GetUserRequestOptions) Validate() error {
 	var errors runtime.ValidationErrors
 
-	if err := clientOptionsValidate.Struct(o.PathParams); err != nil {
-		errors = append(errors, runtime.NewValidationErrorsFromErrors("PathParams", []error{err})...)
+	if o.PathParams != nil {
+		if v, ok := any(o.PathParams).(runtime.Validator); ok {
+			if err := v.Validate(); err != nil {
+				errors = errors.Append("PathParams", err)
+			}
+		}
 	}
 	if len(errors) == 0 {
 		return nil
@@ -232,8 +236,12 @@ type GetPostRequestOptions struct {
 func (o *GetPostRequestOptions) Validate() error {
 	var errors runtime.ValidationErrors
 
-	if err := clientOptionsValidate.Struct(o.PathParams); err != nil {
-		errors = append(errors, runtime.NewValidationErrorsFromErrors("PathParams", []error{err})...)
+	if o.PathParams != nil {
+		if v, ok := any(o.PathParams).(runtime.Validator); ok {
+			if err := v.Validate(); err != nil {
+				errors = errors.Append("PathParams", err)
+			}
+		}
 	}
 	if len(errors) == 0 {
 		return nil
@@ -272,8 +280,12 @@ type CreateEventRequestOptions struct {
 func (o *CreateEventRequestOptions) Validate() error {
 	var errors runtime.ValidationErrors
 
-	if err := clientOptionsValidate.Struct(o.Body); err != nil {
-		errors = append(errors, runtime.NewValidationErrorsFromErrors("Body", []error{err})...)
+	if o.Body != nil {
+		if v, ok := any(o.Body).(runtime.Validator); ok {
+			if err := v.Validate(); err != nil {
+				errors = errors.Append("Body", err)
+			}
+		}
 	}
 	if len(errors) == 0 {
 		return nil
@@ -351,14 +363,14 @@ func (c CreateEventBody) Validate() error {
 	if c.Timestamp != nil {
 		if v, ok := any(c.Timestamp).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Timestamp", err))
+				errors = errors.Append("Timestamp", err)
 			}
 		}
 	}
 	if c.Metadata != nil {
 		if v, ok := any(c.Metadata).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Metadata", err))
+				errors = errors.Append("Metadata", err)
 			}
 		}
 	}
@@ -433,7 +445,7 @@ func (l ListComments_Response) Validate() error {
 	for i, item := range l {
 		if v, ok := any(item).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+				errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 			}
 		}
 	}
@@ -465,21 +477,21 @@ func (l ListComments_Response_Item) Validate() error {
 	if l.CreatedAt != nil {
 		if v, ok := any(l.CreatedAt).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("CreatedAt", err))
+				errors = errors.Append("CreatedAt", err)
 			}
 		}
 	}
 	if l.UpdatedAt != nil {
 		if v, ok := any(l.UpdatedAt).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("UpdatedAt", err))
+				errors = errors.Append("UpdatedAt", err)
 			}
 		}
 	}
 	if l.Metadata != nil {
 		if v, ok := any(l.Metadata).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Metadata", err))
+				errors = errors.Append("Metadata", err)
 			}
 		}
 	}

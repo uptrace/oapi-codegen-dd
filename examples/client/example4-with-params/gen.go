@@ -89,12 +89,20 @@ type GetOrderRequestOptions struct {
 func (o *GetOrderRequestOptions) Validate() error {
 	var errors runtime.ValidationErrors
 
-	if err := clientOptionsValidate.Struct(o.PathParams); err != nil {
-		errors = append(errors, runtime.NewValidationErrorsFromErrors("PathParams", []error{err})...)
+	if o.PathParams != nil {
+		if v, ok := any(o.PathParams).(runtime.Validator); ok {
+			if err := v.Validate(); err != nil {
+				errors = errors.Append("PathParams", err)
+			}
+		}
 	}
 
-	if err := clientOptionsValidate.Struct(o.Query); err != nil {
-		errors = append(errors, runtime.NewValidationErrorsFromErrors("Query", []error{err})...)
+	if o.Query != nil {
+		if v, ok := any(o.Query).(runtime.Validator); ok {
+			if err := v.Validate(); err != nil {
+				errors = errors.Append("Query", err)
+			}
+		}
 	}
 	if len(errors) == 0 {
 		return nil

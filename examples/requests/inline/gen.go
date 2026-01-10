@@ -30,14 +30,14 @@ func (p ProcessPaymentBody) Validate() error {
 	if p.C != nil {
 		if v, ok := any(p.C).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("C", err))
+				errors = errors.Append("C", err)
 			}
 		}
 	}
 	if p.D != nil {
 		if v, ok := any(p.D).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("D", err))
+				errors = errors.Append("D", err)
 			}
 		}
 	}
@@ -63,7 +63,7 @@ func (p ProcessPaymentBody_C) Validate() error {
 	if p.ProcessPaymentBody_C_OneOf != nil {
 		if v, ok := any(p.ProcessPaymentBody_C_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("ProcessPaymentBody_C_OneOf", err))
+				errors = errors.Append("ProcessPaymentBody_C_OneOf", err)
 			}
 		}
 	}
@@ -116,7 +116,7 @@ func (p ProcessPaymentBody_D1) Validate() error {
 	if p.ProcessPaymentBody_D_AllOf0 != nil {
 		if v, ok := any(p.ProcessPaymentBody_D_AllOf0).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("ProcessPaymentBody_D_AllOf0", err))
+				errors = errors.Append("ProcessPaymentBody_D_AllOf0", err)
 			}
 		}
 	}
@@ -176,7 +176,7 @@ func (p ProcessPaymentBody_D) Validate() error {
 	if p.ProcessPaymentBody_D_AllOf0 != nil {
 		if v, ok := any(p.ProcessPaymentBody_D_AllOf0).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("ProcessPaymentBody_D_AllOf0", err))
+				errors = errors.Append("ProcessPaymentBody_D_AllOf0", err)
 			}
 		}
 	}
@@ -229,7 +229,7 @@ func (p ProcessPaymentBody_D_AllOf0) Validate() error {
 	if p.ProcessPaymentBody_D_AllOf0_OneOf != nil {
 		if v, ok := any(p.ProcessPaymentBody_D_AllOf0_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("ProcessPaymentBody_D_AllOf0_OneOf", err))
+				errors = errors.Append("ProcessPaymentBody_D_AllOf0_OneOf", err)
 			}
 		}
 	}
@@ -282,7 +282,7 @@ func (p ProcessPaymentBody_D_AllOf0_OneOf_0) Validate() error {
 	if p.ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf != nil {
 		if v, ok := any(p.ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf", err))
+				errors = errors.Append("ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf", err)
 			}
 		}
 	}

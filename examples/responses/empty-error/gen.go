@@ -95,8 +95,12 @@ type CreateUserRequestOptions struct {
 func (o *CreateUserRequestOptions) Validate() error {
 	var errors runtime.ValidationErrors
 
-	if err := clientOptionsValidate.Struct(o.Body); err != nil {
-		errors = append(errors, runtime.NewValidationErrorsFromErrors("Body", []error{err})...)
+	if o.Body != nil {
+		if v, ok := any(o.Body).(runtime.Validator); ok {
+			if err := v.Validate(); err != nil {
+				errors = errors.Append("Body", err)
+			}
+		}
 	}
 	if len(errors) == 0 {
 		return nil

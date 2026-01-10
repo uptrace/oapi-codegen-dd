@@ -26,12 +26,12 @@ func (u Users) Validate() error {
 	}
 	var errors runtime.ValidationErrors
 	if len(u) < 2 {
-		errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at least 2 items, got %d", len(u))))
+		errors = errors.Add("Array", fmt.Sprintf("must have at least 2 items, got %d", len(u)))
 	}
 	for i, item := range u {
 		if v, ok := any(item).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+				errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 			}
 		}
 	}
@@ -50,7 +50,7 @@ func (u Users_Item) Validate() error {
 	if u.Users_OneOf != nil {
 		if v, ok := any(u.Users_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Users_OneOf", err))
+				errors = errors.Append("Users_OneOf", err)
 			}
 		}
 	}
@@ -103,7 +103,7 @@ func (n Nested) Validate() error {
 	if n.Entity != nil {
 		if v, ok := any(n.Entity).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Entity", err))
+				errors = errors.Append("Entity", err)
 			}
 		}
 	}
@@ -122,7 +122,7 @@ func (n Nested_Entity) Validate() error {
 	if n.Nested_Entity_OneOf != nil {
 		if v, ok := any(n.Nested_Entity_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Nested_Entity_OneOf", err))
+				errors = errors.Append("Nested_Entity_OneOf", err)
 			}
 		}
 	}
@@ -175,7 +175,7 @@ func (n Nested_Entity_OneOf_1_Name) Validate() error {
 	if n.Nested_Entity_OneOf_1_Name_OneOf != nil {
 		if v, ok := any(n.Nested_Entity_OneOf_1_Name_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Nested_Entity_OneOf_1_Name_OneOf", err))
+				errors = errors.Append("Nested_Entity_OneOf_1_Name_OneOf", err)
 			}
 		}
 	}
@@ -240,7 +240,7 @@ func (n Nested_Entity_OneOf_1) Validate() error {
 	if n.Name != nil {
 		if v, ok := any(n.Name).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Name", err))
+				errors = errors.Append("Name", err)
 			}
 		}
 	}

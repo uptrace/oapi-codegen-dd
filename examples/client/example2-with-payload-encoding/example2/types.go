@@ -23,19 +23,19 @@ type ClientType struct {
 func (c ClientType) Validate() error {
 	var errors runtime.ValidationErrors
 	if err := schemaTypesValidate.Var(c.Name, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Name", err))
+		errors = errors.Append("Name", err)
 	}
 	if c.Address != nil {
 		if v, ok := any(c.Address).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Address", err))
+				errors = errors.Append("Address", err)
 			}
 		}
 	}
 	if c.Type != nil {
 		if v, ok := any(c.Type).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Type", err))
+				errors = errors.Append("Type", err)
 			}
 		}
 	}

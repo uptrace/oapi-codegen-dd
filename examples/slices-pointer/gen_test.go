@@ -69,7 +69,7 @@ func TestPayments_Validate_PreservesOriginalError(t *testing.T) {
 		require.True(t, errors.As(err, &validationErr))
 
 		// This error is created directly, not from validator
-		assert.Equal(t, "must have at least 1 items, got 0", err.Error())
+		assert.Equal(t, "Array must have at least 1 items, got 0", err.Error())
 	})
 }
 
@@ -86,11 +86,14 @@ func TestUser_Validate_PreservesOriginalError(t *testing.T) {
 		require.True(t, errors.As(err, &validationErrs))
 		require.Len(t, validationErrs, 1)
 
-		assert.Equal(t, "Payments", validationErrs[0].Field)
+		// The field path should include the full path: Payments.[0]
+		assert.Equal(t, "Payments.[0]", validationErrs[0].Field)
 
+		// The underlying error should be preserved
 		unwrapped := validationErrs[0].Unwrap()
 		require.NotNil(t, unwrapped)
 
+		// The unwrapped error should be a ValidationError with field "[0]"
 		var nestedErr runtime.ValidationError
 		assert.True(t, errors.As(unwrapped, &nestedErr))
 		assert.Equal(t, "[0]", nestedErr.Field)

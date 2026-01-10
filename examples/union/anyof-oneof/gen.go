@@ -29,7 +29,7 @@ func (o Order) Validate() error {
 	if o.Client != nil {
 		if v, ok := any(o.Client).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Client", err))
+				errors = errors.Append("Client", err)
 			}
 		}
 	}
@@ -49,14 +49,14 @@ func (o Order_Client) Validate() error {
 	if o.Order_Client_AnyOf != nil {
 		if v, ok := any(o.Order_Client_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Order_Client_AnyOf", err))
+				errors = errors.Append("Order_Client_AnyOf", err)
 			}
 		}
 	}
 	if o.Order_Client_OneOf != nil {
 		if v, ok := any(o.Order_Client_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Order_Client_OneOf", err))
+				errors = errors.Append("Order_Client_OneOf", err)
 			}
 		}
 	}

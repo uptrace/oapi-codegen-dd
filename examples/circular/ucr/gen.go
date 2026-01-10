@@ -28,7 +28,7 @@ var validOrgModelTypeValues = map[OrgModelType]bool{
 // Validate checks if the OrgModelType value is valid
 func (o OrgModelType) Validate() error {
 	if !validOrgModelTypeValues[o] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid OrgModelType value: %v", o))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid OrgModelType value, got: %v", o))
 	}
 	return nil
 }
@@ -55,7 +55,7 @@ func (o OrgByIDResponseWrapperModel) Validate() error {
 	if o.Response != nil {
 		if v, ok := any(o.Response).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Response", err))
+				errors = errors.Append("Response", err)
 			}
 		}
 	}
@@ -77,14 +77,14 @@ func (o OrgModel) Validate() error {
 	if o.Type != nil {
 		if v, ok := any(o.Type).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Type", err))
+				errors = errors.Append("Type", err)
 			}
 		}
 	}
 	if o.Parent != nil {
 		if v, ok := any(o.Parent).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Parent", err))
+				errors = errors.Append("Parent", err)
 			}
 		}
 	}

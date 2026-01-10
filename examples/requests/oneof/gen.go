@@ -27,7 +27,7 @@ func (p ProcessPaymentBody) Validate() error {
 	if p.ProcessPaymentBody_OneOf != nil {
 		if v, ok := any(p.ProcessPaymentBody_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("ProcessPaymentBody_OneOf", err))
+				errors = errors.Append("ProcessPaymentBody_OneOf", err)
 			}
 		}
 	}

@@ -24,7 +24,7 @@ var validClientTypeTypeValues = map[ClientTypeType]bool{
 // Validate checks if the ClientTypeType value is valid
 func (c ClientTypeType) Validate() error {
 	if !validClientTypeTypeValues[c] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid ClientTypeType value: %v", c))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ClientTypeType value, got: %v", c))
 	}
 	return nil
 }

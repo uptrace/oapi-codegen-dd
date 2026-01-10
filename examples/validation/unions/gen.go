@@ -28,13 +28,13 @@ func (r Response) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(r.User).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("User", err))
+			errors = errors.Append("User", err)
 		}
 	}
 	if r.Friend != nil {
 		if v, ok := any(r.Friend).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Friend", err))
+				errors = errors.Append("Friend", err)
 			}
 		}
 	}
@@ -53,7 +53,7 @@ func (r Response_User) Validate() error {
 	if r.Response_User_OneOf != nil {
 		if v, ok := any(r.Response_User_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Response_User_OneOf", err))
+				errors = errors.Append("Response_User_OneOf", err)
 			}
 		}
 	}
@@ -106,7 +106,7 @@ func (r Response_Friend) Validate() error {
 	if r.Response_Friend_AnyOf != nil {
 		if v, ok := any(r.Response_Friend_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Response_Friend_AnyOf", err))
+				errors = errors.Append("Response_Friend_AnyOf", err)
 			}
 		}
 	}
@@ -160,11 +160,11 @@ func (p Payload) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(p.User).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("User", err))
+			errors = errors.Append("User", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(p.CreatedAt, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("CreatedAt", err))
+		errors = errors.Append("CreatedAt", err)
 	}
 	if len(errors) == 0 {
 		return nil
@@ -181,7 +181,7 @@ func (p Payload_User) Validate() error {
 	if p.Payload_User_OneOf != nil {
 		if v, ok := any(p.Payload_User_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Payload_User_OneOf", err))
+				errors = errors.Append("Payload_User_OneOf", err)
 			}
 		}
 	}

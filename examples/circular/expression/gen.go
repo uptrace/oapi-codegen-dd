@@ -38,7 +38,7 @@ func (f FilterRequest) Validate() error {
 	if f.Filter != nil {
 		if v, ok := any(f.Filter).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Filter", err))
+				errors = errors.Append("Filter", err)
 			}
 		}
 	}
@@ -59,25 +59,25 @@ func (e Expression) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(e.Or).(runtime.Validator); ok && v != nil {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Or", err))
+			errors = errors.Append("Or", err)
 		}
 	}
 	if v, ok := any(e.And).(runtime.Validator); ok && v != nil {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("And", err))
+			errors = errors.Append("And", err)
 		}
 	}
 	if e.Not != nil {
 		if v, ok := any(e.Not).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Not", err))
+				errors = errors.Append("Not", err)
 			}
 		}
 	}
 	if e.Dimensions != nil {
 		if v, ok := any(e.Dimensions).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Dimensions", err))
+				errors = errors.Append("Dimensions", err)
 			}
 		}
 	}
@@ -95,12 +95,12 @@ func (e Expressions) Validate() error {
 	}
 	var errors runtime.ValidationErrors
 	if len(e) < 1 {
-		errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at least 1 items, got %d", len(e))))
+		errors = errors.Add("Array", fmt.Sprintf("must have at least 1 items, got %d", len(e)))
 	}
 	for i, item := range e {
 		if v, ok := any(item).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+				errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 			}
 		}
 	}

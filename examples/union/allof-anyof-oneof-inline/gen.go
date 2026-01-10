@@ -28,14 +28,14 @@ func (c CreateUserBody) Validate() error {
 	if c.User != nil {
 		if v, ok := any(c.User).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("User", err))
+				errors = errors.Append("User", err)
 			}
 		}
 	}
 	if c.Pages != nil {
 		if v, ok := any(c.Pages).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Pages", err))
+				errors = errors.Append("Pages", err)
 			}
 		}
 	}
@@ -74,7 +74,7 @@ func (c CreateUserBody_Pages) Validate() error {
 	for i, item := range c {
 		if v, ok := any(item).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+				errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 			}
 		}
 	}
@@ -95,19 +95,19 @@ type CreateUserBody_Pages_Item struct {
 func (c CreateUserBody_Pages_Item) Validate() error {
 	var errors runtime.ValidationErrors
 	if err := schemaTypesValidate.Var(c.Limit, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Limit", err))
+		errors = errors.Append("Limit", err)
 	}
 	if c.CreateUserBody_Pages_AnyOf != nil {
 		if v, ok := any(c.CreateUserBody_Pages_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("CreateUserBody_Pages_AnyOf", err))
+				errors = errors.Append("CreateUserBody_Pages_AnyOf", err)
 			}
 		}
 	}
 	if c.CreateUserBody_Pages_OneOf != nil {
 		if v, ok := any(c.CreateUserBody_Pages_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("CreateUserBody_Pages_OneOf", err))
+				errors = errors.Append("CreateUserBody_Pages_OneOf", err)
 			}
 		}
 	}

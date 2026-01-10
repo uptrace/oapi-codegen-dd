@@ -2,6 +2,10 @@ package types
 
 import (
 	"testing"
+
+	"github.com/doordash/oapi-codegen-dd/v3/pkg/runtime"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestStatusCode_Validate(t *testing.T) {
@@ -131,4 +135,21 @@ func TestColor_Validate(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestEnum_Validate_ReturnsValidationErrors(t *testing.T) {
+	t.Run("invalid enum returns ValidationErrors", func(t *testing.T) {
+		invalidColor := Color("yellow")
+		err := invalidColor.Validate()
+
+		require.Error(t, err)
+
+		// Should return ValidationErrors (plural), not ValidationError (singular)
+		validationErrs, ok := err.(runtime.ValidationErrors)
+		require.True(t, ok, "expected ValidationErrors (plural)")
+		require.Len(t, validationErrs, 1)
+
+		assert.Equal(t, "Enum", validationErrs[0].Field)
+		assert.Contains(t, validationErrs[0].Message, "must be a valid Color value")
+	})
 }

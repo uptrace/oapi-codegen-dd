@@ -22,12 +22,12 @@ type Client struct {
 func (c Client) Validate() error {
 	var errors runtime.ValidationErrors
 	if err := schemaTypesValidate.Var(c.Name, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Name", err))
+		errors = errors.Append("Name", err)
 	}
 	if c.ComplexField != nil {
 		if v, ok := any(c.ComplexField).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("ComplexField", err))
+				errors = errors.Append("ComplexField", err)
 			}
 		}
 	}
@@ -50,12 +50,12 @@ type ClientWithExtension struct {
 func (c ClientWithExtension) Validate() error {
 	var errors runtime.ValidationErrors
 	if err := schemaTypesValidate.Var(c.Name, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Name", err))
+		errors = errors.Append("Name", err)
 	}
 	if c.ComplexField != nil {
 		if v, ok := any(c.ComplexField).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("ComplexField", err))
+				errors = errors.Append("ComplexField", err)
 			}
 		}
 	}

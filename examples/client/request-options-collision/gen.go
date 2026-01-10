@@ -84,8 +84,12 @@ type GetTest1RequestOptions struct {
 func (o *GetTest1RequestOptions) Validate() error {
 	var errors runtime.ValidationErrors
 
-	if err := clientOptionsValidate.Struct(o.Query); err != nil {
-		errors = append(errors, runtime.NewValidationErrorsFromErrors("Query", []error{err})...)
+	if o.Query != nil {
+		if v, ok := any(o.Query).(runtime.Validator); ok {
+			if err := v.Validate(); err != nil {
+				errors = errors.Append("Query", err)
+			}
+		}
 	}
 	if len(errors) == 0 {
 		return nil
@@ -147,7 +151,7 @@ func (t TestResponse) Validate() error {
 	if t.Options != nil {
 		if v, ok := any(t.Options).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Options", err))
+				errors = errors.Append("Options", err)
 			}
 		}
 	}

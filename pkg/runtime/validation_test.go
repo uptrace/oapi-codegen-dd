@@ -180,7 +180,10 @@ func TestConvertValidatorError(t *testing.T) {
 
 		var ves ValidationErrors
 		require.True(t, errors.As(result, &ves), "expected ValidationErrors type")
-		assert.Len(t, ves, 0, "generic errors are not converted by NewValidationErrorsFromErrors")
+		assert.Len(t, ves, 1, "generic errors are now wrapped in ValidationError")
+		assert.Equal(t, "", ves[0].Field)
+		assert.Equal(t, "some error", ves[0].Message)
+		assert.Equal(t, genericErr, ves[0].Err)
 	})
 
 	t.Run("handles deeply wrapped ValidationError", func(t *testing.T) {

@@ -40,7 +40,7 @@ func (p PostBillingPortalConfigurationsConfigurationResponse) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(p.Features).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Features", err))
+			errors = errors.Append("Features", err)
 		}
 	}
 	if len(errors) == 0 {
@@ -65,7 +65,7 @@ func (p PortalFeatures) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(p.InvoiceHistory).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("InvoiceHistory", err))
+			errors = errors.Append("InvoiceHistory", err)
 		}
 	}
 	if len(errors) == 0 {

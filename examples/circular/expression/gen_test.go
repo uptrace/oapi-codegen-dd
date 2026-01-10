@@ -158,7 +158,7 @@ func TestExpressions_Validate(t *testing.T) {
 		exprs := Expressions{}
 		err := exprs.Validate()
 		assert.Error(t, err)
-		assert.Equal(t, "must have at least 1 items, got 0", err.Error())
+		assert.Equal(t, "Array must have at least 1 items, got 0", err.Error())
 	})
 
 	t.Run("valid - array with empty Expression struct", func(t *testing.T) {
@@ -182,6 +182,6 @@ func TestExpressions_Validate(t *testing.T) {
 		}
 		err := exprs.Validate()
 		assert.Error(t, err)
-		assert.Equal(t, "[0].Or must have at least 1 items, got 0", err.Error())
+		assert.Equal(t, "[0].Or.Array must have at least 1 items, got 0", err.Error())
 	})
 }

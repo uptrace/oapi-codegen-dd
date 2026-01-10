@@ -46,26 +46,42 @@ func (o *{{$op.ID | ucFirst}}RequestOptions) Validate() error {
     var errors runtime.ValidationErrors
 
     {{ if $op.PathParams }}
-    if err := clientOptionsValidate.Struct(o.PathParams); err != nil {
-        errors = append(errors, runtime.NewValidationErrorsFromErrors("PathParams", []error{err})...)
+    if o.PathParams != nil {
+        if v, ok := any(o.PathParams).(runtime.Validator); ok {
+            if err := v.Validate(); err != nil {
+                errors = errors.Append("PathParams", err)
+            }
+        }
     }
     {{ end -}}
 
     {{ if $op.Query }}
-    if err := clientOptionsValidate.Struct(o.Query); err != nil {
-        errors = append(errors, runtime.NewValidationErrorsFromErrors("Query", []error{err})...)
+    if o.Query != nil {
+        if v, ok := any(o.Query).(runtime.Validator); ok {
+            if err := v.Validate(); err != nil {
+                errors = errors.Append("Query", err)
+            }
+        }
     }
     {{end -}}
 
     {{ if $op.Body }}
-    if err := clientOptionsValidate.Struct(o.Body); err != nil {
-        errors = append(errors, runtime.NewValidationErrorsFromErrors("Body", []error{err})...)
+    if o.Body != nil {
+        if v, ok := any(o.Body).(runtime.Validator); ok {
+            if err := v.Validate(); err != nil {
+                errors = errors.Append("Body", err)
+            }
+        }
     }
     {{end -}}
 
     {{ if $op.Header }}
-    if err := clientOptionsValidate.Struct(o.Header); err != nil {
-        errors = append(errors, runtime.NewValidationErrorsFromErrors("Header", []error{err})...)
+    if o.Header != nil {
+        if v, ok := any(o.Header).(runtime.Validator); ok {
+            if err := v.Validate(); err != nil {
+                errors = errors.Append("Header", err)
+            }
+        }
     }
     {{end -}}
 

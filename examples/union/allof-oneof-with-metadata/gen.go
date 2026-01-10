@@ -25,7 +25,7 @@ var validFileTypeValues = map[FileType]bool{
 // Validate checks if the FileType value is valid
 func (f FileType) Validate() error {
 	if !validFileTypeValues[f] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid FileType value: %v", f))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid FileType value, got: %v", f))
 	}
 	return nil
 }
@@ -44,7 +44,7 @@ var validFolderTypeValues = map[FolderType]bool{
 // Validate checks if the FolderType value is valid
 func (f FolderType) Validate() error {
 	if !validFolderTypeValues[f] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid FolderType value: %v", f))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid FolderType value, got: %v", f))
 	}
 	return nil
 }
@@ -63,7 +63,7 @@ var validWebLinkTypeValues = map[WebLinkType]bool{
 // Validate checks if the WebLinkType value is valid
 func (w WebLinkType) Validate() error {
 	if !validWebLinkTypeValues[w] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid WebLinkType value: %v", w))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid WebLinkType value, got: %v", w))
 	}
 	return nil
 }
@@ -86,7 +86,7 @@ var validCollaborationRoleValues = map[CollaborationRole]bool{
 // Validate checks if the CollaborationRole value is valid
 func (c CollaborationRole) Validate() error {
 	if !validCollaborationRoleValues[c] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid CollaborationRole value: %v", c))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CollaborationRole value, got: %v", c))
 	}
 	return nil
 }
@@ -109,7 +109,7 @@ var validGetCollaborationResponseRoleValues = map[GetCollaborationResponseRole]b
 // Validate checks if the GetCollaborationResponseRole value is valid
 func (g GetCollaborationResponseRole) Validate() error {
 	if !validGetCollaborationResponseRoleValues[g] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid GetCollaborationResponseRole value: %v", g))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid GetCollaborationResponseRole value, got: %v", g))
 	}
 	return nil
 }
@@ -137,11 +137,11 @@ func (f File) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(f.Type).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Type", err))
+			errors = errors.Append("Type", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(f.ID, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("ID", err))
+		errors = errors.Append("ID", err)
 	}
 	if len(errors) == 0 {
 		return nil
@@ -159,11 +159,11 @@ func (f Folder) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(f.Type).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Type", err))
+			errors = errors.Append("Type", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(f.ID, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("ID", err))
+		errors = errors.Append("ID", err)
 	}
 	if len(errors) == 0 {
 		return nil
@@ -181,11 +181,11 @@ func (w WebLink) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(w.Type).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Type", err))
+			errors = errors.Append("Type", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(w.ID, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("ID", err))
+		errors = errors.Append("ID", err)
 	}
 	if len(errors) == 0 {
 		return nil
@@ -202,19 +202,19 @@ type Collaboration struct {
 func (c Collaboration) Validate() error {
 	var errors runtime.ValidationErrors
 	if err := schemaTypesValidate.Var(c.ID, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("ID", err))
+		errors = errors.Append("ID", err)
 	}
 	if c.Item != nil {
 		if v, ok := any(c.Item).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Item", err))
+				errors = errors.Append("Item", err)
 			}
 		}
 	}
 	if c.Role != nil {
 		if v, ok := any(c.Role).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Role", err))
+				errors = errors.Append("Role", err)
 			}
 		}
 	}
@@ -233,7 +233,7 @@ func (c Collaboration_Item1) Validate() error {
 	if c.Collaboration_Item_AllOf0 != nil {
 		if v, ok := any(c.Collaboration_Item_AllOf0).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Collaboration_Item_AllOf0", err))
+				errors = errors.Append("Collaboration_Item_AllOf0", err)
 			}
 		}
 	}
@@ -286,7 +286,7 @@ func (g GetCollaboration_Response_Item1) Validate() error {
 	if g.GetCollaboration_Response_Item_AllOf0 != nil {
 		if v, ok := any(g.GetCollaboration_Response_Item_AllOf0).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("GetCollaboration_Response_Item_AllOf0", err))
+				errors = errors.Append("GetCollaboration_Response_Item_AllOf0", err)
 			}
 		}
 	}
@@ -346,7 +346,7 @@ func (c Collaboration_Item) Validate() error {
 	if c.Collaboration_Item_AllOf0 != nil {
 		if v, ok := any(c.Collaboration_Item_AllOf0).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Collaboration_Item_AllOf0", err))
+				errors = errors.Append("Collaboration_Item_AllOf0", err)
 			}
 		}
 	}
@@ -399,7 +399,7 @@ func (c Collaboration_Item_AllOf0) Validate() error {
 	if c.Collaboration_Item_AllOf0_OneOf != nil {
 		if v, ok := any(c.Collaboration_Item_AllOf0_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Collaboration_Item_AllOf0_OneOf", err))
+				errors = errors.Append("Collaboration_Item_AllOf0_OneOf", err)
 			}
 		}
 	}
@@ -452,7 +452,7 @@ func (g GetCollaboration_Response_Item) Validate() error {
 	if g.GetCollaboration_Response_Item_AllOf0 != nil {
 		if v, ok := any(g.GetCollaboration_Response_Item_AllOf0).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("GetCollaboration_Response_Item_AllOf0", err))
+				errors = errors.Append("GetCollaboration_Response_Item_AllOf0", err)
 			}
 		}
 	}
@@ -505,7 +505,7 @@ func (g GetCollaboration_Response_Item_AllOf0) Validate() error {
 	if g.GetCollaboration_Response_Item_AllOf0_OneOf != nil {
 		if v, ok := any(g.GetCollaboration_Response_Item_AllOf0_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("GetCollaboration_Response_Item_AllOf0_OneOf", err))
+				errors = errors.Append("GetCollaboration_Response_Item_AllOf0_OneOf", err)
 			}
 		}
 	}

@@ -36,7 +36,7 @@ func (p Payload) Validate() error {
 	if p.Payload_OneOf != nil {
 		if v, ok := any(p.Payload_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Payload_OneOf", err))
+				errors = errors.Append("Payload_OneOf", err)
 			}
 		}
 	}

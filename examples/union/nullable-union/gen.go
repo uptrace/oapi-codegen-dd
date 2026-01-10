@@ -52,14 +52,14 @@ func (u User) Validate() error {
 	if u.Address != nil {
 		if v, ok := any(u.Address).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Address", err))
+				errors = errors.Append("Address", err)
 			}
 		}
 	}
 	if u.Contact != nil {
 		if v, ok := any(u.Contact).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Contact", err))
+				errors = errors.Append("Contact", err)
 			}
 		}
 	}

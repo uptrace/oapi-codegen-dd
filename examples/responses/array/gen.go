@@ -104,7 +104,7 @@ func (g GetFiles_Response) Validate() error {
 	for i, item := range g {
 		if v, ok := any(item).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+				errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 			}
 		}
 	}
@@ -123,7 +123,7 @@ func (g GetFiles_Response_Item) Validate() error {
 	if g.GetFiles_Response_OneOf != nil {
 		if v, ok := any(g.GetFiles_Response_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("GetFiles_Response_OneOf", err))
+				errors = errors.Append("GetFiles_Response_OneOf", err)
 			}
 		}
 	}

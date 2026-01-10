@@ -27,7 +27,7 @@ var validStatusCodeValues = map[StatusCode]bool{
 // Validate checks if the StatusCode value is valid
 func (s StatusCode) Validate() error {
 	if !validStatusCodeValues[s] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid StatusCode value: %v", s))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid StatusCode value, got: %v", s))
 	}
 	return nil
 }
@@ -50,7 +50,7 @@ var validPriorityValues = map[Priority]bool{
 // Validate checks if the Priority value is valid
 func (p Priority) Validate() error {
 	if !validPriorityValues[p] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid Priority value: %v", p))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid Priority value, got: %v", p))
 	}
 	return nil
 }
@@ -73,7 +73,7 @@ var validColorValues = map[Color]bool{
 // Validate checks if the Color value is valid
 func (c Color) Validate() error {
 	if !validColorValues[c] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid Color value: %v", c))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid Color value, got: %v", c))
 	}
 	return nil
 }
@@ -96,20 +96,20 @@ func (t TestObject) Validate() error {
 	if t.Status != nil {
 		if v, ok := any(t.Status).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Status", err))
+				errors = errors.Append("Status", err)
 			}
 		}
 	}
 	if t.Priority != nil {
 		if v, ok := any(t.Priority).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Priority", err))
+				errors = errors.Append("Priority", err)
 			}
 		}
 	}
 	if v, ok := any(t.Color).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Color", err))
+			errors = errors.Append("Color", err)
 		}
 	}
 	if len(errors) == 0 {
@@ -128,17 +128,17 @@ func (t TestObjectRequired) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(t.Status).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Status", err))
+			errors = errors.Append("Status", err)
 		}
 	}
 	if v, ok := any(t.Priority).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Priority", err))
+			errors = errors.Append("Priority", err)
 		}
 	}
 	if v, ok := any(t.Color).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Color", err))
+			errors = errors.Append("Color", err)
 		}
 	}
 	if len(errors) == 0 {

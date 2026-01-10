@@ -27,7 +27,7 @@ func (u UpdateConfigBody) Validate() error {
 	if u.Config != nil {
 		if v, ok := any(u.Config).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Config", err))
+				errors = errors.Append("Config", err)
 			}
 		}
 	}
@@ -48,7 +48,7 @@ func (c CreateFirewallBody) Validate() error {
 	if c.Rules != nil {
 		if v, ok := any(c.Rules).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Rules", err))
+				errors = errors.Append("Rules", err)
 			}
 		}
 	}
@@ -90,7 +90,7 @@ func (g GetConfig_Response_Config) Validate() error {
 	if g.GetConfig_Response_Config_AnyOf != nil {
 		if v, ok := any(g.GetConfig_Response_Config_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("GetConfig_Response_Config_AnyOf", err))
+				errors = errors.Append("GetConfig_Response_Config_AnyOf", err)
 			}
 		}
 	}
@@ -143,7 +143,7 @@ func (u UpdateConfigBody_Config) Validate() error {
 	if u.UpdateConfigBody_Config_AnyOf != nil {
 		if v, ok := any(u.UpdateConfigBody_Config_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("UpdateConfigBody_Config_AnyOf", err))
+				errors = errors.Append("UpdateConfigBody_Config_AnyOf", err)
 			}
 		}
 	}

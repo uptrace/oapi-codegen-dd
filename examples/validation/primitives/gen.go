@@ -27,7 +27,7 @@ var validResponsePredefinedValues = map[ResponsePredefined]bool{
 // Validate checks if the ResponsePredefined value is valid
 func (r ResponsePredefined) Validate() error {
 	if !validResponsePredefinedValues[r] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid ResponsePredefined value: %v", r))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ResponsePredefined value, got: %v", r))
 	}
 	return nil
 }
@@ -50,7 +50,7 @@ var validPredefinedValues = map[Predefined]bool{
 // Validate checks if the Predefined value is valid
 func (p Predefined) Validate() error {
 	if !validPredefinedValues[p] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid Predefined value: %v", p))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid Predefined value, got: %v", p))
 	}
 	return nil
 }
@@ -80,39 +80,39 @@ func (r Response) Validate() error {
 	var errors runtime.ValidationErrors
 	if r.Msn1 != nil {
 		if err := schemaTypesValidate.Var(r.Msn1, "omitempty,max=7,min=4"); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Msn1", err))
+			errors = errors.Append("Msn1", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(r.MsnReqWithConstraints, "required,max=7,min=4"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("MsnReqWithConstraints", err))
+		errors = errors.Append("MsnReqWithConstraints", err)
 	}
 	if err := schemaTypesValidate.Var(r.MsnReqWithoutConstraints, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("MsnReqWithoutConstraints", err))
+		errors = errors.Append("MsnReqWithoutConstraints", err)
 	}
 	if r.Msn3 != nil {
 		if err := schemaTypesValidate.Var(r.Msn3, "omitempty,gte=1,lte=100"); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Msn3", err))
+			errors = errors.Append("Msn3", err)
 		}
 	}
 	if err := schemaTypesValidate.Var(r.MsnFloat, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("MsnFloat", err))
+		errors = errors.Append("MsnFloat", err)
 	}
 	if v, ok := any(r.UserRequired).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("UserRequired", err))
+			errors = errors.Append("UserRequired", err)
 		}
 	}
 	if r.UserOptional != nil {
 		if v, ok := any(r.UserOptional).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("UserOptional", err))
+				errors = errors.Append("UserOptional", err)
 			}
 		}
 	}
 	if r.Predefined != nil {
 		if v, ok := any(r.Predefined).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Predefined", err))
+				errors = errors.Append("Predefined", err)
 			}
 		}
 	}
@@ -132,7 +132,7 @@ func (p PredefinedValue) Validate() error {
 	if p.Value != nil {
 		if v, ok := any(p.Value).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Value", err))
+				errors = errors.Append("Value", err)
 			}
 		}
 	}

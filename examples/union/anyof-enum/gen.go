@@ -29,7 +29,7 @@ var validRenderingOptionsAnyOf0AmountTaxDisplayValues = map[RenderingOptionsAnyO
 // Validate checks if the RenderingOptionsAnyOf0AmountTaxDisplay value is valid
 func (r RenderingOptionsAnyOf0AmountTaxDisplay) Validate() error {
 	if !validRenderingOptionsAnyOf0AmountTaxDisplayValues[r] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid RenderingOptionsAnyOf0AmountTaxDisplay value: %v", r))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid RenderingOptionsAnyOf0AmountTaxDisplay value, got: %v", r))
 	}
 	return nil
 }
@@ -52,7 +52,7 @@ func (r Rendering) Validate() error {
 	if r.Options != nil {
 		if v, ok := any(r.Options).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Options", err))
+				errors = errors.Append("Options", err)
 			}
 		}
 	}
@@ -71,7 +71,7 @@ func (r Rendering_Options) Validate() error {
 	if r.Rendering_Options_AnyOf != nil {
 		if v, ok := any(r.Rendering_Options_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Rendering_Options_AnyOf", err))
+				errors = errors.Append("Rendering_Options_AnyOf", err)
 			}
 		}
 	}
@@ -132,13 +132,13 @@ func (r Rendering_Options_AnyOf_0) Validate() error {
 	if r.AmountTaxDisplay != nil {
 		if v, ok := any(r.AmountTaxDisplay).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("AmountTaxDisplay", err))
+				errors = errors.Append("AmountTaxDisplay", err)
 			}
 		}
 	}
 	if r.Template != nil {
 		if err := unionTypesValidate.Var(r.Template, "omitempty,max=5000"); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Template", err))
+			errors = errors.Append("Template", err)
 		}
 	}
 	if len(errors) == 0 {

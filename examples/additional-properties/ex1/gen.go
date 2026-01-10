@@ -28,7 +28,7 @@ func (u Users) Validate() error {
 	for k, v := range u {
 		if validator, ok := any(v).(runtime.Validator); ok {
 			if err := validator.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(k, err))
+				errors = errors.Append(k, err)
 			}
 		}
 	}
@@ -52,7 +52,7 @@ func (p Pick1) Validate() error {
 	for k, v := range p {
 		if validator, ok := any(v).(runtime.Validator); ok {
 			if err := validator.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(k, err))
+				errors = errors.Append(k, err)
 			}
 		}
 	}
@@ -210,10 +210,10 @@ type ConfigWithMinProps map[string]string
 
 func (c ConfigWithMinProps) Validate() error {
 	if c == nil {
-		return runtime.NewValidationError("", fmt.Sprintf("must have at least 1 properties, got 0"))
+		return runtime.NewValidationError("Map", "must have at least 1 properties, got 0")
 	}
 	if len(c) < 1 {
-		return runtime.NewValidationError("", fmt.Sprintf("must have at least 1 properties, got %d", len(c)))
+		return runtime.NewValidationError("Map", fmt.Sprintf("must have at least 1 properties, got %d", len(c)))
 	}
 	return nil
 }
@@ -222,7 +222,7 @@ type ConfigWithMaxProps map[string]string
 
 func (c ConfigWithMaxProps) Validate() error {
 	if len(c) > 5 {
-		return runtime.NewValidationError("", fmt.Sprintf("must have at most 5 properties, got %d", len(c)))
+		return runtime.NewValidationError("Map", fmt.Sprintf("must have at most 5 properties, got %d", len(c)))
 	}
 	return nil
 }
@@ -231,14 +231,14 @@ type ConfigWithBothProps map[string]int
 
 func (c ConfigWithBothProps) Validate() error {
 	if c == nil {
-		return runtime.NewValidationError("", fmt.Sprintf("must have at least 2 properties, got 0"))
+		return runtime.NewValidationError("Map", "must have at least 2 properties, got 0")
 	}
 	var errors runtime.ValidationErrors
 	if len(c) < 2 {
-		errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at least 2 properties, got %d", len(c))))
+		errors = errors.Add("Map", fmt.Sprintf("must have at least 2 properties, got %d", len(c)))
 	}
 	if len(c) > 10 {
-		errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at most 10 properties, got %d", len(c))))
+		errors = errors.Add("Map", fmt.Sprintf("must have at most 10 properties, got %d", len(c)))
 	}
 	if len(errors) == 0 {
 		return nil
@@ -253,7 +253,7 @@ func (u UsersWithRequiredFields) Validate() error {
 	for k, v := range u {
 		if validator, ok := any(v).(runtime.Validator); ok {
 			if err := validator.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(k, err))
+				errors = errors.Append(k, err)
 			}
 		}
 	}
@@ -271,10 +271,10 @@ func (a ArrayWithMinItems) Validate() error {
 	}
 	var errors runtime.ValidationErrors
 	if len(a) < 1 {
-		errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at least 1 items, got %d", len(a))))
+		errors = errors.Add("Array", fmt.Sprintf("must have at least 1 items, got %d", len(a)))
 	}
 	if len(a) > 100 {
-		errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at most 100 items, got %d", len(a))))
+		errors = errors.Add("Array", fmt.Sprintf("must have at most 100 items, got %d", len(a)))
 	}
 	if len(errors) == 0 {
 		return nil
@@ -301,7 +301,7 @@ func (t TagsWithLength) Validate() error {
 	var errors runtime.ValidationErrors
 	for k, v := range t {
 		if err := schemaTypesValidate.Var(v, "omitempty,max=50,min=1"); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError(k, err))
+			errors = errors.Append(k, err)
 		}
 	}
 	if len(errors) == 0 {
@@ -314,18 +314,18 @@ type TagsWithBothConstraints map[string]string
 
 func (t TagsWithBothConstraints) Validate() error {
 	if t == nil {
-		return runtime.NewValidationError("", fmt.Sprintf("must have at least 2 properties, got 0"))
+		return runtime.NewValidationError("Map", "must have at least 2 properties, got 0")
 	}
 	var errors runtime.ValidationErrors
 	if len(t) < 2 {
-		errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at least 2 properties, got %d", len(t))))
+		errors = errors.Add("Map", fmt.Sprintf("must have at least 2 properties, got %d", len(t)))
 	}
 	if len(t) > 5 {
-		errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at most 5 properties, got %d", len(t))))
+		errors = errors.Add("Map", fmt.Sprintf("must have at most 5 properties, got %d", len(t)))
 	}
 	for k, v := range t {
 		if err := schemaTypesValidate.Var(v, "omitempty,max=50,min=1"); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError(k, err))
+			errors = errors.Append(k, err)
 		}
 	}
 	if len(errors) == 0 {
@@ -350,7 +350,7 @@ func (p Pick1_AdditionalProperties) Validate() error {
 	if p.Pick1_AdditionalProperties_OneOf != nil {
 		if v, ok := any(p.Pick1_AdditionalProperties_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Pick1_AdditionalProperties_OneOf", err))
+				errors = errors.Append("Pick1_AdditionalProperties_OneOf", err)
 			}
 		}
 	}

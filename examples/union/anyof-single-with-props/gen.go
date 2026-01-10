@@ -25,7 +25,7 @@ var validSpecificIssueCodeValues = map[SpecificIssueCode]bool{
 // Validate checks if the SpecificIssueCode value is valid
 func (s SpecificIssueCode) Validate() error {
 	if !validSpecificIssueCodeValues[s] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid SpecificIssueCode value: %v", s))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SpecificIssueCode value, got: %v", s))
 	}
 	return nil
 }
@@ -72,7 +72,7 @@ func (s SpecificIssue) Validate() error {
 	if s.Code != nil {
 		if v, ok := any(s.Code).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Code", err))
+				errors = errors.Append("Code", err)
 			}
 		}
 	}

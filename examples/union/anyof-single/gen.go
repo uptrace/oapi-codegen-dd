@@ -36,14 +36,14 @@ func (o Order) Validate() error {
 	if o.Client != nil {
 		if v, ok := any(o.Client).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Client", err))
+				errors = errors.Append("Client", err)
 			}
 		}
 	}
 	if o.Verification != nil {
 		if v, ok := any(o.Verification).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Verification", err))
+				errors = errors.Append("Verification", err)
 			}
 		}
 	}
@@ -73,7 +73,7 @@ func (v Verification) Validate() error {
 	if v.Verifier != nil {
 		if v, ok := any(v.Verifier).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Verifier", err))
+				errors = errors.Append("Verifier", err)
 			}
 		}
 	}
@@ -93,7 +93,7 @@ func (a Address) Validate() error {
 	if a.Location != nil {
 		if v, ok := any(a.Location).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Location", err))
+				errors = errors.Append("Location", err)
 			}
 		}
 	}

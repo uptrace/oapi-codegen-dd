@@ -30,7 +30,7 @@ var validClientAndMaybeIdentityTypeValues = map[ClientAndMaybeIdentityType]bool{
 // Validate checks if the ClientAndMaybeIdentityType value is valid
 func (c ClientAndMaybeIdentityType) Validate() error {
 	if !validClientAndMaybeIdentityTypeValues[c] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid ClientAndMaybeIdentityType value: %v", c))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ClientAndMaybeIdentityType value, got: %v", c))
 	}
 	return nil
 }
@@ -49,7 +49,7 @@ var validDogTypeValues = map[DogType]bool{
 // Validate checks if the DogType value is valid
 func (d DogType) Validate() error {
 	if !validDogTypeValues[d] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid DogType value: %v", d))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid DogType value, got: %v", d))
 	}
 	return nil
 }
@@ -68,7 +68,7 @@ var validCatTypeValues = map[CatType]bool{
 // Validate checks if the CatType value is valid
 func (c CatType) Validate() error {
 	if !validCatTypeValues[c] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid CatType value: %v", c))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CatType value, got: %v", c))
 	}
 	return nil
 }
@@ -152,13 +152,13 @@ func (c ClientAndMaybeIdentity) Validate() error {
 	if c.Entity != nil {
 		if v, ok := any(c.Entity).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Entity", err))
+				errors = errors.Append("Entity", err)
 			}
 		}
 	}
 	if v, ok := any(c.Type).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Type", err))
+			errors = errors.Append("Type", err)
 		}
 	}
 	if len(errors) == 0 {
@@ -176,7 +176,7 @@ func (c ClientAndMaybeIdentity_Entity) Validate() error {
 	if c.ClientAndMaybeIdentity_Entity_AnyOf != nil {
 		if v, ok := any(c.ClientAndMaybeIdentity_Entity_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("ClientAndMaybeIdentity_Entity_AnyOf", err))
+				errors = errors.Append("ClientAndMaybeIdentity_Entity_AnyOf", err)
 			}
 		}
 	}
@@ -229,7 +229,7 @@ func (c ClientOrID) Validate() error {
 	if c.ClientOrID_OneOf != nil {
 		if v, ok := any(c.ClientOrID_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("ClientOrID_OneOf", err))
+				errors = errors.Append("ClientOrID_OneOf", err)
 			}
 		}
 	}
@@ -282,7 +282,7 @@ func (c ClientOrIdentityWithDiscriminator) Validate() error {
 	if c.ClientOrIdentityWithDiscriminator_OneOf != nil {
 		if v, ok := any(c.ClientOrIdentityWithDiscriminator_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("ClientOrIdentityWithDiscriminator_OneOf", err))
+				errors = errors.Append("ClientOrIdentityWithDiscriminator_OneOf", err)
 			}
 		}
 	}
@@ -334,12 +334,12 @@ type Dog struct {
 func (d Dog) Validate() error {
 	var errors runtime.ValidationErrors
 	if err := schemaTypesValidate.Var(d.Name, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Name", err))
+		errors = errors.Append("Name", err)
 	}
 	if d.Type != nil {
 		if v, ok := any(d.Type).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Type", err))
+				errors = errors.Append("Type", err)
 			}
 		}
 	}
@@ -357,11 +357,11 @@ type Cat struct {
 func (c Cat) Validate() error {
 	var errors runtime.ValidationErrors
 	if err := schemaTypesValidate.Var(c.Name, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Name", err))
+		errors = errors.Append("Name", err)
 	}
 	if v, ok := any(c.Type).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Type", err))
+			errors = errors.Append("Type", err)
 		}
 	}
 	if len(errors) == 0 {
@@ -379,7 +379,7 @@ func (p Pet) Validate() error {
 	if p.Pet_OneOf != nil {
 		if v, ok := any(p.Pet_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Pet_OneOf", err))
+				errors = errors.Append("Pet_OneOf", err)
 			}
 		}
 	}

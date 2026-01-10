@@ -44,14 +44,14 @@ func (b Booking) Validate() error {
 	if b.ID != nil {
 		if v, ok := any(b.ID).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("ID", err))
+				errors = errors.Append("ID", err)
 			}
 		}
 	}
 	if b.TripID != nil {
 		if v, ok := any(b.TripID).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("TripID", err))
+				errors = errors.Append("TripID", err)
 			}
 		}
 	}

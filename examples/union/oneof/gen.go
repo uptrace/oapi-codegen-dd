@@ -29,21 +29,21 @@ func (o Order) Validate() error {
 	if o.Product != nil {
 		if v, ok := any(o.Product).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Product", err))
+				errors = errors.Append("Product", err)
 			}
 		}
 	}
 	if o.Description != nil {
 		if v, ok := any(o.Description).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Description", err))
+				errors = errors.Append("Description", err)
 			}
 		}
 	}
 	if o.Images != nil {
 		if v, ok := any(o.Images).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Images", err))
+				errors = errors.Append("Images", err)
 			}
 		}
 	}
@@ -62,7 +62,7 @@ func (o Order_Product) Validate() error {
 	if o.Order_Product_OneOf != nil {
 		if v, ok := any(o.Order_Product_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Order_Product_OneOf", err))
+				errors = errors.Append("Order_Product_OneOf", err)
 			}
 		}
 	}
@@ -115,7 +115,7 @@ func (o Order_Product_OneOf_3_Description) Validate() error {
 	if o.Order_Product_OneOf_3_Description_OneOf != nil {
 		if v, ok := any(o.Order_Product_OneOf_3_Description_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Order_Product_OneOf_3_Description_OneOf", err))
+				errors = errors.Append("Order_Product_OneOf_3_Description_OneOf", err)
 			}
 		}
 	}
@@ -168,7 +168,7 @@ func (o Order_Description) Validate() error {
 	if o.Order_Description_OneOf != nil {
 		if v, ok := any(o.Order_Description_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Order_Description_OneOf", err))
+				errors = errors.Append("Order_Description_OneOf", err)
 			}
 		}
 	}
@@ -222,7 +222,7 @@ func (o Order_Images) Validate() error {
 	for i, item := range o {
 		if v, ok := any(item).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+				errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 			}
 		}
 	}
@@ -241,7 +241,7 @@ func (o Order_Images_Item) Validate() error {
 	if o.Order_Images_OneOf != nil {
 		if v, ok := any(o.Order_Images_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Order_Images_OneOf", err))
+				errors = errors.Append("Order_Images_OneOf", err)
 			}
 		}
 	}
@@ -311,7 +311,7 @@ func (o Order_Product_OneOf_3) Validate() error {
 	if o.Description != nil {
 		if v, ok := any(o.Description).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Description", err))
+				errors = errors.Append("Description", err)
 			}
 		}
 	}

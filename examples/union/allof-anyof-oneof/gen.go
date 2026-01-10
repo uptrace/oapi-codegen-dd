@@ -29,7 +29,7 @@ var validOrderStatusValues = map[OrderStatus]bool{
 // Validate checks if the OrderStatus value is valid
 func (o OrderStatus) Validate() error {
 	if !validOrderStatusValues[o] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid OrderStatus value: %v", o))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid OrderStatus value, got: %v", o))
 	}
 	return nil
 }
@@ -53,14 +53,14 @@ func (o Order) Validate() error {
 	if o.Status != nil {
 		if v, ok := any(o.Status).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Status", err))
+				errors = errors.Append("Status", err)
 			}
 		}
 	}
 	if o.Client != nil {
 		if v, ok := any(o.Client).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Client", err))
+				errors = errors.Append("Client", err)
 			}
 		}
 	}
@@ -80,22 +80,22 @@ type Order_Client struct {
 func (o Order_Client) Validate() error {
 	var errors runtime.ValidationErrors
 	if err := schemaTypesValidate.Var(o.Name, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("Name", err))
+		errors = errors.Append("Name", err)
 	}
 	if err := schemaTypesValidate.Var(o.ID, "required"); err != nil {
-		errors = append(errors, runtime.NewValidationErrorFromError("ID", err))
+		errors = errors.Append("ID", err)
 	}
 	if o.Order_Client_AnyOf != nil {
 		if v, ok := any(o.Order_Client_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Order_Client_AnyOf", err))
+				errors = errors.Append("Order_Client_AnyOf", err)
 			}
 		}
 	}
 	if o.Order_Client_OneOf != nil {
 		if v, ok := any(o.Order_Client_OneOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Order_Client_OneOf", err))
+				errors = errors.Append("Order_Client_OneOf", err)
 			}
 		}
 	}

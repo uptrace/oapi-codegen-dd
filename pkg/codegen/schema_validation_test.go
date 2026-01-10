@@ -83,10 +83,10 @@ func TestGoSchema_ValidateDecl_ArrayWithMinItems(t *testing.T) {
 	result := schema.ValidateDecl("p", "validate")
 	expected := `
 		if p == nil {
-			return runtime.NewValidationError("", fmt.Sprintf("must have at least 1 items, got 0"))
+			return runtime.NewValidationError("Array", "must have at least 1 items, got 0")
 		}
 		if len(p) < 1 {
-			return runtime.NewValidationError("", fmt.Sprintf("must have at least 1 items, got %d", len(p)))
+			return runtime.NewValidationError("Array", fmt.Sprintf("must have at least 1 items, got %d", len(p)))
 		}
 		return nil
 	`
@@ -107,7 +107,7 @@ func TestGoSchema_ValidateDecl_ArrayWithMaxItems(t *testing.T) {
 	result := schema.ValidateDecl("p", "validate")
 	expected := `
 		if len(p) > 100 {
-			return runtime.NewValidationError("", fmt.Sprintf("must have at most 100 items, got %d", len(p)))
+			return runtime.NewValidationError("Array", fmt.Sprintf("must have at most 100 items, got %d", len(p)))
 		}
 		return nil
 	`
@@ -130,14 +130,14 @@ func TestGoSchema_ValidateDecl_ArrayWithMinAndMaxItems(t *testing.T) {
 	result := schema.ValidateDecl("p", "validate")
 	expected := `
 		if p == nil {
-			return runtime.NewValidationError("", fmt.Sprintf("must have at least 1 items, got 0"))
+			return runtime.NewValidationError("Array", "must have at least 1 items, got 0")
 		}
 		var errors runtime.ValidationErrors
 		if len(p) < 1 {
-			errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at least 1 items, got %d", len(p))))
+			errors = errors.Add("Array", fmt.Sprintf("must have at least 1 items, got %d", len(p)))
 		}
 		if len(p) > 100 {
-			errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at most 100 items, got %d", len(p))))
+			errors = errors.Add("Array", fmt.Sprintf("must have at most 100 items, got %d", len(p)))
 		}
 		if len(errors) == 0 {
 			return nil
@@ -169,7 +169,7 @@ func TestGoSchema_ValidateDecl_NullableArrayWithConstraints(t *testing.T) {
 			return nil
 		}
 		if len(p) < 1 {
-			return runtime.NewValidationError("", fmt.Sprintf("must have at least 1 items, got %d", len(p)))
+			return runtime.NewValidationError("Array", fmt.Sprintf("must have at least 1 items, got %d", len(p)))
 		}
 		return nil
 	`
@@ -189,7 +189,7 @@ func TestGoSchema_ValidateDecl_ArrayWithRefTypeItems(t *testing.T) {
 		for i, item := range p {
 			if v, ok := any(item).(runtime.Validator); ok {
 				if err := v.Validate(); err != nil {
-					errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+					errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 				}
 			}
 		}
@@ -228,7 +228,7 @@ func TestGoSchema_ValidateDecl_ArrayWithValidationTagsOnItems(t *testing.T) {
 		var errors runtime.ValidationErrors
 		for i, item := range p {
 			if err := validate.Var(item, "omitempty,min=3"); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+				errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 			}
 		}
 		if len(errors) == 0 {
@@ -258,18 +258,18 @@ func TestGoSchema_ValidateDecl_ArrayWithConstraintsAndValidationTags(t *testing.
 	result := schema.ValidateDecl("p", "validate")
 	expected := `
 		if p == nil {
-			return runtime.NewValidationError("", fmt.Sprintf("must have at least 1 items, got 0"))
+			return runtime.NewValidationError("Array", "must have at least 1 items, got 0")
 		}
 		var errors runtime.ValidationErrors
 		if len(p) < 1 {
-			errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at least 1 items, got %d", len(p))))
+			errors = errors.Add("Array", fmt.Sprintf("must have at least 1 items, got %d", len(p)))
 		}
 		if len(p) > 100 {
-			errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at most 100 items, got %d", len(p))))
+			errors = errors.Add("Array", fmt.Sprintf("must have at most 100 items, got %d", len(p)))
 		}
 		for i, item := range p {
 			if err := validate.Var(item, "min=3"); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+				errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 			}
 		}
 		if len(errors) == 0 {
@@ -292,10 +292,10 @@ func TestGoSchema_ValidateDecl_MapWithMinProperties(t *testing.T) {
 	result := schema.ValidateDecl("m", "validate")
 	expected := `
 		if m == nil {
-			return runtime.NewValidationError("", fmt.Sprintf("must have at least 2 properties, got 0"))
+			return runtime.NewValidationError("Map", "must have at least 2 properties, got 0")
 		}
 		if len(m) < 2 {
-			return runtime.NewValidationError("", fmt.Sprintf("must have at least 2 properties, got %d", len(m)))
+			return runtime.NewValidationError("Map", fmt.Sprintf("must have at least 2 properties, got %d", len(m)))
 		}
 		return nil
 	`
@@ -314,7 +314,7 @@ func TestGoSchema_ValidateDecl_MapWithMaxProperties(t *testing.T) {
 	result := schema.ValidateDecl("m", "validate")
 	expected := `
 		if len(m) > 10 {
-			return runtime.NewValidationError("", fmt.Sprintf("must have at most 10 properties, got %d", len(m)))
+			return runtime.NewValidationError("Map", fmt.Sprintf("must have at most 10 properties, got %d", len(m)))
 		}
 		return nil
 	`
@@ -335,14 +335,14 @@ func TestGoSchema_ValidateDecl_MapWithMinAndMaxProperties(t *testing.T) {
 	result := schema.ValidateDecl("m", "validate")
 	expected := `
 		if m == nil {
-			return runtime.NewValidationError("", fmt.Sprintf("must have at least 2 properties, got 0"))
+			return runtime.NewValidationError("Map", "must have at least 2 properties, got 0")
 		}
 		var errors runtime.ValidationErrors
 		if len(m) < 2 {
-			errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at least 2 properties, got %d", len(m))))
+			errors = errors.Add("Map", fmt.Sprintf("must have at least 2 properties, got %d", len(m)))
 		}
 		if len(m) > 10 {
-			errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at most 10 properties, got %d", len(m))))
+			errors = errors.Add("Map", fmt.Sprintf("must have at most 10 properties, got %d", len(m)))
 		}
 		if len(errors) == 0 {
 			return nil
@@ -372,7 +372,7 @@ func TestGoSchema_ValidateDecl_NullableMapWithConstraints(t *testing.T) {
 			return nil
 		}
 		if len(m) < 2 {
-			return runtime.NewValidationError("", fmt.Sprintf("must have at least 2 properties, got %d", len(m)))
+			return runtime.NewValidationError("Map", fmt.Sprintf("must have at least 2 properties, got %d", len(m)))
 		}
 		return nil
 	`
@@ -393,7 +393,7 @@ func TestGoSchema_ValidateDecl_MapWithRefTypeValues(t *testing.T) {
 		for k, v := range m {
 			if validator, ok := any(v).(runtime.Validator); ok {
 				if err := validator.Validate(); err != nil {
-					errors = append(errors, runtime.NewValidationErrorFromError(k, err))
+					errors = errors.Append(k, err)
 				}
 			}
 		}
@@ -485,7 +485,7 @@ func TestGoSchema_ValidateDecl_StructWithRefTypeProperty(t *testing.T) {
 		var errors runtime.ValidationErrors
 		if v, ok := any(s.User).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("User", err))
+				errors = errors.Append("User", err)
 			}
 		}
 		if len(errors) == 0 {
@@ -519,7 +519,7 @@ func TestGoSchema_ValidateDecl_StructWithPointerRefTypeProperty(t *testing.T) {
 		if s.User != nil {
 			if v, ok := any(s.User).(runtime.Validator); ok {
 				if err := v.Validate(); err != nil {
-					errors = append(errors, runtime.NewValidationErrorFromError("User", err))
+					errors = errors.Append("User", err)
 				}
 			}
 		}
@@ -612,7 +612,7 @@ func TestGoSchema_ValidateDecl_StructWithCustomTypeValidationTagsProperty(t *tes
 		var errors runtime.ValidationErrors
 		if v, ok := any(s.Payment).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Payment", err))
+				errors = errors.Append("Payment", err)
 			}
 		}
 		if len(errors) == 0 {
@@ -655,11 +655,11 @@ func TestGoSchema_ValidateDecl_StructWithMixedProperties(t *testing.T) {
 		var errors runtime.ValidationErrors
 		if v, ok := any(s.User).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("User", err))
+				errors = errors.Append("User", err)
 			}
 		}
 		if err := validate.Var(s.Name, "required"); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Name", err))
+			errors = errors.Append("Name", err)
 		}
 		if len(errors) == 0 {
 			return nil
@@ -718,12 +718,12 @@ func TestGoSchema_ValidateDecl_ArrayWithNullableAndRefTypeItems(t *testing.T) {
 		}
 		var errors runtime.ValidationErrors
 		if len(p) < 1 {
-			errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at least 1 items, got %d", len(p))))
+			errors = errors.Add("Array", fmt.Sprintf("must have at least 1 items, got %d", len(p)))
 		}
 		for i, item := range p {
 			if v, ok := any(item).(runtime.Validator); ok {
 				if err := v.Validate(); err != nil {
-					errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+					errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 				}
 			}
 		}
@@ -752,19 +752,19 @@ func TestGoSchema_ValidateDecl_MapWithConstraintsAndRefTypeValues(t *testing.T) 
 	result := schema.ValidateDecl("m", "validate")
 	expected := `
 		if m == nil {
-			return runtime.NewValidationError("", fmt.Sprintf("must have at least 1 properties, got 0"))
+			return runtime.NewValidationError("Map", "must have at least 1 properties, got 0")
 		}
 		var errors runtime.ValidationErrors
 		if len(m) < 1 {
-			errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at least 1 properties, got %d", len(m))))
+			errors = errors.Add("Map", fmt.Sprintf("must have at least 1 properties, got %d", len(m)))
 		}
 		if len(m) > 10 {
-			errors = append(errors, runtime.NewValidationError("", fmt.Sprintf("must have at most 10 properties, got %d", len(m))))
+			errors = errors.Add("Map", fmt.Sprintf("must have at most 10 properties, got %d", len(m)))
 		}
 		for k, v := range m {
 			if validator, ok := any(v).(runtime.Validator); ok {
 				if err := validator.Validate(); err != nil {
-					errors = append(errors, runtime.NewValidationErrorFromError(k, err))
+					errors = errors.Append(k, err)
 				}
 			}
 		}

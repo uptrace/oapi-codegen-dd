@@ -25,7 +25,7 @@ var validTypeValues = map[Type]bool{
 // Validate checks if the Type value is valid
 func (t Type) Validate() error {
 	if !validTypeValues[t] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid Type value: %v", t))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid Type value, got: %v", t))
 	}
 	return nil
 }
@@ -46,7 +46,7 @@ func (s Source) Validate() error {
 	if s.CreditTransfer != nil {
 		if v, ok := any(s.CreditTransfer).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("CreditTransfer", err))
+				errors = errors.Append("CreditTransfer", err)
 			}
 		}
 	}

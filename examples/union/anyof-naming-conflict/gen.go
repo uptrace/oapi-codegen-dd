@@ -52,7 +52,7 @@ func (t Test_Response_Items) Validate() error {
 	for i, item := range t {
 		if v, ok := any(item).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+				errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 			}
 		}
 	}
@@ -71,7 +71,7 @@ func (t Test_Response_Items_Item) Validate() error {
 	if t.Test_Response_Items_AnyOf != nil {
 		if v, ok := any(t.Test_Response_Items_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Test_Response_Items_AnyOf", err))
+				errors = errors.Append("Test_Response_Items_AnyOf", err)
 			}
 		}
 	}
@@ -125,7 +125,7 @@ func (t Test_ErrorResponse_Items) Validate() error {
 	for i, item := range t {
 		if v, ok := any(item).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+				errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 			}
 		}
 	}
@@ -144,7 +144,7 @@ func (t Test_ErrorResponse_Items_Item) Validate() error {
 	if t.Test_ErrorResponse_Items_AnyOf != nil {
 		if v, ok := any(t.Test_ErrorResponse_Items_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Test_ErrorResponse_Items_AnyOf", err))
+				errors = errors.Append("Test_ErrorResponse_Items_AnyOf", err)
 			}
 		}
 	}
@@ -198,7 +198,7 @@ func (t Test_ErrorResponse_Items1) Validate() error {
 	for i, item := range t {
 		if v, ok := any(item).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError(fmt.Sprintf("[%d]", i), err))
+				errors = errors.Append(fmt.Sprintf("[%d]", i), err)
 			}
 		}
 	}

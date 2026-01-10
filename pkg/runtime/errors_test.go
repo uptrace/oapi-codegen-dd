@@ -76,13 +76,28 @@ func TestNewValidationErrorsFromError(t *testing.T) {
 		validationErrors := NewValidationErrorsFromError(err)
 
 		assert.Len(t, validationErrors, 7)
-		assert.Equal(t, ValidationError{"Name", "is required", nil}, validationErrors[0])
-		assert.Equal(t, ValidationError{"Email", "must be a valid email", nil}, validationErrors[1])
-		assert.Equal(t, ValidationError{"Age", "must be greater than 18", nil}, validationErrors[2])
-		assert.Equal(t, ValidationError{"Rate", "must be less than 100", nil}, validationErrors[3])
-		assert.Equal(t, ValidationError{"Price", "must be less than or equal to 20", nil}, validationErrors[4])
-		assert.Equal(t, ValidationError{"Qty", "must be greater than or equal to 10", nil}, validationErrors[5])
-		assert.Equal(t, ValidationError{"Range", "must be less than 20", nil}, validationErrors[6])
+		// Check field and message, but Err should be the original error
+		assert.Equal(t, "Name", validationErrors[0].Field)
+		assert.Equal(t, "is required", validationErrors[0].Message)
+		assert.NotNil(t, validationErrors[0].Err)
+		assert.Equal(t, "Email", validationErrors[1].Field)
+		assert.Equal(t, "must be a valid email", validationErrors[1].Message)
+		assert.NotNil(t, validationErrors[1].Err)
+		assert.Equal(t, "Age", validationErrors[2].Field)
+		assert.Equal(t, "must be greater than 18", validationErrors[2].Message)
+		assert.NotNil(t, validationErrors[2].Err)
+		assert.Equal(t, "Rate", validationErrors[3].Field)
+		assert.Equal(t, "must be less than 100", validationErrors[3].Message)
+		assert.NotNil(t, validationErrors[3].Err)
+		assert.Equal(t, "Price", validationErrors[4].Field)
+		assert.Equal(t, "must be less than or equal to 20", validationErrors[4].Message)
+		assert.NotNil(t, validationErrors[4].Err)
+		assert.Equal(t, "Qty", validationErrors[5].Field)
+		assert.Equal(t, "must be greater than or equal to 10", validationErrors[5].Message)
+		assert.NotNil(t, validationErrors[5].Err)
+		assert.Equal(t, "Range", validationErrors[6].Field)
+		assert.Equal(t, "must be less than 20", validationErrors[6].Message)
+		assert.NotNil(t, validationErrors[6].Err)
 	})
 }
 
@@ -113,42 +128,109 @@ func TestNewValidationErrorsFromErrors(t *testing.T) {
 func TestNewValidationErrorFromError(t *testing.T) {
 	t.Run("wraps error and preserves it", func(t *testing.T) {
 		originalErr := errors.New("min length is 3")
-		validationErr := NewValidationErrorFromError("Name", originalErr)
+		result := NewValidationErrorFromError("Name", originalErr)
 
-		assert.Equal(t, "Name", validationErr.Field)
-		assert.Equal(t, "min length is 3", validationErr.Message)
-		assert.Equal(t, "Name min length is 3", validationErr.Error())
+		// Now always returns ValidationErrors for consistency
+		validationErrs, ok := result.(ValidationErrors)
+		require.True(t, ok, "expected ValidationErrors")
+		require.Len(t, validationErrs, 1)
 
-		assert.Equal(t, originalErr, validationErr.Err)
-		assert.True(t, errors.Is(validationErr, originalErr))
+		assert.Equal(t, "Name", validationErrs[0].Field)
+		assert.Equal(t, "min length is 3", validationErrs[0].Message)
+		assert.Equal(t, "Name min length is 3", validationErrs.Error())
+
+		assert.Equal(t, originalErr, validationErrs[0].Err)
+		assert.True(t, errors.Is(validationErrs[0], originalErr))
 	})
 
-	t.Run("works with validator errors", func(t *testing.T) {
+	t.Run("works with single validator error", func(t *testing.T) {
 		validate := validator.New()
 		err := validate.Var("ab", "min=3")
 		require.Error(t, err)
 
-		validationErr := NewValidationErrorFromError("Name", err)
+		result := NewValidationErrorFromError("Name", err)
 
-		assert.Equal(t, "Name", validationErr.Field)
-		assert.Equal(t, "length must be greater than or equal to 3", validationErr.Message)
-		assert.Equal(t, "Name length must be greater than or equal to 3", validationErr.Error())
+		// Now always returns ValidationErrors for consistency
+		validationErrs, ok := result.(ValidationErrors)
+		require.True(t, ok, "expected ValidationErrors")
+		require.Len(t, validationErrs, 1)
 
-		assert.NotNil(t, validationErr.Err)
-		assert.Equal(t, err, validationErr.Unwrap())
+		assert.Equal(t, "Name", validationErrs[0].Field)
+		assert.Equal(t, "length must be greater than or equal to 3", validationErrs[0].Message)
+		assert.Equal(t, "Name length must be greater than or equal to 3", validationErrs.Error())
+
+		assert.NotNil(t, validationErrs[0].Err)
+		assert.Equal(t, err, validationErrs[0].Unwrap())
 
 		var validatorErr validator.ValidationErrors
-		assert.True(t, errors.As(validationErr, &validatorErr))
+		assert.True(t, errors.As(validationErrs[0], &validatorErr))
+	})
+
+	t.Run("validator.Var with required tag", func(t *testing.T) {
+		validate := validator.New()
+		err := validate.Var("", "required")
+		require.Error(t, err)
+
+		result := NewValidationErrorFromError("Payload", err)
+
+		// Now always returns ValidationErrors for consistency
+		validationErrs, ok := result.(ValidationErrors)
+		require.True(t, ok, "expected ValidationErrors")
+		require.Len(t, validationErrs, 1)
+
+		// Should NOT have a dot after Payload
+		assert.Equal(t, "Payload", validationErrs[0].Field)
+		assert.Equal(t, "is required", validationErrs[0].Message)
+		assert.Equal(t, "Payload is required", validationErrs.Error())
+		assert.NotContains(t, validationErrs.Error(), "Payload.")
+	})
+
+	t.Run("multiple validator errors", func(t *testing.T) {
+		validate := validator.New()
+
+		// Validate a struct with multiple failing fields
+		type TestStruct struct {
+			Currency string `validate:"max=3"`
+			Amount   int    `validate:"gte=0"`
+		}
+
+		ts := TestStruct{Currency: "TOOLONG", Amount: -5}
+		err := validate.Struct(ts)
+		require.Error(t, err)
+
+		result := NewValidationErrorFromError("RefundPaymentRequest", err)
+
+		// Should return ValidationErrors (plural) with all errors
+		validationErrs, ok := result.(ValidationErrors)
+		require.True(t, ok, "expected ValidationErrors for multiple errors")
+		assert.Len(t, validationErrs, 2)
+
+		// Check first error
+		assert.Equal(t, "RefundPaymentRequest.Currency", validationErrs[0].Field)
+		assert.Equal(t, "length must be less than or equal to 3", validationErrs[0].Message)
+
+		// Check second error
+		assert.Equal(t, "RefundPaymentRequest.Amount", validationErrs[1].Field)
+		assert.Equal(t, "must be greater than or equal to 0", validationErrs[1].Message)
+
+		// Check combined error message
+		expected := "RefundPaymentRequest.Currency length must be less than or equal to 3\nRefundPaymentRequest.Amount must be greater than or equal to 0"
+		assert.Equal(t, expected, validationErrs.Error())
 	})
 
 	t.Run("empty field", func(t *testing.T) {
 		originalErr := errors.New("required")
-		validationErr := NewValidationErrorFromError("", originalErr)
+		result := NewValidationErrorFromError("", originalErr)
 
-		assert.Equal(t, "", validationErr.Field)
-		assert.Equal(t, "required", validationErr.Message)
-		assert.Equal(t, "required", validationErr.Error())
-		assert.Equal(t, originalErr, validationErr.Err)
+		// Now always returns ValidationErrors for consistency
+		validationErrs, ok := result.(ValidationErrors)
+		require.True(t, ok, "expected ValidationErrors")
+		require.Len(t, validationErrs, 1)
+
+		assert.Equal(t, "", validationErrs[0].Field)
+		assert.Equal(t, "required", validationErrs[0].Message)
+		assert.Equal(t, "required", validationErrs.Error())
+		assert.Equal(t, originalErr, validationErrs[0].Err)
 	})
 
 	t.Run("converts validator.FieldError messages", func(t *testing.T) {
@@ -175,12 +257,17 @@ func TestNewValidationErrorFromError(t *testing.T) {
 				err := validate.Var(tc.value, tc.tag)
 				require.Error(t, err)
 
-				validationErr := NewValidationErrorFromError("TestField", err)
+				result := NewValidationErrorFromError("TestField", err)
 
-				assert.Equal(t, "TestField", validationErr.Field)
-				assert.Equal(t, tc.expectedMessage, validationErr.Message)
-				assert.Equal(t, "TestField "+tc.expectedMessage, validationErr.Error())
-				assert.Equal(t, err, validationErr.Err)
+				// Now always returns ValidationErrors for consistency
+				validationErrs, ok := result.(ValidationErrors)
+				require.True(t, ok, "expected ValidationErrors")
+				require.Len(t, validationErrs, 1)
+
+				assert.Equal(t, "TestField", validationErrs[0].Field)
+				assert.Equal(t, tc.expectedMessage, validationErrs[0].Message)
+				assert.Equal(t, "TestField "+tc.expectedMessage, validationErrs.Error())
+				assert.Equal(t, err, validationErrs[0].Err)
 			})
 		}
 	})
@@ -209,12 +296,17 @@ func TestNewValidationErrorFromError(t *testing.T) {
 			err := validate.Var(payment.Amount, "gte=0")
 			require.Error(t, err)
 
-			validationErr := NewValidationErrorFromError("Amount", err)
+			result := NewValidationErrorFromError("Amount", err)
 
-			assert.Equal(t, "Amount", validationErr.Field)
-			assert.Equal(t, "must be greater than or equal to 0", validationErr.Message)
-			assert.Equal(t, "Amount must be greater than or equal to 0", validationErr.Error())
-			assert.Equal(t, err, validationErr.Err)
+			// Now always returns ValidationErrors for consistency
+			validationErrs, ok := result.(ValidationErrors)
+			require.True(t, ok, "expected ValidationErrors")
+			require.Len(t, validationErrs, 1)
+
+			assert.Equal(t, "Amount", validationErrs[0].Field)
+			assert.Equal(t, "must be greater than or equal to 0", validationErrs[0].Message)
+			assert.Equal(t, "Amount must be greater than or equal to 0", validationErrs.Error())
+			assert.Equal(t, err, validationErrs[0].Err)
 		})
 	})
 }
@@ -222,9 +314,14 @@ func TestNewValidationErrorFromError(t *testing.T) {
 func TestValidationError_Unwrap(t *testing.T) {
 	t.Run("returns underlying error", func(t *testing.T) {
 		originalErr := errors.New("test error")
-		validationErr := NewValidationErrorFromError("Field", originalErr)
+		result := NewValidationErrorFromError("Field", originalErr)
 
-		unwrapped := validationErr.Unwrap()
+		// Now always returns ValidationErrors for consistency
+		validationErrs, ok := result.(ValidationErrors)
+		require.True(t, ok, "expected ValidationErrors")
+		require.Len(t, validationErrs, 1)
+
+		unwrapped := validationErrs[0].Unwrap()
 		assert.Equal(t, originalErr, unwrapped)
 	})
 
@@ -272,6 +369,22 @@ func TestNewValidationErrorsFromErrors_MultipleErrors(t *testing.T) {
 		assert.Equal(t, expected, result.Error())
 	})
 
+	t.Run("handles validator.Var errors with empty prefix", func(t *testing.T) {
+		validate := validator.New()
+		err := validate.Var("", "required")
+		require.Error(t, err)
+
+		result := NewValidationErrorsFromErrors("", []error{err})
+
+		assert.Len(t, result, 1)
+		// When both prefix and ve.Field() are empty, field should be empty
+		assert.Equal(t, "", result[0].Field)
+		assert.Equal(t, "is required", result[0].Message)
+		// Error message should be just the message, no trailing dot
+		assert.Equal(t, "is required", result[0].Error())
+		assert.NotContains(t, result[0].Error(), ".")
+	})
+
 	t.Run("handles ValidationErrors (plural) type", func(t *testing.T) {
 		// Create a ValidationErrors collection
 		ves := ValidationErrors{
@@ -311,17 +424,101 @@ func TestNewValidationErrorsFromErrors_MultipleErrors(t *testing.T) {
 		}
 
 		// Pass it to NewValidationErrorFromError (singular)
-		// This wraps multiple errors into a single ValidationError
+		// When there are multiple errors, it returns ValidationErrors (plural)
 		result := NewValidationErrorFromError("Body", ves)
 
-		// The field should be the first error's field with prefix
-		assert.Equal(t, "Body.foo", result.Field)
-		// The message should be just the first error's message
-		assert.Equal(t, "is required", result.Message)
-		// The full error string combines field and message
-		assert.Equal(t, "Body.foo is required", result.Error())
-		// The underlying error is preserved
-		assert.Equal(t, ves, result.Err)
+		// Should return ValidationErrors with all errors prefixed
+		resultErrs, ok := result.(ValidationErrors)
+		require.True(t, ok, "expected ValidationErrors for multiple errors")
+		assert.Len(t, resultErrs, 2)
+		assert.Equal(t, "Body.foo", resultErrs[0].Field)
+		assert.Equal(t, "is required", resultErrs[0].Message)
+		assert.Equal(t, "Body.bar", resultErrs[1].Field)
+		assert.Equal(t, "is nice to have", resultErrs[1].Message)
+	})
+
+	t.Run("wraps ValidationErrors from Validate() with prefix - simulates user code", func(t *testing.T) {
+		validate := validator.New()
+
+		// Simulate what request.Validate() returns
+		type CapturePaymentRequest struct {
+			Currency string `validate:"required,max=3,min=3"`
+			Amount   int    `validate:"gte=0"`
+		}
+
+		req := CapturePaymentRequest{
+			Currency: "TOOLONG", // Invalid: too long
+			Amount:   -5,        // Invalid: negative
+		}
+
+		// This is what happens inside request.Validate()
+		err := validate.Struct(req)
+		require.Error(t, err)
+
+		// Convert to our ValidationErrors (this is what Validate() returns)
+		validationErrs := ConvertValidatorError(err)
+		require.NotNil(t, validationErrs)
+
+		// Now user wraps it with prefix (this is what user does)
+		result := NewValidationErrorFromError("CapturePaymentRequest", validationErrs)
+
+		// Should get ValidationErrors with both errors prefixed
+		resultErrs, ok := result.(ValidationErrors)
+		require.True(t, ok, "expected ValidationErrors")
+		require.Len(t, resultErrs, 2, "should have 2 errors (Currency and Amount)")
+
+		// Check we have both errors with correct prefixes
+		assert.Equal(t, "CapturePaymentRequest.Currency", resultErrs[0].Field)
+		assert.Contains(t, resultErrs[0].Message, "length must be")
+		assert.Equal(t, "CapturePaymentRequest.Amount", resultErrs[1].Field)
+		assert.Contains(t, resultErrs[1].Message, "must be greater than or equal to")
+
+		// Print for debugging
+		t.Logf("Result errors:\n%s", resultErrs.Error())
+	})
+
+	t.Run("avoids double-prefixing when field already has prefix", func(t *testing.T) {
+		// Simulate: request.Validate() returns errors with fields already prefixed
+		ves := ValidationErrors{
+			NewValidationError("RefundPaymentRequest.Amount", "is required"),
+			NewValidationError("RefundPaymentRequest.Currency", "is invalid"),
+		}
+
+		// User wraps it again with the same prefix (common mistake)
+		result := NewValidationErrorsFromErrors("RefundPaymentRequest", []error{ves})
+
+		// Should NOT double-prefix
+		assert.Len(t, result, 2)
+		assert.Equal(t, "RefundPaymentRequest.Amount", result[0].Field)
+		assert.Equal(t, "RefundPaymentRequest.Currency", result[1].Field)
+	})
+
+	t.Run("avoids double-prefixing for single ValidationError", func(t *testing.T) {
+		// Single error already has the prefix
+		ve := NewValidationError("Foo.Bar", "is invalid")
+
+		// Wrap it again with "Foo"
+		result := NewValidationErrorsFromErrors("Foo", []error{ve})
+
+		// Should NOT double-prefix
+		assert.Len(t, result, 1)
+		assert.Equal(t, "Foo.Bar", result[0].Field)
+	})
+
+	t.Run("still adds prefix when field doesn't have it", func(t *testing.T) {
+		// Error without prefix
+		ves := ValidationErrors{
+			NewValidationError("Amount", "is required"),
+			NewValidationError("Currency", "is invalid"),
+		}
+
+		// Add prefix
+		result := NewValidationErrorsFromErrors("RefundPaymentRequest", []error{ves})
+
+		// Should add prefix
+		assert.Len(t, result, 2)
+		assert.Equal(t, "RefundPaymentRequest.Amount", result[0].Field)
+		assert.Equal(t, "RefundPaymentRequest.Currency", result[1].Field)
 	})
 
 	t.Run("use NewValidationErrorsFromErrors for multiple errors", func(t *testing.T) {

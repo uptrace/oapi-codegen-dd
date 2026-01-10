@@ -19,8 +19,12 @@ type GetClientRequestOptions struct {
 func (o *GetClientRequestOptions) Validate() error {
 	var errors runtime.ValidationErrors
 
-	if err := clientOptionsValidate.Struct(o.Header); err != nil {
-		errors = append(errors, runtime.NewValidationErrorsFromErrors("Header", []error{err})...)
+	if o.Header != nil {
+		if v, ok := any(o.Header).(runtime.Validator); ok {
+			if err := v.Validate(); err != nil {
+				errors = errors.Append("Header", err)
+			}
+		}
 	}
 	if len(errors) == 0 {
 		return nil
@@ -60,12 +64,20 @@ type UpdateClientRequestOptions struct {
 func (o *UpdateClientRequestOptions) Validate() error {
 	var errors runtime.ValidationErrors
 
-	if err := clientOptionsValidate.Struct(o.Body); err != nil {
-		errors = append(errors, runtime.NewValidationErrorsFromErrors("Body", []error{err})...)
+	if o.Body != nil {
+		if v, ok := any(o.Body).(runtime.Validator); ok {
+			if err := v.Validate(); err != nil {
+				errors = errors.Append("Body", err)
+			}
+		}
 	}
 
-	if err := clientOptionsValidate.Struct(o.Header); err != nil {
-		errors = append(errors, runtime.NewValidationErrorsFromErrors("Header", []error{err})...)
+	if o.Header != nil {
+		if v, ok := any(o.Header).(runtime.Validator); ok {
+			if err := v.Validate(); err != nil {
+				errors = errors.Append("Header", err)
+			}
+		}
 	}
 	if len(errors) == 0 {
 		return nil

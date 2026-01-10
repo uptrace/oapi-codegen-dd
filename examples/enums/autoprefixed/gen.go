@@ -27,7 +27,7 @@ var validProductVariationsValues = map[ProductVariations]bool{
 // Validate checks if the ProductVariations value is valid
 func (p ProductVariations) Validate() error {
 	if !validProductVariationsValues[p] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid ProductVariations value: %v", p))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ProductVariations value, got: %v", p))
 	}
 	return nil
 }
@@ -48,7 +48,7 @@ func (p Product) Validate() error {
 	if p.Variations != nil {
 		if v, ok := any(p.Variations).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Variations", err))
+				errors = errors.Append("Variations", err)
 			}
 		}
 	}

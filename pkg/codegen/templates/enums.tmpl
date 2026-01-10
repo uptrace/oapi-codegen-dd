@@ -40,7 +40,7 @@ limitations under the License.
     // Validate checks if the {{$Enum.Name}} value is valid
     func ({{$alias}} {{$Enum.Name}}) Validate() error {
         if !valid{{$Enum.Name}}Values[{{$alias}}] {
-            return runtime.NewValidationError("", fmt.Sprintf("invalid {{$Enum.Name}} value: %v", {{$alias}}))
+            return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid {{$Enum.Name}} value, got: %v", {{$alias}}))
         }
         return nil
     }

@@ -23,7 +23,7 @@ var validProcessPaymentErrorResponseTextValues = map[ProcessPaymentErrorResponse
 // Validate checks if the ProcessPaymentErrorResponseText value is valid
 func (p ProcessPaymentErrorResponseText) Validate() error {
 	if !validProcessPaymentErrorResponseTextValues[p] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid ProcessPaymentErrorResponseText value: %v", p))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ProcessPaymentErrorResponseText value, got: %v", p))
 	}
 	return nil
 }
@@ -42,7 +42,7 @@ var validProcessPaymentErrorResponseValues = map[ProcessPaymentErrorResponse]boo
 // Validate checks if the ProcessPaymentErrorResponse value is valid
 func (p ProcessPaymentErrorResponse) Validate() error {
 	if !validProcessPaymentErrorResponseValues[p] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid ProcessPaymentErrorResponse value: %v", p))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ProcessPaymentErrorResponse value, got: %v", p))
 	}
 	return nil
 }

@@ -25,7 +25,7 @@ var validSourceTypeValues = map[SourceType]bool{
 // Validate checks if the SourceType value is valid
 func (s SourceType) Validate() error {
 	if !validSourceTypeValues[s] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid SourceType value: %v", s))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SourceType value, got: %v", s))
 	}
 	return nil
 }
@@ -46,7 +46,7 @@ var validPaymentSourceTypeValues = map[PaymentSourceType]bool{
 // Validate checks if the PaymentSourceType value is valid
 func (p PaymentSourceType) Validate() error {
 	if !validPaymentSourceTypeValues[p] {
-		return runtime.NewValidationError("", fmt.Sprintf("invalid PaymentSourceType value: %v", p))
+		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid PaymentSourceType value, got: %v", p))
 	}
 	return nil
 }
@@ -67,7 +67,7 @@ func (p Payment) Validate() error {
 	if p.Source != nil {
 		if v, ok := any(p.Source).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Source", err))
+				errors = errors.Append("Source", err)
 			}
 		}
 	}
@@ -86,7 +86,7 @@ func (p Payment_Source) Validate() error {
 	if p.Type != nil {
 		if v, ok := any(p.Type).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Type", err))
+				errors = errors.Append("Type", err)
 			}
 		}
 	}

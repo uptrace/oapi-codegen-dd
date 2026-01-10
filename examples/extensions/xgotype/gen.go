@@ -36,7 +36,7 @@ func (c ClientWithExtension) Validate() error {
 	var errors runtime.ValidationErrors
 	if v, ok := any(c.Name).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Name", err))
+			errors = errors.Append("Name", err)
 		}
 	}
 	if len(errors) == 0 {

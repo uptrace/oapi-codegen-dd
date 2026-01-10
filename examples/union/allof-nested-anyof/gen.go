@@ -29,7 +29,7 @@ func (o Order) Validate() error {
 	if o.Product != nil {
 		if v, ok := any(o.Product).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Product", err))
+				errors = errors.Append("Product", err)
 			}
 		}
 	}
@@ -49,13 +49,13 @@ func (o Order_Product1) Validate() error {
 	if o.Order_Product_AllOf0 != nil {
 		if v, ok := any(o.Order_Product_AllOf0).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Order_Product_AllOf0", err))
+				errors = errors.Append("Order_Product_AllOf0", err)
 			}
 		}
 	}
 	if v, ok := any(o.Base).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Base", err))
+			errors = errors.Append("Base", err)
 		}
 	}
 	if len(errors) == 0 {
@@ -146,13 +146,13 @@ func (o Order_Product) Validate() error {
 	if o.Order_Product_AllOf0 != nil {
 		if v, ok := any(o.Order_Product_AllOf0).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Order_Product_AllOf0", err))
+				errors = errors.Append("Order_Product_AllOf0", err)
 			}
 		}
 	}
 	if v, ok := any(o.Base).(runtime.Validator); ok {
 		if err := v.Validate(); err != nil {
-			errors = append(errors, runtime.NewValidationErrorFromError("Base", err))
+			errors = errors.Append("Base", err)
 		}
 	}
 	if len(errors) == 0 {
@@ -216,7 +216,7 @@ func (o Order_Product_AllOf0) Validate() error {
 	if o.Order_Product_AllOf0_AnyOf != nil {
 		if v, ok := any(o.Order_Product_AllOf0_AnyOf).(runtime.Validator); ok {
 			if err := v.Validate(); err != nil {
-				errors = append(errors, runtime.NewValidationErrorFromError("Order_Product_AllOf0_AnyOf", err))
+				errors = errors.Append("Order_Product_AllOf0_AnyOf", err)
 			}
 		}
 	}

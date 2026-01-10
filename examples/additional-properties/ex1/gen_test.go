@@ -48,12 +48,12 @@ func TestConfigWithMinProps_Validate(t *testing.T) {
 		obj := ConfigWithMinProps{}
 		err := obj.Validate()
 		assert.Error(t, err)
-		assert.Equal(t, "must have at least 1 properties, got 0", err.Error())
+		assert.Equal(t, "Map must have at least 1 properties, got 0", err.Error())
 
 		// Check that it's a ValidationError
 		var ve runtime.ValidationError
 		assert.ErrorAs(t, err, &ve)
-		assert.Equal(t, "", ve.Field)
+		assert.Equal(t, "Map", ve.Field)
 		assert.Equal(t, "must have at least 1 properties, got 0", ve.Message)
 	})
 
@@ -62,7 +62,7 @@ func TestConfigWithMinProps_Validate(t *testing.T) {
 		// nil maps with minProperties > 0 are invalid (nil = 0 properties)
 		err := obj.Validate()
 		assert.Error(t, err)
-		assert.Equal(t, "must have at least 1 properties, got 0", err.Error())
+		assert.Equal(t, "Map must have at least 1 properties, got 0", err.Error())
 	})
 }
 
@@ -94,7 +94,7 @@ func TestConfigWithMaxProps_Validate(t *testing.T) {
 		}
 		err := obj.Validate()
 		assert.Error(t, err)
-		assert.Equal(t, "must have at most 5 properties, got 6", err.Error())
+		assert.Equal(t, "Map must have at most 5 properties, got 6", err.Error())
 	})
 }
 
@@ -124,7 +124,7 @@ func TestConfigWithBothProps_Validate(t *testing.T) {
 		obj := ConfigWithBothProps{"key1": 1}
 		err := obj.Validate()
 		assert.Error(t, err)
-		assert.Equal(t, "must have at least 2 properties, got 1", err.Error())
+		assert.Equal(t, "Map must have at least 2 properties, got 1", err.Error())
 	})
 
 	t.Run("invalid - has 11 properties", func(t *testing.T) {
@@ -143,7 +143,7 @@ func TestConfigWithBothProps_Validate(t *testing.T) {
 		}
 		err := obj.Validate()
 		assert.Error(t, err)
-		assert.Equal(t, "must have at most 10 properties, got 11", err.Error())
+		assert.Equal(t, "Map must have at most 10 properties, got 11", err.Error())
 	})
 }
 
@@ -194,7 +194,7 @@ func TestArrayWithMinItems_Validate(t *testing.T) {
 		obj := ArrayWithMinItems{}
 		err := obj.Validate()
 		assert.Error(t, err)
-		assert.Equal(t, "must have at least 1 items, got 0", err.Error())
+		assert.Equal(t, "Array must have at least 1 items, got 0", err.Error())
 	})
 
 	t.Run("invalid - has 101 items", func(t *testing.T) {
@@ -204,7 +204,7 @@ func TestArrayWithMinItems_Validate(t *testing.T) {
 		}
 		err := obj.Validate()
 		assert.Error(t, err)
-		assert.Equal(t, "must have at most 100 items, got 101", err.Error())
+		assert.Equal(t, "Array must have at most 100 items, got 101", err.Error())
 	})
 }
 
@@ -290,7 +290,7 @@ func TestTagsWithBothConstraints_Validate(t *testing.T) {
 		var obj TagsWithBothConstraints
 		err := obj.Validate()
 		assert.Error(t, err)
-		assert.Equal(t, "must have at least 2 properties, got 0", err.Error())
+		assert.Equal(t, "Map must have at least 2 properties, got 0", err.Error())
 	})
 
 	t.Run("invalid - only 1 property (minProperties: 2)", func(t *testing.T) {
@@ -299,18 +299,18 @@ func TestTagsWithBothConstraints_Validate(t *testing.T) {
 		}
 		err := obj.Validate()
 		assert.Error(t, err)
-		assert.Equal(t, "must have at least 2 properties, got 1", err.Error())
+		assert.Equal(t, "Map must have at least 2 properties, got 1", err.Error())
 
 		var ve runtime.ValidationError
 		assert.ErrorAs(t, err, &ve)
-		assert.Equal(t, "", ve.Field)
+		assert.Equal(t, "Map", ve.Field)
 	})
 
 	t.Run("invalid - empty map (minProperties: 2)", func(t *testing.T) {
 		obj := TagsWithBothConstraints{}
 		err := obj.Validate()
 		assert.Error(t, err)
-		assert.Equal(t, "must have at least 2 properties, got 0", err.Error())
+		assert.Equal(t, "Map must have at least 2 properties, got 0", err.Error())
 	})
 
 	t.Run("invalid - 6 properties (maxProperties: 5)", func(t *testing.T) {
@@ -324,7 +324,7 @@ func TestTagsWithBothConstraints_Validate(t *testing.T) {
 		}
 		err := obj.Validate()
 		assert.Error(t, err)
-		assert.Equal(t, "must have at most 5 properties, got 6", err.Error())
+		assert.Equal(t, "Map must have at most 5 properties, got 6", err.Error())
 	})
 
 	t.Run("invalid - valid count but value exceeds maxLength", func(t *testing.T) {

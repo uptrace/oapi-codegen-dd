@@ -89,51 +89,14 @@ func NewValidationError(field, message string) ValidationError {
 	return ValidationError{Field: field, Message: message}
 }
 
-// NewValidationErrorFromError creates a ValidationError that wraps an underlying error
-func NewValidationErrorFromError(field string, err error) ValidationError {
-	// Handle validator.ValidationErrors
-	var validationErrors validator.ValidationErrors
-	if errors.As(err, &validationErrors) && len(validationErrors) > 0 {
-		nestedField := validationErrors[0].Field()
-		message := convertFieldErrorMessage(validationErrors[0])
-		if nestedField != "" {
-			field = fmt.Sprintf("%s.%s", field, nestedField)
-		}
-		return ValidationError{
-			Field:   field,
-			Message: message,
-			Err:     err,
-		}
+// NewValidationErrorFromError creates ValidationErrors from a single error with a field prefix.
+// This is a convenience wrapper around NewValidationErrorsFromErrors for a single error.
+func NewValidationErrorFromError(field string, err error) error {
+	result := NewValidationErrorsFromErrors(field, []error{err})
+	if len(result) == 0 {
+		return nil
 	}
-
-	// Handle our ValidationError - extract field and message separately
-	var ve ValidationError
-	if errors.As(err, &ve) {
-		if ve.Field != "" {
-			field = fmt.Sprintf("%s.%s", field, ve.Field)
-		}
-		return ValidationError{
-			Field:   field,
-			Message: ve.Message,
-			Err:     err,
-		}
-	}
-
-	// Handle our ValidationErrors - take the first one (consistent with validator.ValidationErrors handling)
-	var ves ValidationErrors
-	if errors.As(err, &ves) && len(ves) > 0 {
-		if ves[0].Field != "" {
-			field = fmt.Sprintf("%s.%s", field, ves[0].Field)
-		}
-		return ValidationError{
-			Field:   field,
-			Message: ves[0].Message,
-			Err:     err,
-		}
-	}
-
-	// For other errors, use the error message as-is
-	return ValidationError{Field: field, Message: err.Error(), Err: err}
+	return result
 }
 
 type ValidationErrors []ValidationError
@@ -148,6 +111,22 @@ func (ve ValidationErrors) Error() string {
 		}
 	}
 	return strings.Join(messages, "\n")
+}
+
+// Add adds a single ValidationError to the collection.
+func (ve ValidationErrors) Add(field, message string) ValidationErrors {
+	return append(ve, ValidationError{Field: field, Message: message})
+}
+
+// Append adds validation errors from the given error to the collection.
+// It handles ValidationError, ValidationErrors, and other error types.
+func (ve ValidationErrors) Append(field string, err error) ValidationErrors {
+	if err == nil {
+		return ve
+	}
+
+	newErrors := NewValidationErrorsFromErrors(field, []error{err})
+	return append(ve, newErrors...)
 }
 
 func (ve ValidationErrors) Unwrap() []error {
@@ -173,41 +152,77 @@ func NewValidationErrorsFromErrors(prefix string, errs []error) ValidationErrors
 	}
 
 	for _, err := range errs {
+		// Handle our ValidationErrors (plural) first - use direct type check to avoid unwrapping
+		// Check the error directly, not through errors.As which would unwrap nested errors
+		if ves, ok := err.(ValidationErrors); ok {
+			for _, ve := range ves {
+				// Create a copy to avoid modifying the original
+				// Preserve the ValidationError itself as the underlying error to maintain the error chain
+				newVe := ValidationError{
+					Field:   ve.Field,
+					Message: ve.Message,
+					Err:     ve, // Preserve the ValidationError to maintain the error chain
+				}
+				if prefix != "" && newVe.Field != "" {
+					prefixWithoutDot := strings.TrimSuffix(prefix, ".")
+					// Avoid double-prefixing: if field already starts with prefix, don't add it again
+					if !strings.HasPrefix(newVe.Field, prefixWithoutDot+".") && newVe.Field != prefixWithoutDot {
+						newVe.Field = prefixWithoutDot + "." + newVe.Field
+					}
+				} else if prefix != "" {
+					newVe.Field = strings.TrimSuffix(prefix, ".")
+				}
+				result = append(result, newVe)
+			}
+			continue
+		}
+
 		// Handle validator.ValidationErrors from go-playground/validator
+		// Use errors.As here because validator.ValidationErrors might be wrapped
 		if errors.As(err, &validationErrors) {
 			for _, ve := range validationErrors {
+				field := prefix + ve.Field()
+				// If ve.Field() is empty (from validator.Var()), trim the trailing dot
+				if ve.Field() == "" && prefix != "" {
+					field = strings.TrimSuffix(prefix, ".")
+				}
 				result = append(result, ValidationError{
-					Field:   prefix + ve.Field(),
+					Field:   field,
 					Message: convertFieldErrorMessage(ve),
+					Err:     err,
 				})
 			}
 			continue
 		}
 
-		// Handle our ValidationErrors (plural) - unwrap and add all
-		var ves ValidationErrors
-		if errors.As(err, &ves) {
-			for _, ve := range ves {
-				if prefix != "" && ve.Field != "" {
-					ve.Field = prefix + ve.Field
-				} else if prefix != "" {
-					ve.Field = strings.TrimSuffix(prefix, ".")
-				}
-				result = append(result, ve)
+		// Handle single ValidationError - use direct type check to avoid unwrapping
+		if ve, ok := err.(ValidationError); ok {
+			// Create a copy to avoid modifying the original
+			newVe := ValidationError{
+				Field:   ve.Field,
+				Message: ve.Message,
+				Err:     ve.Err,
 			}
+			if prefix != "" && newVe.Field != "" {
+				prefixWithoutDot := strings.TrimSuffix(prefix, ".")
+				// Avoid double-prefixing: if field already starts with prefix, don't add it again
+				if !strings.HasPrefix(newVe.Field, prefixWithoutDot+".") && newVe.Field != prefixWithoutDot {
+					newVe.Field = prefixWithoutDot + "." + newVe.Field
+				}
+			} else if prefix != "" {
+				newVe.Field = strings.TrimSuffix(prefix, ".")
+			}
+			result = append(result, newVe)
 			continue
 		}
 
-		// Handle single ValidationError
-		var ve ValidationError
-		if errors.As(err, &ve) {
-			if prefix != "" && ve.Field != "" {
-				ve.Field = prefix + ve.Field
-			} else if prefix != "" {
-				ve.Field = strings.TrimSuffix(prefix, ".")
-			}
-			result = append(result, ve)
-		}
+		// Handle generic errors - wrap them in a ValidationError
+		field := strings.TrimSuffix(prefix, ".")
+		result = append(result, ValidationError{
+			Field:   field,
+			Message: err.Error(),
+			Err:     err,
+		})
 	}
 
 	return result
