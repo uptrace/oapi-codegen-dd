@@ -1,5 +1,5 @@
 # yaml-language-server: $schema=../../configuration-schema.json
-package: namingconflict2
+package: gen
 skip-prune: true
 generate:
   client: false

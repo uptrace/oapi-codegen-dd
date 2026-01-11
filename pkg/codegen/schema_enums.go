@@ -126,6 +126,12 @@ func createEnumsSchema(schema *base.Schema, options ParseOptions) (GoSchema, err
 			typeName = schemaNameToTypeName(pathToTypeName(path))
 		}
 
+		// Check if a type with the same name already exists.
+		// If it does, generate a unique name to avoid conflicts.
+		if _, exists := options.currentTypes[typeName]; exists {
+			typeName = generateTypeName(options.currentTypes, typeName, options.nameSuffixes)
+		}
+
 		typeDef := TypeDefinition{
 			Name:     typeName,
 			JsonName: strings.Join(path, "."),
