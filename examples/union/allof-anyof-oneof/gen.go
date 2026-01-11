@@ -25,7 +25,7 @@ func (o OrderStatus) Validate() error {
 	case OrderStatusConfirmed, OrderStatusPending, OrderStatusShipped:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid OrderStatus value, got: %v", o))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid OrderStatus value, got: %v", o))
 	}
 }
 

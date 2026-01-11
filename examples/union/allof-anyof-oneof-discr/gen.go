@@ -26,7 +26,7 @@ func (c ClientAndMaybeIdentityType) Validate() error {
 	case ClientAndMaybeIdentityTypeClient, ClientAndMaybeIdentityTypeClientWithID, ClientAndMaybeIdentityTypeIdentity:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ClientAndMaybeIdentityType value, got: %v", c))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ClientAndMaybeIdentityType value, got: %v", c))
 	}
 }
 
@@ -42,7 +42,7 @@ func (d DogType) Validate() error {
 	case DogTypeDog:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid DogType value, got: %v", d))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid DogType value, got: %v", d))
 	}
 }
 
@@ -58,7 +58,7 @@ func (c CatType) Validate() error {
 	case CatTypeCat:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CatType value, got: %v", c))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid CatType value, got: %v", c))
 	}
 }
 

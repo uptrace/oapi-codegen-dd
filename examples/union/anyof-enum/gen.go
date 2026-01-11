@@ -25,7 +25,7 @@ func (r RenderingOptionsAnyOf0AmountTaxDisplay) Validate() error {
 	case RenderingOptionsAnyOf0AmountTaxDisplayEmpty, RenderingOptionsAnyOf0AmountTaxDisplayExcludeTax, RenderingOptionsAnyOf0AmountTaxDisplayIncludeInclusiveTax:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid RenderingOptionsAnyOf0AmountTaxDisplay value, got: %v", r))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid RenderingOptionsAnyOf0AmountTaxDisplay value, got: %v", r))
 	}
 }
 

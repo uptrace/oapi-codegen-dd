@@ -21,7 +21,7 @@ func (c ClientTypeType) Validate() error {
 	case ClientTypeTypeCompany, ClientTypeTypeIndividual:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ClientTypeType value, got: %v", c))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ClientTypeType value, got: %v", c))
 	}
 }
 
@@ -38,6 +38,6 @@ func (g GetClientResponseType) Validate() error {
 	case GetClientResponseTypeCompany, GetClientResponseTypeIndividual:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid GetClientResponseType value, got: %v", g))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid GetClientResponseType value, got: %v", g))
 	}
 }

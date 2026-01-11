@@ -23,7 +23,7 @@ func (f FileType) Validate() error {
 	case FileTypeFile:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid FileType value, got: %v", f))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid FileType value, got: %v", f))
 	}
 }
 
@@ -39,7 +39,7 @@ func (f FolderType) Validate() error {
 	case FolderTypeFolder:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid FolderType value, got: %v", f))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid FolderType value, got: %v", f))
 	}
 }
 
@@ -55,7 +55,7 @@ func (w WebLinkType) Validate() error {
 	case WebLinkTypeWebLink:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid WebLinkType value, got: %v", w))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid WebLinkType value, got: %v", w))
 	}
 }
 
@@ -73,7 +73,7 @@ func (c CollaborationRole) Validate() error {
 	case CollaborationRoleEditor, CollaborationRoleOwner, CollaborationRoleViewer:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CollaborationRole value, got: %v", c))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid CollaborationRole value, got: %v", c))
 	}
 }
 
@@ -91,7 +91,7 @@ func (g GetCollaborationResponseRole) Validate() error {
 	case GetCollaborationResponseRoleEditor, GetCollaborationResponseRoleOwner, GetCollaborationResponseRoleViewer:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid GetCollaborationResponseRole value, got: %v", g))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid GetCollaborationResponseRole value, got: %v", g))
 	}
 }
 

@@ -22,7 +22,7 @@ func (c ClientType) Validate() error {
 	case ACT, EXP:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ClientType value, got: %v", c))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ClientType value, got: %v", c))
 	}
 }
 
@@ -39,7 +39,7 @@ func (c ClientTypeWithNamesExtension) Validate() error {
 	case Active, Expired:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ClientTypeWithNamesExtension value, got: %v", c))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ClientTypeWithNamesExtension value, got: %v", c))
 	}
 }
 

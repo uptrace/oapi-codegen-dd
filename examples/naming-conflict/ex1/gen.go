@@ -22,7 +22,7 @@ func (t Type) Validate() error {
 	case TypeDebit, TypeSourceType:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid Type value, got: %v", t))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid Type value, got: %v", t))
 	}
 }
 

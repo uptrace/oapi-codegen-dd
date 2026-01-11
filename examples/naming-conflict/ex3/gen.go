@@ -27,7 +27,7 @@ func (p ProductName) Validate() error {
 	case ProductNameADVANCEDVAULTING, ProductNameEXPRESSCHECKOUT, ProductNamePAYMENTMETHODS, ProductNamePPCP, ProductNamePPPLUS, ProductNameWPPRO:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ProductName value, got: %v", p))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ProductName value, got: %v", p))
 	}
 }
 
@@ -68,7 +68,7 @@ func (p ProductName1) Validate() error {
 	case ProductName1ADVANCEDVAULTING, ProductName1BILLMELATER, ProductName1EBAYCHECKOUT, ProductName1EMAILPAYMENTS, ProductName1ENHANCEDRECURRINGPAYMENTS, ProductName1EXPRESSCHECKOUT, ProductName1HOSTEDSOLESOLUTION, ProductName1MASSPAYMENT, ProductName1MOBILEEXPRESSCHECKOUT, ProductName1MOBILEINSTORE, ProductName1MOBILEPAYMENTACCEPTANCE, ProductName1MOBILEPAYPALSTANDARD, ProductName1PAYFLOWLINK, ProductName1PAYFLOWPRO, ProductName1PAYMENTMETHODS, ProductName1PAYPALADVANCED, ProductName1PAYPALHERE, ProductName1PAYPALPRO, ProductName1PAYPALSTANDARD, ProductName1PPCPCUSTOM, ProductName1PPCPSTANDARD, ProductName1VIRTUALTERMINAL, ProductName1WEBSITEPAYMENTSPRO20, ProductName1WEBSITEPAYMENTSPRO30, ProductName1WEBSITEPAYMENTSSTANDARD:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ProductName1 value, got: %v", p))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ProductName1 value, got: %v", p))
 	}
 }
 
@@ -86,7 +86,7 @@ func (p ProductStatus) Validate() error {
 	case ACTIVE, INACTIVE, PENDING:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ProductStatus value, got: %v", p))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ProductStatus value, got: %v", p))
 	}
 }
 

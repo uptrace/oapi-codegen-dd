@@ -83,7 +83,7 @@ func (f FileObject) Validate() error {
 	case FileObjectFile:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid FileObject value, got: %v", f))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid FileObject value, got: %v", f))
 	}
 }
 
@@ -101,7 +101,7 @@ func (f FilePurpose) Validate() error {
 	case AccountRequirement, AdditionalVerification, BusinessIcon:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid FilePurpose value, got: %v", f))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid FilePurpose value, got: %v", f))
 	}
 }
 
@@ -117,7 +117,7 @@ func (f FileLinksObject) Validate() error {
 	case List:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid FileLinksObject value, got: %v", f))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid FileLinksObject value, got: %v", f))
 	}
 }
 
@@ -133,7 +133,7 @@ func (f FileLinkObject) Validate() error {
 	case FileLinkObjectFileLink:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid FileLinkObject value, got: %v", f))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid FileLinkObject value, got: %v", f))
 	}
 }
 

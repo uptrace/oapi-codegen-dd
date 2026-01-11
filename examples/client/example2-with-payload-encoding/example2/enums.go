@@ -21,6 +21,6 @@ func (c ClientTypeType) Validate() error {
 	case Company, Individual:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ClientTypeType value, got: %v", c))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ClientTypeType value, got: %v", c))
 	}
 }

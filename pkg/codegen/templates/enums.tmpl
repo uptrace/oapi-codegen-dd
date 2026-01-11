@@ -39,7 +39,7 @@ limitations under the License.
         case {{range $i, $safeName := $safeNames}}{{if $i}}, {{end}}{{$safeName}}{{end}}:
             return nil
         default:
-            return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid {{$Enum.Name}} value, got: %v", {{$alias}}))
+            return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid {{$Enum.Name}} value, got: %v", {{$alias}}))
         }
     }
     {{ end }}

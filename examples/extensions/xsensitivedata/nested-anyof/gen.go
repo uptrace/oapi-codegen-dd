@@ -23,7 +23,7 @@ func (c CreditCardPaymentType) Validate() error {
 	case CreditCard:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CreditCardPaymentType value, got: %v", c))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid CreditCardPaymentType value, got: %v", c))
 	}
 }
 
@@ -39,7 +39,7 @@ func (b BankTransferPaymentType) Validate() error {
 	case BankTransfer:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid BankTransferPaymentType value, got: %v", b))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid BankTransferPaymentType value, got: %v", b))
 	}
 }
 
@@ -55,7 +55,7 @@ func (d DomesticAccountAccountType) Validate() error {
 	case Domestic:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid DomesticAccountAccountType value, got: %v", d))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid DomesticAccountAccountType value, got: %v", d))
 	}
 }
 
@@ -71,7 +71,7 @@ func (i InternationalAccountAccountType) Validate() error {
 	case International:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid InternationalAccountAccountType value, got: %v", i))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid InternationalAccountAccountType value, got: %v", i))
 	}
 }
 
@@ -87,7 +87,7 @@ func (p PersonalBeneficiaryBeneficiaryType) Validate() error {
 	case Personal:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid PersonalBeneficiaryBeneficiaryType value, got: %v", p))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid PersonalBeneficiaryBeneficiaryType value, got: %v", p))
 	}
 }
 
@@ -103,7 +103,7 @@ func (b BusinessBeneficiaryBeneficiaryType) Validate() error {
 	case Business:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid BusinessBeneficiaryBeneficiaryType value, got: %v", b))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid BusinessBeneficiaryBeneficiaryType value, got: %v", b))
 	}
 }
 
@@ -119,7 +119,7 @@ func (d DigitalWalletPaymentType) Validate() error {
 	case DigitalWallet:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid DigitalWalletPaymentType value, got: %v", d))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid DigitalWalletPaymentType value, got: %v", d))
 	}
 }
 

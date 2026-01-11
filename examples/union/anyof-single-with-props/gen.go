@@ -22,7 +22,7 @@ func (s SpecificIssueCode) Validate() error {
 	case BUSINESSERROR, INVALIDREQUEST:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SpecificIssueCode value, got: %v", s))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid SpecificIssueCode value, got: %v", s))
 	}
 }
 

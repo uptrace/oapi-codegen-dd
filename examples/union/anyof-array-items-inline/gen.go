@@ -23,7 +23,7 @@ func (s SpecificErrorIssuesAnyOf0Issue) Validate() error {
 	case SpecificErrorIssuesAnyOf0IssueERRORA:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf0Issue value, got: %v", s))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf0Issue value, got: %v", s))
 	}
 }
 
@@ -39,7 +39,7 @@ func (s SpecificErrorIssuesAnyOf0Description) Validate() error {
 	case SpecificErrorIssuesAnyOf0DescriptionThisIsErrorTypeA:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf0Description value, got: %v", s))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf0Description value, got: %v", s))
 	}
 }
 
@@ -55,7 +55,7 @@ func (s SpecificErrorIssuesAnyOf1Issue) Validate() error {
 	case SpecificErrorIssuesAnyOf1IssueERRORB:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf1Issue value, got: %v", s))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf1Issue value, got: %v", s))
 	}
 }
 
@@ -71,7 +71,7 @@ func (s SpecificErrorIssuesAnyOf1Description) Validate() error {
 	case SpecificErrorIssuesAnyOf1DescriptionThisIsErrorTypeB:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf1Description value, got: %v", s))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf1Description value, got: %v", s))
 	}
 }
 
@@ -87,7 +87,7 @@ func (s SpecificErrorIssuesAnyOf2Issue) Validate() error {
 	case SpecificErrorIssuesAnyOf2IssueERRORC:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf2Issue value, got: %v", s))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf2Issue value, got: %v", s))
 	}
 }
 
@@ -103,7 +103,7 @@ func (s SpecificErrorIssuesAnyOf2Description) Validate() error {
 	case SpecificErrorIssuesAnyOf2DescriptionThisIsErrorTypeC:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf2Description value, got: %v", s))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf2Description value, got: %v", s))
 	}
 }
 
@@ -119,7 +119,7 @@ func (c CombinedErrorIssuesAnyOf0Issue) Validate() error {
 	case CombinedErrorIssuesAnyOf0IssueERRORA:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf0Issue value, got: %v", c))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf0Issue value, got: %v", c))
 	}
 }
 
@@ -135,7 +135,7 @@ func (c CombinedErrorIssuesAnyOf0Description) Validate() error {
 	case CombinedErrorIssuesAnyOf0DescriptionThisIsErrorTypeA:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf0Description value, got: %v", c))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf0Description value, got: %v", c))
 	}
 }
 
@@ -151,7 +151,7 @@ func (c CombinedErrorIssuesAnyOf1Issue) Validate() error {
 	case CombinedErrorIssuesAnyOf1IssueERRORB:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf1Issue value, got: %v", c))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf1Issue value, got: %v", c))
 	}
 }
 
@@ -167,7 +167,7 @@ func (c CombinedErrorIssuesAnyOf1Description) Validate() error {
 	case CombinedErrorIssuesAnyOf1DescriptionThisIsErrorTypeB:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf1Description value, got: %v", c))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf1Description value, got: %v", c))
 	}
 }
 
@@ -183,7 +183,7 @@ func (c CombinedErrorIssuesAnyOf2Issue) Validate() error {
 	case CombinedErrorIssuesAnyOf2IssueERRORC:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf2Issue value, got: %v", c))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf2Issue value, got: %v", c))
 	}
 }
 
@@ -199,7 +199,7 @@ func (c CombinedErrorIssuesAnyOf2Description) Validate() error {
 	case CombinedErrorIssuesAnyOf2DescriptionThisIsErrorTypeC:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf2Description value, got: %v", c))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid CombinedErrorIssuesAnyOf2Description value, got: %v", c))
 	}
 }
 

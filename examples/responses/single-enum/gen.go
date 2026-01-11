@@ -21,7 +21,7 @@ func (p ProcessPaymentErrorResponseText) Validate() error {
 	case ProcessPaymentErrorResponseTextInternalServerError:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ProcessPaymentErrorResponseText value, got: %v", p))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ProcessPaymentErrorResponseText value, got: %v", p))
 	}
 }
 
@@ -37,7 +37,7 @@ func (p ProcessPaymentErrorResponse) Validate() error {
 	case ProcessPaymentErrorResponseInternalServerError:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ProcessPaymentErrorResponse value, got: %v", p))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ProcessPaymentErrorResponse value, got: %v", p))
 	}
 }
 

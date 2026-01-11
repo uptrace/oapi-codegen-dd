@@ -23,7 +23,7 @@ func (r ResponsePredefined) Validate() error {
 	case ResponsePredefinedA, ResponsePredefinedB, ResponsePredefinedC:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ResponsePredefined value, got: %v", r))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ResponsePredefined value, got: %v", r))
 	}
 }
 
@@ -41,7 +41,7 @@ func (p Predefined) Validate() error {
 	case PredefinedA2, PredefinedB2, PredefinedC2:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid Predefined value, got: %v", p))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid Predefined value, got: %v", p))
 	}
 }
 

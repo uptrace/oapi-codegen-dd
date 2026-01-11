@@ -22,7 +22,7 @@ func (s SourceType) Validate() error {
 	case SourceTypeACHCreditTransfer, SourceTypeAlipay2:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid SourceType value, got: %v", s))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid SourceType value, got: %v", s))
 	}
 }
 
@@ -39,7 +39,7 @@ func (p PaymentSourceType) Validate() error {
 	case PaymentSourceTypeACHCreditTransfer, PaymentSourceTypeAlipay:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid PaymentSourceType value, got: %v", p))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid PaymentSourceType value, got: %v", p))
 	}
 }
 

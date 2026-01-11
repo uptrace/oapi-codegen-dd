@@ -23,7 +23,7 @@ func (s StatusCode) Validate() error {
 	case StatusCodeN200, StatusCodeN404, StatusCodeN500:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid StatusCode value, got: %v", s))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid StatusCode value, got: %v", s))
 	}
 }
 
@@ -41,7 +41,7 @@ func (p Priority) Validate() error {
 	case PriorityN10, PriorityN25, PriorityN50:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid Priority value, got: %v", p))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid Priority value, got: %v", p))
 	}
 }
 
@@ -59,7 +59,7 @@ func (c Color) Validate() error {
 	case ColorBlue, ColorGreen, ColorRed:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid Color value, got: %v", c))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid Color value, got: %v", c))
 	}
 }
 

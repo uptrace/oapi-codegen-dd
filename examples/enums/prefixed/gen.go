@@ -23,7 +23,7 @@ func (p ProductVariations) Validate() error {
 	case ProductVariationsA, ProductVariationsB, ProductVariationsC:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid ProductVariations value, got: %v", p))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ProductVariations value, got: %v", p))
 	}
 }
 

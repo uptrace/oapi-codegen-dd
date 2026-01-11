@@ -24,7 +24,7 @@ func (o OrgModelType) Validate() error {
 	case OrgModelTypeDepartment, OrgModelTypeDivision, OrgModelTypeOrganization:
 		return nil
 	default:
-		return runtime.ValidationErrors{}.Add("Enum", fmt.Sprintf("must be a valid OrgModelType value, got: %v", o))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid OrgModelType value, got: %v", o))
 	}
 }
 
