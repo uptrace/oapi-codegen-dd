@@ -383,6 +383,12 @@ type GetPostResponse struct {
 	Metadata  *GetPost_Response_Metadata                       `json:"metadata,omitempty"`
 }
 
+// Users_Get_Response200_JSON_Properties_CreatedAt When the user was created
+type Users_Get_Response200_JSON_Properties_CreatedAt = time.Time
+
+// Users_Get_Response200_JSON_Properties_UpdatedAt When the user was last updated
+type Users_Get_Response200_JSON_Properties_UpdatedAt = time.Time
+
 type ListCommentsResponse ListComments_Response
 
 type CreateEventResponse struct {
@@ -394,12 +400,6 @@ type GetUser_Response_Metadata struct {
 	Tags  []string `json:"tags,omitempty"`
 	Score *int     `json:"score,omitempty"`
 }
-
-// Users_Get_Response200_JSON_Properties_CreatedAt When the user was created
-type Users_Get_Response200_JSON_Properties_CreatedAt = time.Time
-
-// Users_Get_Response200_JSON_Properties_UpdatedAt When the user was last updated
-type Users_Get_Response200_JSON_Properties_UpdatedAt = time.Time
 
 type GetPost_Response_Metadata struct {
 	Tags  []string `json:"tags,omitempty"`

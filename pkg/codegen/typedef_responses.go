@@ -175,9 +175,11 @@ func getOperationResponses(operationID string, responses *v3high.Responses, opti
 
 		// Don't pass reference for responses - we want actual types, not aliases
 		// This allows Error() methods to be generated on error response types
+		// Also set SpecLocationResponse so that writeOnly fields are not marked as required
 		options = options.
 			WithReference("").
-			WithPath([]string{operationID, typeSuffix})
+			WithPath([]string{operationID, typeSuffix}).
+			WithSpecLocation(SpecLocationResponse)
 		contentSchema, err := GenerateGoSchema(content.Schema, options)
 		if err != nil {
 			return nil, nil, fmt.Errorf("error generating request body definition: %w", err)

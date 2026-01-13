@@ -169,6 +169,46 @@ func TestNewConstraints(t *testing.T) {
 		}, res)
 	})
 
+	t.Run("readOnly required field in request body should not be required", func(t *testing.T) {
+		schema := &base.Schema{
+			Type:     []string{"string"},
+			Required: []string{"foo"},
+			ReadOnly: ptr(true),
+		}
+
+		res := newConstraints(schema, ConstraintsContext{
+			name:         "foo",
+			required:     true,
+			specLocation: SpecLocationBody,
+		})
+
+		// ReadOnly fields should not be required in request bodies
+		assert.Equal(t, Constraints{
+			ReadOnly: ptr(true),
+			Nullable: ptr(true),
+		}, res)
+	})
+
+	t.Run("writeOnly required field in response should not be required", func(t *testing.T) {
+		schema := &base.Schema{
+			Type:      []string{"string"},
+			Required:  []string{"foo"},
+			WriteOnly: ptr(true),
+		}
+
+		res := newConstraints(schema, ConstraintsContext{
+			name:         "foo",
+			required:     true,
+			specLocation: SpecLocationResponse,
+		})
+
+		// WriteOnly fields should not be required in responses
+		assert.Equal(t, Constraints{
+			WriteOnly: ptr(true),
+			Nullable:  ptr(true),
+		}, res)
+	})
+
 	t.Run("integer with maxLength - invalid spec, should be ignored", func(t *testing.T) {
 		maxLn := int64(8)
 		schema := &base.Schema{

@@ -388,18 +388,33 @@ func GenerateGoSchema(schemaProxy *base.SchemaProxy, options ParseOptions) (GoSc
 				}
 			}
 
-			// Return the schema with the resolved type name
-			// Note: We don't set RefType for component references because:
-			// 1. RefType affects TypeDecl() which would change the type name used in struct fields
-			// 2. Component references already have their own type definitions with Validate() methods
-			// 3. The validation will be delegated via the type assertion in Property.needsCustomValidation()
-			return GoSchema{
-				GoType:           refType,
-				DefineViaAlias:   true,
-				IsPrimitiveAlias: isPrimitiveAlias,
-				Description:      schema.Description,
-				OpenAPISchema:    schema,
-			}, nil
+			// Check if we're in response context and the schema has writeOnly required fields.
+			// If so, we need to generate an inline type instead of using the component reference,
+			// because writeOnly fields should not be required in responses.
+			needsInlineType := false
+			if options.specLocation == SpecLocationResponse && schema != nil {
+				needsInlineType = hasWriteOnlyRequiredFields(schema)
+			}
+
+			if !needsInlineType {
+				// Return the schema with the resolved type name
+				// Note: We don't set RefType for component references because:
+				// 1. RefType affects TypeDecl() which would change the type name used in struct fields
+				// 2. Component references already have their own type definitions with Validate() methods
+				// 3. The validation will be delegated via the type assertion in Property.needsCustomValidation()
+				return GoSchema{
+					GoType:           refType,
+					DefineViaAlias:   true,
+					IsPrimitiveAlias: isPrimitiveAlias,
+					Description:      schema.Description,
+					OpenAPISchema:    schema,
+				}, nil
+			}
+
+			// Fall through to generate an inline type for response schemas with writeOnly required fields
+			// Clear the reference so the schema is processed as an inline type
+			ref = ""
+			options = options.WithReference("")
 		}
 
 		// For deep path references, we need to process the schema and create a type definition
@@ -756,4 +771,36 @@ func isStandardComponentReference(ref string) bool {
 	// e.g., #/components/parameters/Bar
 	// e.g., #/components/responses/Baz
 	return len(parts) == 4 && parts[1] == "components"
+}
+
+// hasWriteOnlyRequiredFields checks if a schema has any writeOnly properties that are also required.
+// This is used to determine if a response schema needs to generate an inline type instead of
+// using a component reference, because writeOnly fields should not be required in responses.
+func hasWriteOnlyRequiredFields(schema *base.Schema) bool {
+	if schema == nil {
+		return false
+	}
+
+	// Build a set of required field names
+	requiredFields := make(map[string]bool)
+	for _, req := range schema.Required {
+		requiredFields[req] = true
+	}
+
+	// Check if any writeOnly property is also required
+	if schema.Properties != nil {
+		for propName, propProxy := range schema.Properties.FromOldest() {
+			if propProxy == nil {
+				continue
+			}
+			propSchema := propProxy.Schema()
+			if propSchema != nil && propSchema.WriteOnly != nil && *propSchema.WriteOnly {
+				if requiredFields[propName] {
+					return true
+				}
+			}
+		}
+	}
+
+	return false
 }

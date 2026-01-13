@@ -133,6 +133,12 @@ func newConstraints(schema *base.Schema, opts ConstraintsContext) Constraints {
 		required = false
 	}
 
+	// WriteOnly fields should not be required in responses
+	// even if they are marked as required in the schema
+	if required && opts.specLocation == SpecLocationResponse && schema.WriteOnly != nil && *schema.WriteOnly {
+		required = false
+	}
+
 	nullable := !required || hasNilType || deref(schema.Nullable)
 
 	if required && isBoolean {
