@@ -278,17 +278,52 @@ func enhanceSchemaWithAdditionalProperties(out GoSchema, schema *base.Schema, op
 	// If additional properties are defined, we will override the default
 	// above with the specific definition.
 	if schema.AdditionalProperties != nil && schema.AdditionalProperties.IsA() {
-		additionalSchema, err := GenerateGoSchema(schema.AdditionalProperties.A, options.WithPath(append(path, "AdditionalProperties")))
+		addPropsProxy := schema.AdditionalProperties.A
+		addPropsRef := addPropsProxy.GoLow().GetReference()
+
+		// Pre-register the type name with the reference if available.
+		// This allows circular references to find this type during processing.
+		// Only pre-register if the ref is not already registered (to avoid overwriting).
+		var preRegisteredTypeName string
+		var weRegisteredRef bool
+		if addPropsRef != "" && !isStandardComponentReference(addPropsRef) {
+			if existingName, found := options.typeTracker.LookupByRef(addPropsRef); found {
+				// The ref is already registered, use the existing name
+				preRegisteredTypeName = existingName
+				weRegisteredRef = false
+			} else {
+				preRegisteredTypeName = pathToTypeName(append(path, "AdditionalProperties"))
+				if options.typeTracker.Exists(preRegisteredTypeName) {
+					preRegisteredTypeName = options.typeTracker.generateUniqueName(preRegisteredTypeName)
+				}
+				// Pre-register with just the name so circular references can find it
+				options.typeTracker.registerRef(addPropsRef, preRegisteredTypeName)
+				weRegisteredRef = true
+			}
+		}
+
+		additionalSchema, err := GenerateGoSchema(addPropsProxy, options.WithPath(append(path, "AdditionalProperties")))
 		if err != nil {
 			return GoSchema{}, fmt.Errorf("error generating type for additional properties: %w", err)
 		}
 
-		if len(additionalSchema.Properties) > 0 || additionalSchema.HasAdditionalProperties || len(additionalSchema.UnionElements) != 0 {
+		shouldCreateType := (len(additionalSchema.Properties) > 0 || additionalSchema.HasAdditionalProperties || len(additionalSchema.UnionElements) != 0) && additionalSchema.RefType == ""
+		// If the ref was already registered before we started, skip creating the type
+		// (this is a circular reference and the type will be created by the original caller)
+		if shouldCreateType && addPropsRef != "" && !weRegisteredRef {
+			shouldCreateType = false
+		}
+
+		if shouldCreateType {
 			// If we have fields present which have additional properties or union values,
 			// but are not a pre-defined type, we need to define a type
 			// for them, which will be based on the field names we followed
 			// to get to the type.
-			typeName := pathToTypeName(append(path, "AdditionalProperties"))
+			// Use the pre-registered type name if available, otherwise generate a new one.
+			typeName := preRegisteredTypeName
+			if typeName == "" {
+				typeName = pathToTypeName(append(path, "AdditionalProperties"))
+			}
 
 			typeDef := TypeDefinition{
 				Name:         typeName,
@@ -296,7 +331,7 @@ func enhanceSchemaWithAdditionalProperties(out GoSchema, schema *base.Schema, op
 				Schema:       additionalSchema,
 				SpecLocation: SpecLocationUnion,
 			}
-			options.typeTracker.register(typeDef, "")
+			options.typeTracker.register(typeDef, addPropsRef)
 			additionalSchema.RefType = typeName
 			additionalSchema.AdditionalTypes = append(additionalSchema.AdditionalTypes, typeDef)
 		}
