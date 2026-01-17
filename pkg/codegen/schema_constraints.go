@@ -19,7 +19,6 @@ import (
 )
 
 type ConstraintsContext struct {
-	name         string
 	hasNilType   bool
 	required     bool
 	specLocation SpecLocation
@@ -124,13 +123,15 @@ func newConstraints(schema *base.Schema, opts ConstraintsContext) Constraints {
 	isObject := schema.Type == nil || slices.Contains(schema.Type, "object")
 	var validationTags []string
 
-	name := opts.name
 	hasNilType := opts.hasNilType
 
+	// Use the required value from opts - it's already set correctly by the caller
+	// based on the parent schema's required list.
+	// We should NOT check schema.Required here because for $ref properties,
+	// schema is the resolved target schema, not the property schema.
+	// Checking schema.Required would incorrectly mark a property as required
+	// if the resolved schema happens to have a required property with the same name.
 	required := opts.required
-	if !required && name != "" {
-		required = slices.Contains(schema.Required, name)
-	}
 
 	// ReadOnly fields should not have struct-level required validation.
 	// They are only present in responses, not in requests, so requiring them

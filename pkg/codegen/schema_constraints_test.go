@@ -35,7 +35,6 @@ func TestNewConstraints(t *testing.T) {
 		}
 
 		res := newConstraints(schema, ConstraintsContext{
-			name:       "foo",
 			hasNilType: false,
 			required:   true,
 		})
@@ -65,9 +64,7 @@ func TestNewConstraints(t *testing.T) {
 			},
 		}
 
-		res := newConstraints(schema, ConstraintsContext{
-			name: "foo",
-		})
+		res := newConstraints(schema, ConstraintsContext{})
 
 		assert.Equal(t, Constraints{
 			Min:      &minValue,
@@ -123,7 +120,6 @@ func TestNewConstraints(t *testing.T) {
 		}
 
 		res := newConstraints(schema, ConstraintsContext{
-			name:       "foo",
 			hasNilType: false,
 			required:   true,
 		})
@@ -179,7 +175,6 @@ func TestNewConstraints(t *testing.T) {
 		// ReadOnly fields should not have struct-level required validation
 		// regardless of specLocation (component schemas are shared)
 		res := newConstraints(schema, ConstraintsContext{
-			name:     "foo",
 			required: true,
 		})
 
@@ -199,7 +194,6 @@ func TestNewConstraints(t *testing.T) {
 		// WriteOnly fields should not have struct-level required validation
 		// regardless of specLocation (component schemas are shared)
 		res := newConstraints(schema, ConstraintsContext{
-			name:     "foo",
 			required: true,
 		})
 
@@ -391,7 +385,6 @@ func TestNewConstraints_NonStringFormats(t *testing.T) {
 		}
 
 		res := newConstraints(schema, ConstraintsContext{
-			name:     "foo",
 			required: true,
 		})
 

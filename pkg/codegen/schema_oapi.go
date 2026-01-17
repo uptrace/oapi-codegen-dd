@@ -53,7 +53,6 @@ func oapiSchemaToGoType(schema *base.Schema, options ParseOptions) (GoSchema, er
 	path := options.path
 
 	constraints := newConstraints(schema, ConstraintsContext{
-		name:         "",
 		hasNilType:   slices.Contains(t, "null"),
 		specLocation: options.specLocation,
 	})

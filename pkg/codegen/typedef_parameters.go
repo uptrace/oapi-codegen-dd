@@ -282,7 +282,6 @@ func generateParamsTypes(objectParams []ParameterDefinition, typeName string, op
 			Schema:        pSchema,
 			Extensions:    exts,
 			Constraints: newConstraints(oapiSchema, ConstraintsContext{
-				name:         param.ParamName,
 				required:     param.Required,
 				specLocation: specLocation,
 			}),

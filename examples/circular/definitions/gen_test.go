@@ -129,4 +129,3 @@ func TestReport_ReportData_Item_Validate_NoRecursion(t *testing.T) {
 func ptr(s string) *string {
 	return &s
 }
-

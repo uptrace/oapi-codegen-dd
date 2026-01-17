@@ -129,7 +129,6 @@ func createObjectSchema(schema *base.Schema, options ParseOptions) (GoSchema, er
 					hasNilTyp = slices.Contains(p.Schema().Type, "null")
 				}
 				constraints := newConstraints(p.Schema(), ConstraintsContext{
-					name:         pName,
 					hasNilType:   hasNilTyp,
 					required:     slices.Contains(required, pName),
 					specLocation: options.specLocation,
