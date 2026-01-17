@@ -279,7 +279,13 @@ func enhanceSchemaWithAdditionalProperties(out GoSchema, schema *base.Schema, op
 	// above with the specific definition.
 	if schema.AdditionalProperties != nil && schema.AdditionalProperties.IsA() {
 		addPropsProxy := schema.AdditionalProperties.A
-		addPropsRef := addPropsProxy.GoLow().GetReference()
+		if addPropsProxy == nil {
+			return out, nil
+		}
+		var addPropsRef string
+		if low := addPropsProxy.GoLow(); low != nil {
+			addPropsRef = low.GetReference()
+		}
 
 		// Pre-register the type name with the reference if available.
 		// This allows circular references to find this type during processing.

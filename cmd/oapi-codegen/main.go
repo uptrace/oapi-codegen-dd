@@ -13,8 +13,11 @@ package main
 import (
 	"flag"
 	"fmt"
+	"io"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/codegen"
 	"go.yaml.in/yaml/v4"
@@ -48,17 +51,17 @@ func main() {
 		errExit("Only one OpenAPI spec file is accepted and it must be the last CLI argument")
 	}
 
-	// Read the spec file
-	filePath := flag.Arg(0)
-	// #nosec G304 -- CLI tool intentionally reads user-specified OpenAPI spec files
-	specContents, err := os.ReadFile(filePath)
+	// Read the spec file (supports both local files and URLs)
+	specPath := flag.Arg(0)
+	specContents, err := readSpec(specPath)
 	if err != nil {
-		errExit("Error reading file: %v", err)
+		errExit("Error reading spec: %v", err)
 	}
 
 	// Read the config file
 	cfg := codegen.Configuration{}
-	if flagConfigFile != "" {
+	hasConfigFile := flagConfigFile != ""
+	if hasConfigFile {
 		// #nosec G304 -- CLI tool intentionally reads user-specified config files
 		cfgContents, err := os.ReadFile(flagConfigFile)
 		if err != nil {
@@ -72,6 +75,12 @@ func main() {
 	}
 
 	cfg = cfg.WithDefaults()
+
+	// If no config file was provided and input is a URL, output to stdout
+	// For local files without config, keep default behavior (write to gen.go)
+	if !hasConfigFile && (strings.HasPrefix(specPath, "http://") || strings.HasPrefix(specPath, "https://")) {
+		cfg.Output = nil
+	}
 
 	code, err := codegen.Generate(specContents, cfg)
 	if err != nil {
@@ -112,7 +121,7 @@ func main() {
 			}
 		}
 	} else {
-		println(code.GetCombined())
+		fmt.Print(code.GetCombined())
 	}
 }
 
@@ -120,4 +129,29 @@ func errExit(msg string, args ...any) {
 	msg = msg + "\n"
 	_, _ = fmt.Fprintf(os.Stderr, msg, args...)
 	os.Exit(1)
+}
+
+// readSpec reads an OpenAPI spec from a file path or URL
+func readSpec(path string) ([]byte, error) {
+	if strings.HasPrefix(path, "http://") || strings.HasPrefix(path, "https://") {
+		return fetchURL(path)
+	}
+	// #nosec G304 -- CLI tool intentionally reads user-specified OpenAPI spec files
+	return os.ReadFile(path)
+}
+
+// fetchURL fetches content from a URL
+func fetchURL(url string) ([]byte, error) {
+	// #nosec G107 -- CLI tool intentionally fetches user-specified URLs
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch URL: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("HTTP %d: %s", resp.StatusCode, resp.Status)
+	}
+
+	return io.ReadAll(resp.Body)
 }
