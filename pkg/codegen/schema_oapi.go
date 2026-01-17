@@ -37,6 +37,7 @@ var goPrimitiveTypes = map[string]bool{
 	"float64":   true,
 	"bool":      true,
 	"time.Time": true,
+	"struct{}":  true, // Empty struct - used for empty schemas
 }
 
 // isPrimitiveType returns true if the given type string is a Go primitive type.

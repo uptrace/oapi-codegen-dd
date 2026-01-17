@@ -108,7 +108,7 @@ func generateUnion(elements []*base.SchemaProxy, discriminator *base.Discriminat
 		}
 
 		// define new types only for non-primitive types
-		if ref == "" && !goPrimitiveTypes[elementSchema.GoType] {
+		if ref == "" && !isPrimitiveType(elementSchema.GoType) {
 			elementName := pathToTypeName(elementPath)
 			if elementSchema.TypeDecl() != elementName {
 				td := TypeDefinition{
@@ -123,7 +123,7 @@ func generateUnion(elements []*base.SchemaProxy, discriminator *base.Discriminat
 			}
 			elementSchema.GoType = elementName
 			outSchema.AdditionalTypes = append(outSchema.AdditionalTypes, elementSchema.AdditionalTypes...)
-		} else if ref != "" && !goPrimitiveTypes[elementSchema.GoType] {
+		} else if ref != "" && !isPrimitiveType(elementSchema.GoType) {
 			// Handle path-based references (not component refs)
 			// For path-based references to inline schemas, we need to create type definitions
 			if !isStandardComponentReference(ref) && strings.HasPrefix(elementSchema.GoType, "struct") {
