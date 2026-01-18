@@ -2,7 +2,9 @@
 
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9450/badge)](https://www.bestpractices.dev/projects/9450)
 
-Using `oapi-codegen` allows you to reduce the boilerplate required to create or integrate with 
+> **Battle-tested**: This generator is continuously tested against 2,000+ real-world OpenAPI specs, successfully generating and compiling over 20 million lines of Go code. Handles complex specs with circular references, deep nesting, and union types.
+
+Using `oapi-codegen` allows you to reduce the boilerplate required to create or integrate with
 services based on [OpenAPI 3.x](https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.0.md), and instead focus on writing your business logic, and working
 on the real value-add for your organisation.
 
@@ -21,9 +23,19 @@ Due to the lack of OpenAPI 3.1 support in the original repository, we introduced
 While this includes some breaking changes, it also brings more flexible generator and parser APIs for finer control over code generation.  
 If you're migrating from v2, please refer to the [migration guide](docs/migrate-from-v2.md) for important differences.
 
+## Quick Start
+
+```bash
+# Install
+go install github.com/doordash-oss/oapi-codegen-dd/v3/cmd/oapi-codegen@latest
+
+# Generate code from the Petstore example
+oapi-codegen https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/petstore.yaml > petstore.go
+```
+
 ## Usage
 
-`oapi-codegen` is largely configured using a YAML configuration file, to simplify the number of 
+`oapi-codegen` is largely configured using a YAML configuration file, to simplify the number of
 flags that users need to remember, and to make reading the `go:generate` command less daunting.
 
 ## Features
