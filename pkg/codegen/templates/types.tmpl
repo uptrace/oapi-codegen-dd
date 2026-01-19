@@ -59,7 +59,7 @@ limitations under the License.
     {{ end }}
 
     {{ if and $td.Schema.HasAdditionalProperties (not $td.IsAlias) }}
-        {{ template "additionalProperties" (dict "typeDef" $td "alias" $alias) }}
+        {{ template "additionalProperties" (dict "typeDef" $td "alias" $alias "typeSchemaMap" $typeSchemaMap) }}
     {{ end }}
 
     {{ if and $td.NeedsMarshaler (not $td.IsAlias) (not $td.Schema.HasAdditionalProperties) (not $td.Schema.ArrayType) }}

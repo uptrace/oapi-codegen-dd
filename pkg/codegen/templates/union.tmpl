@@ -37,6 +37,7 @@ func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, err
 }
 
 {{ $config := .Config }}
+{{ $typeSchemaMap := .TypeSchemaMap }}
 
 {{range .Types}}
 {{$typeName := .Name -}}
@@ -196,7 +197,7 @@ func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, err
     {{end}}
 
     {{ if .Schema.HasAdditionalProperties }}
-      {{ template "unionAdditionalProperties" (dict "Name" .Name "Schema" .Schema "alias" $alias) }}
+      {{ template "unionAdditionalProperties" (dict "Name" .Name "Schema" .Schema "alias" $alias "typeSchemaMap" $typeSchemaMap) }}
     {{ else }}
         {{if $eitherType}}
             {{ if $discriminator }}

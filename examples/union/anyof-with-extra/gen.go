@@ -54,11 +54,8 @@ func (c *ClientWithExtra) UnmarshalJSON(data []byte) error {
 		return err
 	}
 
-	if raw, found := object[""]; found {
-		if err := json.Unmarshal(raw, &c.ClientWithExtra_AnyOf); err != nil {
-			return fmt.Errorf("error reading '': %w", err)
-		}
-		delete(object, "")
+	if err := json.Unmarshal(data, &c.ClientWithExtra_AnyOf); err != nil {
+		return fmt.Errorf("error reading embedded 'ClientWithExtra_AnyOf': %w", err)
 	}
 
 	if len(object) != 0 {
@@ -80,9 +77,17 @@ func (c ClientWithExtra) MarshalJSON() ([]byte, error) {
 	object := make(map[string]json.RawMessage)
 
 	if c.ClientWithExtra_AnyOf != nil {
-		object[""], err = json.Marshal(c.ClientWithExtra_AnyOf)
-		if err != nil {
-			return nil, fmt.Errorf("error marshaling '': %w", err)
+		{
+			embeddedJSON, err := json.Marshal(c.ClientWithExtra_AnyOf)
+			if err != nil {
+				return nil, fmt.Errorf("error marshaling embedded 'ClientWithExtra_AnyOf': %w", err)
+			}
+			var embeddedObj map[string]json.RawMessage
+			if err := json.Unmarshal(embeddedJSON, &embeddedObj); err == nil {
+				for k, v := range embeddedObj {
+					object[k] = v
+				}
+			}
 		}
 	}
 

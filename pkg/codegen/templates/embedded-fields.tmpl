@@ -1,0 +1,143 @@
+{{/*
+Copyright 2025 DoorDash, Inc.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+*/}}
+
+{{- template "header" $ }}
+
+{{/* 
+  unmarshalEmbeddedFields: Generates code to unmarshal embedded fields and delete their properties from object.
+  Args: alias, properties, typeSchemaMap
+*/}}
+{{ define "unmarshalEmbeddedFields" }}
+{{- $alias := .alias -}}
+{{- $properties := .properties -}}
+{{- $typeSchemaMap := .typeSchemaMap -}}
+{{- range $properties }}
+    {{- if eq .JsonFieldName "" }}
+        if err := json.Unmarshal(data, &{{$alias}}.{{.GoName}}); err != nil {
+            return fmt.Errorf("error reading embedded '{{.GoName}}': %w", err)
+        }
+        {{- /* Delete properties of embedded type from object so they don't go into additionalProperties */ -}}
+        {{- $embeddedTypeName := .Schema.TypeDecl }}
+        {{- if $typeSchemaMap }}
+            {{- $embeddedSchema := index $typeSchemaMap $embeddedTypeName }}
+            {{- if $embeddedSchema }}
+                {{- range $embeddedSchema.Properties }}
+                    {{- if ne .JsonFieldName "" }}
+                        delete(object, "{{.JsonFieldName}}")
+                    {{- end}}
+                    {{- /* Recursively handle nested embedded types that may contain unions */ -}}
+                    {{- if eq .JsonFieldName "" }}
+                        {{- $nestedTypeName := .Schema.TypeDecl }}
+                        {{- $nestedSchema := index $typeSchemaMap $nestedTypeName }}
+                        {{- if $nestedSchema }}
+                            {{- template "deleteUnionVariantFields" (dict "unionElements" $nestedSchema.UnionElements "typeSchemaMap" $typeSchemaMap) }}
+                        {{- end}}
+                    {{- end}}
+                {{- end}}
+                {{- /* Also check if embedded type itself has union elements */ -}}
+                {{- template "deleteUnionVariantFields" (dict "unionElements" $embeddedSchema.UnionElements "typeSchemaMap" $typeSchemaMap) }}
+            {{- end}}
+        {{- end}}
+    {{- end}}
+{{- end}}
+{{- end}}
+
+{{/* 
+  unmarshalNamedFields: Generates code to unmarshal named fields and delete them from object.
+  Args: alias, properties
+*/}}
+{{ define "unmarshalNamedFields" }}
+{{- $alias := .alias -}}
+{{- $properties := .properties -}}
+    {{- range $properties }}
+        {{- if ne .JsonFieldName "" }}
+        if raw, found := object["{{.JsonFieldName}}"]; found {
+            if err := json.Unmarshal(raw, &{{$alias}}.{{.GoName}}); err != nil {
+                return fmt.Errorf("error reading '{{.JsonFieldName}}': %w", err)
+            }
+            delete(object, "{{.JsonFieldName}}")
+        }
+        {{- end}}
+    {{- end}}
+{{- end}}
+
+{{/* 
+  marshalEmbeddedFields: Generates code to marshal embedded fields and merge into object.
+  Args: alias, properties
+*/}}
+{{ define "marshalEmbeddedFields" }}
+{{- $alias := .alias -}}
+{{- $properties := .properties -}}
+{{- range $properties }}
+    {{- if eq .JsonFieldName "" }}
+        {{if .IsPointerType}}if {{$alias}}.{{.GoName}} != nil { {{end}}
+        {
+            embeddedJSON, err := json.Marshal({{$alias}}.{{.GoName}})
+            if err != nil {
+                return nil, fmt.Errorf("error marshaling embedded '{{.GoName}}': %w", err)
+            }
+            var embeddedObj map[string]json.RawMessage
+            if err := json.Unmarshal(embeddedJSON, &embeddedObj); err == nil {
+                for k, v := range embeddedObj {
+                    object[k] = v
+                }
+            }
+        }
+        {{if .IsPointerType}} }{{end}}
+    {{- end}}
+{{- end}}
+{{- end}}
+
+{{/*
+  marshalNamedFields: Generates code to marshal named fields into object.
+  Args: alias, properties
+*/}}
+{{ define "marshalNamedFields" }}
+{{- $alias := .alias -}}
+{{- $properties := .properties -}}
+{{- range $properties }}
+    {{- if ne .JsonFieldName "" }}
+        {{if .IsPointerType}}if {{$alias}}.{{.GoName}} != nil { {{end}}
+            object["{{.JsonFieldName}}"], err = json.Marshal({{$alias}}.{{.GoName}})
+            if err != nil {
+                return nil, fmt.Errorf("error marshaling '{{.JsonFieldName}}': %w", err)
+            }
+            {{if .IsPointerType}} }{{end}}
+        {{- end}}
+    {{- end}}
+{{- end}}
+
+{{/*
+  deleteUnionVariantFields: Deletes all property names from union variants from object.
+  Args: unionElements, typeSchemaMap
+*/}}
+{{ define "deleteUnionVariantFields" }}
+{{- $unionElements := .unionElements -}}
+{{- $typeSchemaMap := .typeSchemaMap -}}
+{{- if $typeSchemaMap }}
+{{- range $unionElements }}
+    {{- $variantTypeName := .Schema.TypeDecl }}
+    {{- $variantSchema := index $typeSchemaMap $variantTypeName }}
+    {{- if $variantSchema }}
+        {{- range $variantSchema.Properties }}
+            {{- if ne .JsonFieldName "" }}
+    delete(object, "{{.JsonFieldName}}")
+            {{- end}}
+        {{- end}}
+    {{- end}}
+{{- end}}
+{{- end}}
+{{- end}}

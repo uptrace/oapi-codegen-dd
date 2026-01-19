@@ -23,6 +23,7 @@ limitations under the License.
 {{ $discriminator := $args.Schema.Discriminator }}
 {{ $properties := $args.Schema.Properties -}}
 {{ $eitherType := eq (len .Schema.UnionElements) 2}}
+{{ $typeSchemaMap := $args.typeSchemaMap }}
 
 // Override default JSON handling for {{$args.Name}} to handle AdditionalProperties and union
 func ({{$args.alias}} *{{$args.Name}}) UnmarshalJSON(data []byte) error {
@@ -37,16 +38,9 @@ func ({{$args.alias}} *{{$args.Name}}) UnmarshalJSON(data []byte) error {
 	if err := json.Unmarshal(data, &object); err != nil {
 		return err
 	}
-
-    {{range $args.Schema.Properties}}
-    if raw, found := object["{{.JsonFieldName}}"]; found {
-        if err = json.Unmarshal(raw, &{{$args.alias}}.{{.GoName}}); err != nil {
-            return fmt.Errorf("error reading '{{.JsonFieldName}}': %w", err)
-        }
-        delete(object, "{{.JsonFieldName}}")
-    }
-    {{end}}
-
+    {{ template "unmarshalEmbeddedFields" (dict "alias" $args.alias "properties" $args.Schema.Properties "typeSchemaMap" $typeSchemaMap) }}
+    {{ template "unmarshalNamedFields" (dict "alias" $args.alias "properties" $args.Schema.Properties) }}
+    {{ template "deleteUnionVariantFields" (dict "unionElements" $args.Schema.UnionElements "typeSchemaMap" $typeSchemaMap) }}
     if len(object) != 0 {
         {{$args.alias}}.AdditionalProperties = make(map[string]{{$addType}})
         for fieldName, fieldBuf := range object {
@@ -83,16 +77,8 @@ func ({{$args.alias}} {{$args.Name}}) MarshalJSON() ([]byte, error) {
     if err = json.Unmarshal(b, &object); err != nil {
         return nil, err
     }
-
-    {{range $args.Schema.Properties}}
-        {{if .IsPointerType}}if {{$args.alias}}.{{.GoName}} != nil { {{end}}
-        object["{{.JsonFieldName}}"], err = json.Marshal({{$args.alias}}.{{.GoName}})
-        if err != nil {
-            return nil, fmt.Errorf("error marshaling '{{.JsonFieldName}}': %w", err)
-        }
-        {{if .IsPointerType}} }{{end}}
-    {{end}}
-
+    {{ template "marshalEmbeddedFields" (dict "alias" $args.alias "properties" $args.Schema.Properties) }}
+    {{ template "marshalNamedFields" (dict "alias" $args.alias "properties" $args.Schema.Properties) }}
     for fieldName, field := range {{$args.alias}}.AdditionalProperties {
         object[fieldName], err = json.Marshal(field)
         if err != nil {

@@ -91,7 +91,6 @@ func (r *ReferenceWithRequiredExtra) UnmarshalJSON(data []byte) error {
 		}
 		delete(object, "index")
 	}
-
 	if len(object) != 0 {
 		r.AdditionalProperties = make(map[string]Reference)
 		for fieldName, fieldBuf := range object {
@@ -116,7 +115,6 @@ func (r ReferenceWithRequiredExtra) MarshalJSON() ([]byte, error) {
 			return nil, fmt.Errorf("error marshaling 'index': %w", err)
 		}
 	}
-
 	for fieldName, field := range r.AdditionalProperties {
 		object[fieldName], err = json.Marshal(field)
 		if err != nil {
@@ -161,7 +159,6 @@ func (r *RouteWithOptionalExtra) UnmarshalJSON(data []byte) error {
 		}
 		delete(object, "index")
 	}
-
 	if len(object) != 0 {
 		r.AdditionalProperties = make(map[string]Route)
 		for fieldName, fieldBuf := range object {
@@ -186,7 +183,6 @@ func (r RouteWithOptionalExtra) MarshalJSON() ([]byte, error) {
 			return nil, fmt.Errorf("error marshaling 'index': %w", err)
 		}
 	}
-
 	for fieldName, field := range r.AdditionalProperties {
 		object[fieldName], err = json.Marshal(field)
 		if err != nil {

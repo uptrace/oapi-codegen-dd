@@ -21,6 +21,7 @@ limitations under the License.
 {{ $td := $args.typeDef }}
 {{ $alias := $args.alias }}
 {{ $addType := $td.Schema.AdditionalPropertiesType.TypeDecl }}
+{{ $typeSchemaMap := $args.typeSchemaMap }}
 
 // Getter for additional properties for {{$td.Name}}. Returns the specified
 // element and whether it was found
@@ -46,15 +47,8 @@ func ({{$alias}} *{{$td.Name}}) UnmarshalJSON(data []byte) error {
     if err := json.Unmarshal(data, &object); err != nil {
         return err
     }
-
-    {{range $td.Schema.Properties}}
-    if raw, found := object["{{.JsonFieldName}}"]; found {
-        if err := json.Unmarshal(raw, &{{$alias}}.{{.GoName}}); err != nil {
-            return fmt.Errorf("error reading '{{.JsonFieldName}}': %w", err)
-        }
-        delete(object, "{{.JsonFieldName}}")
-    }
-    {{end}}
+    {{ template "unmarshalEmbeddedFields" (dict "alias" $alias "properties" $td.Schema.Properties "typeSchemaMap" $typeSchemaMap) }}
+    {{ template "unmarshalNamedFields" (dict "alias" $alias "properties" $td.Schema.Properties) }}
     if len(object) != 0 {
         {{$alias}}.AdditionalProperties = make(map[string]{{$addType}})
         for fieldName, fieldBuf := range object {
@@ -72,15 +66,8 @@ func ({{$alias}} *{{$td.Name}}) UnmarshalJSON(data []byte) error {
 func ({{$alias}} {{$td.Name}}) MarshalJSON() ([]byte, error) {
     var err error
     object := make(map[string]json.RawMessage)
-    {{range $td.Schema.Properties}}
-    {{if .IsPointerType}}if {{$alias}}.{{.GoName}} != nil { {{end}}
-        object["{{.JsonFieldName}}"], err = json.Marshal({{$alias}}.{{.GoName}})
-        if err != nil {
-            return nil, fmt.Errorf("error marshaling '{{.JsonFieldName}}': %w", err)
-        }
-        {{if .IsPointerType}} }{{end}}
-    {{end}}
-
+    {{ template "marshalEmbeddedFields" (dict "alias" $alias "properties" $td.Schema.Properties) }}
+    {{ template "marshalNamedFields" (dict "alias" $alias "properties" $td.Schema.Properties) }}
     for fieldName, field := range {{$alias}}.AdditionalProperties {
         object[fieldName], err = json.Marshal(field)
         if err != nil {

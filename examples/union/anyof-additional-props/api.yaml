@@ -1,0 +1,55 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: anyOf (3+ elements) + additionalProperties
+paths:
+  /notifications:
+    get:
+      operationId: listNotifications
+      responses:
+        '200':
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Notification'
+
+components:
+  schemas:
+    Notification:
+      anyOf:
+        - $ref: '#/components/schemas/EmailNotification'
+        - $ref: '#/components/schemas/SMSNotification'
+        - $ref: '#/components/schemas/PushNotification'
+      additionalProperties:
+        type: string
+
+    EmailNotification:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+        subject:
+          type: string
+
+    SMSNotification:
+      type: object
+      required:
+        - phone
+      properties:
+        phone:
+          type: string
+
+    PushNotification:
+      type: object
+      required:
+        - device_token
+      properties:
+        device_token:
+          type: string
+        badge:
+          type: integer

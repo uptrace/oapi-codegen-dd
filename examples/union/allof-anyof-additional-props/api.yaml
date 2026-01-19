@@ -1,0 +1,61 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: allOf + anyOf (Either) + additionalProperties
+paths:
+  /targets:
+    get:
+      operationId: listTargets
+      responses:
+        '200':
+          description: List of targets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TargetsResponse'
+
+components:
+  schemas:
+    TargetsResponse:
+      type: object
+      properties:
+        targets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Target'
+
+    Target:
+      allOf:
+        - $ref: '#/components/schemas/TargetBase'
+        - anyOf:
+            - $ref: '#/components/schemas/EmailTarget'
+            - $ref: '#/components/schemas/WebhookTarget'
+      additionalProperties:
+        type: string
+
+    TargetBase:
+      type: object
+      required:
+        - id
+        - type
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+
+    EmailTarget:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+
+    WebhookTarget:
+      type: object
+      required:
+        - url
+      properties:
+        url:
+          type: string
