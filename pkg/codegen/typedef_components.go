@@ -101,9 +101,11 @@ func getComponentParameters(params *orderedmap.Map[string, *v3high.Parameter], o
 		}
 
 		// Check if a type with the same name already exists (e.g., from schemas).
-		// If it does, generate a unique name to avoid conflicts.
+		// If it does, generate a unique name using SpecLocation-based suffix.
 		if options.typeTracker.Exists(goTypeName) {
-			goTypeName = options.typeTracker.generateUniqueName(goTypeName)
+			// Use parameter location as suffix (e.g., "TypeQuery", "TypePath", "TypeHeader")
+			specSuffix := UppercaseFirstCharacter(paramOrRef.In)
+			goTypeName = options.typeTracker.generateUniqueNameWithSuffixes(goTypeName, []string{specSuffix})
 		}
 
 		ref := ""

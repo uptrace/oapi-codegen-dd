@@ -15,15 +15,15 @@ import (
 type ClientAndMaybeIdentityType string
 
 const (
-	ClientAndMaybeIdentityTypeClient       ClientAndMaybeIdentityType = "client"
-	ClientAndMaybeIdentityTypeClientWithID ClientAndMaybeIdentityType = "client-with-id"
-	ClientAndMaybeIdentityTypeIdentity     ClientAndMaybeIdentityType = "identity"
+	ClientAndMaybeIdentityTypeClient   ClientAndMaybeIdentityType = "client"
+	ClientAndMaybeIdentityTypeIdentity ClientAndMaybeIdentityType = "identity"
+	ClientWithID                       ClientAndMaybeIdentityType = "client-with-id"
 )
 
 // Validate checks if the ClientAndMaybeIdentityType value is valid
 func (c ClientAndMaybeIdentityType) Validate() error {
 	switch c {
-	case ClientAndMaybeIdentityTypeClient, ClientAndMaybeIdentityTypeClientWithID, ClientAndMaybeIdentityTypeIdentity:
+	case ClientAndMaybeIdentityTypeClient, ClientAndMaybeIdentityTypeIdentity, ClientWithID:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ClientAndMaybeIdentityType value, got: %v", c))

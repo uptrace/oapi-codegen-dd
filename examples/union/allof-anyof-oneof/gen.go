@@ -14,15 +14,15 @@ import (
 type OrderStatus string
 
 const (
-	OrderStatusConfirmed OrderStatus = "confirmed"
-	OrderStatusPending   OrderStatus = "pending"
-	OrderStatusShipped   OrderStatus = "shipped"
+	Confirmed OrderStatus = "confirmed"
+	Pending   OrderStatus = "pending"
+	Shipped   OrderStatus = "shipped"
 )
 
 // Validate checks if the OrderStatus value is valid
 func (o OrderStatus) Validate() error {
 	switch o {
-	case OrderStatusConfirmed, OrderStatusPending, OrderStatusShipped:
+	case Confirmed, Pending, Shipped:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid OrderStatus value, got: %v", o))

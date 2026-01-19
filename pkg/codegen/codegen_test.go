@@ -60,9 +60,10 @@ func TestExampleOpenAPICodeGeneration(t *testing.T) {
 	assert.Contains(t, code, "Top *int `json:\"$top,omitempty\"`")
 	assert.Contains(t, code, "DeadSince *time.Time    `json:\"dead_since,omitempty\" tag1:\"value1\" tag2:\"value2\"`")
 	assert.Contains(t, code, "type EnumTestNumerics int")
-	assert.Contains(t, code, "EnumTestNumericsN2 EnumTestNumerics = 2")
+	// With AlwaysPrefixEnumValues=false (default), enum values are unprefixed
+	assert.Contains(t, code, "N2 EnumTestNumerics = 2")
 	assert.Contains(t, code, "type EnumTestEnumNames int")
-	assert.Contains(t, code, "EnumTestEnumNamesTwo  EnumTestEnumNames = 2")
+	assert.Contains(t, code, "Two  EnumTestEnumNames = 2")
 }
 
 func TestExtPropGoTypeSkipOptionalPointer(t *testing.T) {
@@ -284,12 +285,12 @@ func TestArrayItemPropertyNamedItem(t *testing.T) {
 	code := codes.GetCombined()
 
 	// The array item type should be named with a numeric suffix to avoid collision
-	// with the "item" property's type
+	// with the "item" property's type (numeric suffixes start from 0)
 	assert.Contains(t, code, "type GetTest_Response_Executions_Item struct")
-	assert.Contains(t, code, "type GetTest_Response_Executions_Item1 struct")
+	assert.Contains(t, code, "type GetTest_Response_Executions_Item0 struct")
 
-	// The array should use the Item1 type (the array item type)
-	assert.Contains(t, code, "type GetTest_Response_Executions []GetTest_Response_Executions_Item1")
+	// The array should use the Item0 type (the array item type)
+	assert.Contains(t, code, "type GetTest_Response_Executions []GetTest_Response_Executions_Item0")
 
 	// The Item1 type should have the correct properties (id as float32, item as reference)
 	assert.Contains(t, code, "ID   *float32")

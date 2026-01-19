@@ -40,8 +40,9 @@ type RequestBodyDefinition struct {
 // TypeDef returns the Go type definition for a request body
 func (r RequestBodyDefinition) TypeDef(opID string) TypeDefinition {
 	return TypeDefinition{
-		Name:   fmt.Sprintf("%s%sRequestBody", opID, r.NameTag),
-		Schema: r.Schema,
+		Name:         fmt.Sprintf("%s%sRequestBody", opID, r.NameTag),
+		Schema:       r.Schema,
+		SpecLocation: SpecLocationBody,
 	}
 }
 

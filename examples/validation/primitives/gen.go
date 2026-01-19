@@ -12,15 +12,15 @@ import (
 type ResponsePredefined string
 
 const (
-	ResponsePredefinedA ResponsePredefined = "A"
-	ResponsePredefinedB ResponsePredefined = "B"
-	ResponsePredefinedC ResponsePredefined = "C"
+	A ResponsePredefined = "A"
+	B ResponsePredefined = "B"
+	C ResponsePredefined = "C"
 )
 
 // Validate checks if the ResponsePredefined value is valid
 func (r ResponsePredefined) Validate() error {
 	switch r {
-	case ResponsePredefinedA, ResponsePredefinedB, ResponsePredefinedC:
+	case A, B, C:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ResponsePredefined value, got: %v", r))
@@ -30,15 +30,15 @@ func (r ResponsePredefined) Validate() error {
 type Predefined string
 
 const (
-	PredefinedA2 Predefined = "A2"
-	PredefinedB2 Predefined = "B2"
-	PredefinedC2 Predefined = "C2"
+	A2 Predefined = "A2"
+	B2 Predefined = "B2"
+	C2 Predefined = "C2"
 )
 
 // Validate checks if the Predefined value is valid
 func (p Predefined) Validate() error {
 	switch p {
-	case PredefinedA2, PredefinedB2, PredefinedC2:
+	case A2, B2, C2:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid Predefined value, got: %v", p))

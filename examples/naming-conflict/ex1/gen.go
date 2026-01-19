@@ -9,20 +9,54 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+type TypeQuery string
+
+const (
+	Invalid TypeQuery = "invalid"
+	Valid   TypeQuery = "valid"
+)
+
+// Validate checks if the TypeQuery value is valid
+func (t TypeQuery) Validate() error {
+	switch t {
+	case Invalid, Valid:
+		return nil
+	default:
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid TypeQuery value, got: %v", t))
+	}
+}
+
 type Type string
 
 const (
-	TypeDebit      Type = "debit"
+	Debit          Type = "debit"
 	TypeSourceType Type = "source_type"
 )
 
 // Validate checks if the Type value is valid
 func (t Type) Validate() error {
 	switch t {
-	case TypeDebit, TypeSourceType:
+	case Debit, TypeSourceType:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid Type value, got: %v", t))
+	}
+}
+
+type Status string
+
+const (
+	ActiveSchema Status = "active"
+	Inactive     Status = "inactive"
+)
+
+// Validate checks if the Status value is valid
+func (s Status) Validate() error {
+	switch s {
+	case ActiveSchema, Inactive:
+		return nil
+	default:
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid Status value, got: %v", s))
 	}
 }
 
@@ -48,6 +82,14 @@ func (s Source) Validate() error {
 type SourceType struct {
 	Name    *string `json:"name,omitempty"`
 	Address *string `json:"address,omitempty"`
+}
+
+type Active struct {
+	Name *string `json:"name,omitempty"`
+}
+
+type StatusActive struct {
+	Since *string `json:"since,omitempty"`
 }
 
 var typesValidator *validator.Validate

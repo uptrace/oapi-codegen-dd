@@ -14,15 +14,15 @@ import (
 type RenderingOptionsAnyOf0AmountTaxDisplay string
 
 const (
-	RenderingOptionsAnyOf0AmountTaxDisplayEmpty               RenderingOptionsAnyOf0AmountTaxDisplay = ""
-	RenderingOptionsAnyOf0AmountTaxDisplayExcludeTax          RenderingOptionsAnyOf0AmountTaxDisplay = "exclude_tax"
-	RenderingOptionsAnyOf0AmountTaxDisplayIncludeInclusiveTax RenderingOptionsAnyOf0AmountTaxDisplay = "include_inclusive_tax"
+	Empty               RenderingOptionsAnyOf0AmountTaxDisplay = ""
+	ExcludeTax          RenderingOptionsAnyOf0AmountTaxDisplay = "exclude_tax"
+	IncludeInclusiveTax RenderingOptionsAnyOf0AmountTaxDisplay = "include_inclusive_tax"
 )
 
 // Validate checks if the RenderingOptionsAnyOf0AmountTaxDisplay value is valid
 func (r RenderingOptionsAnyOf0AmountTaxDisplay) Validate() error {
 	switch r {
-	case RenderingOptionsAnyOf0AmountTaxDisplayEmpty, RenderingOptionsAnyOf0AmountTaxDisplayExcludeTax, RenderingOptionsAnyOf0AmountTaxDisplayIncludeInclusiveTax:
+	case Empty, ExcludeTax, IncludeInclusiveTax:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid RenderingOptionsAnyOf0AmountTaxDisplay value, got: %v", r))

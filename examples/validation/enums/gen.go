@@ -12,15 +12,15 @@ import (
 type Status string
 
 const (
-	StatusACTIVE   Status = "ACTIVE"
-	StatusINACTIVE Status = "INACTIVE"
-	StatusPENDING  Status = "PENDING"
+	ACTIVE   Status = "ACTIVE"
+	INACTIVE Status = "INACTIVE"
+	PENDING  Status = "PENDING"
 )
 
 // Validate checks if the Status value is valid
 func (s Status) Validate() error {
 	switch s {
-	case StatusACTIVE, StatusINACTIVE, StatusPENDING:
+	case ACTIVE, INACTIVE, PENDING:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid Status value, got: %v", s))
@@ -31,18 +31,18 @@ func (s Status) Validate() error {
 type IndicatorUnit string
 
 const (
-	IndicatorUnitEmpty     IndicatorUnit = ""
-	IndicatorUnitEuroSign  IndicatorUnit = "€"
-	IndicatorUnitPercent   IndicatorUnit = "%"
-	IndicatorUnitPoundSign IndicatorUnit = "£"
-	IndicatorUnitPp        IndicatorUnit = "pp"
-	IndicatorUnitValue     IndicatorUnit = "€€"
+	Empty     IndicatorUnit = ""
+	EuroSign  IndicatorUnit = "€"
+	Percent   IndicatorUnit = "%"
+	PoundSign IndicatorUnit = "£"
+	Pp        IndicatorUnit = "pp"
+	Value     IndicatorUnit = "€€"
 )
 
 // Validate checks if the IndicatorUnit value is valid
 func (i IndicatorUnit) Validate() error {
 	switch i {
-	case IndicatorUnitEmpty, IndicatorUnitEuroSign, IndicatorUnitPercent, IndicatorUnitPoundSign, IndicatorUnitPp, IndicatorUnitValue:
+	case Empty, EuroSign, Percent, PoundSign, Pp, Value:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid IndicatorUnit value, got: %v", i))

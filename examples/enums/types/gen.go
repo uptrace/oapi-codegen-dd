@@ -12,15 +12,15 @@ import (
 type StatusCode int
 
 const (
-	StatusCodeN200 StatusCode = 200
-	StatusCodeN404 StatusCode = 404
-	StatusCodeN500 StatusCode = 500
+	N200 StatusCode = 200
+	N404 StatusCode = 404
+	N500 StatusCode = 500
 )
 
 // Validate checks if the StatusCode value is valid
 func (s StatusCode) Validate() error {
 	switch s {
-	case StatusCodeN200, StatusCodeN404, StatusCodeN500:
+	case N200, N404, N500:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid StatusCode value, got: %v", s))
@@ -30,15 +30,15 @@ func (s StatusCode) Validate() error {
 type Priority float32
 
 const (
-	PriorityN10 Priority = 1.0
-	PriorityN25 Priority = 2.5
-	PriorityN50 Priority = 5.0
+	N10 Priority = 1.0
+	N25 Priority = 2.5
+	N50 Priority = 5.0
 )
 
 // Validate checks if the Priority value is valid
 func (p Priority) Validate() error {
 	switch p {
-	case PriorityN10, PriorityN25, PriorityN50:
+	case N10, N25, N50:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid Priority value, got: %v", p))
@@ -48,15 +48,15 @@ func (p Priority) Validate() error {
 type Color string
 
 const (
-	ColorBlue  Color = "blue"
-	ColorGreen Color = "green"
-	ColorRed   Color = "red"
+	Blue  Color = "blue"
+	Green Color = "green"
+	Red   Color = "red"
 )
 
 // Validate checks if the Color value is valid
 func (c Color) Validate() error {
 	switch c {
-	case ColorBlue, ColorGreen, ColorRed:
+	case Blue, Green, Red:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid Color value, got: %v", c))

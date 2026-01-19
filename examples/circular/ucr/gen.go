@@ -13,15 +13,15 @@ import (
 type OrgModelType string
 
 const (
-	OrgModelTypeDepartment   OrgModelType = "Department"
-	OrgModelTypeDivision     OrgModelType = "Division"
-	OrgModelTypeOrganization OrgModelType = "Organization"
+	Department   OrgModelType = "Department"
+	Division     OrgModelType = "Division"
+	Organization OrgModelType = "Organization"
 )
 
 // Validate checks if the OrgModelType value is valid
 func (o OrgModelType) Validate() error {
 	switch o {
-	case OrgModelTypeDepartment, OrgModelTypeDivision, OrgModelTypeOrganization:
+	case Department, Division, Organization:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid OrgModelType value, got: %v", o))

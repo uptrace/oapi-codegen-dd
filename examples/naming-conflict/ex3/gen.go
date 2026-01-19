@@ -13,62 +13,62 @@ import (
 type ProductName string
 
 const (
-	ProductNameADVANCEDVAULTING ProductName = "ADVANCED_VAULTING"
-	ProductNameEXPRESSCHECKOUT  ProductName = "EXPRESS_CHECKOUT"
-	ProductNamePAYMENTMETHODS   ProductName = "PAYMENT_METHODS"
-	ProductNamePPCP             ProductName = "PPCP"
-	ProductNamePPPLUS           ProductName = "PPPLUS"
-	ProductNameWPPRO            ProductName = "WP_PRO"
+	ADVANCEDVAULTING ProductName = "ADVANCED_VAULTING"
+	EXPRESSCHECKOUT  ProductName = "EXPRESS_CHECKOUT"
+	PAYMENTMETHODS   ProductName = "PAYMENT_METHODS"
+	PPCP             ProductName = "PPCP"
+	PPPLUS           ProductName = "PPPLUS"
+	WPPRO            ProductName = "WP_PRO"
 )
 
 // Validate checks if the ProductName value is valid
 func (p ProductName) Validate() error {
 	switch p {
-	case ProductNameADVANCEDVAULTING, ProductNameEXPRESSCHECKOUT, ProductNamePAYMENTMETHODS, ProductNamePPCP, ProductNamePPPLUS, ProductNameWPPRO:
+	case ADVANCEDVAULTING, EXPRESSCHECKOUT, PAYMENTMETHODS, PPCP, PPPLUS, WPPRO:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ProductName value, got: %v", p))
 	}
 }
 
-// ProductName1 The name of the product.
-type ProductName1 string
+// ProductName0 The name of the product.
+type ProductName0 string
 
 const (
-	ProductName1ADVANCEDVAULTING          ProductName1 = "ADVANCED_VAULTING"
-	ProductName1BILLMELATER               ProductName1 = "BILL_ME_LATER"
-	ProductName1EBAYCHECKOUT              ProductName1 = "EBAY_CHECKOUT"
-	ProductName1EMAILPAYMENTS             ProductName1 = "EMAIL_PAYMENTS"
-	ProductName1ENHANCEDRECURRINGPAYMENTS ProductName1 = "ENHANCED_RECURRING_PAYMENTS"
-	ProductName1EXPRESSCHECKOUT           ProductName1 = "EXPRESS_CHECKOUT"
-	ProductName1HOSTEDSOLESOLUTION        ProductName1 = "HOSTED_SOLE_SOLUTION"
-	ProductName1MASSPAYMENT               ProductName1 = "MASS_PAYMENT"
-	ProductName1MOBILEEXPRESSCHECKOUT     ProductName1 = "MOBILE_EXPRESS_CHECKOUT"
-	ProductName1MOBILEINSTORE             ProductName1 = "MOBILE_IN_STORE"
-	ProductName1MOBILEPAYMENTACCEPTANCE   ProductName1 = "MOBILE_PAYMENT_ACCEPTANCE"
-	ProductName1MOBILEPAYPALSTANDARD      ProductName1 = "MOBILE_PAYPAL_STANDARD"
-	ProductName1PAYFLOWLINK               ProductName1 = "PAYFLOW_LINK"
-	ProductName1PAYFLOWPRO                ProductName1 = "PAYFLOW_PRO"
-	ProductName1PAYMENTMETHODS            ProductName1 = "PAYMENT_METHODS"
-	ProductName1PAYPALADVANCED            ProductName1 = "PAYPAL_ADVANCED"
-	ProductName1PAYPALHERE                ProductName1 = "PAYPAL_HERE"
-	ProductName1PAYPALPRO                 ProductName1 = "PAYPAL_PRO"
-	ProductName1PAYPALSTANDARD            ProductName1 = "PAYPAL_STANDARD"
-	ProductName1PPCPCUSTOM                ProductName1 = "PPCP_CUSTOM"
-	ProductName1PPCPSTANDARD              ProductName1 = "PPCP_STANDARD"
-	ProductName1VIRTUALTERMINAL           ProductName1 = "VIRTUAL_TERMINAL"
-	ProductName1WEBSITEPAYMENTSPRO20      ProductName1 = "WEBSITE_PAYMENTS_PRO_2_0"
-	ProductName1WEBSITEPAYMENTSPRO30      ProductName1 = "WEBSITE_PAYMENTS_PRO_3_0"
-	ProductName1WEBSITEPAYMENTSSTANDARD   ProductName1 = "WEBSITE_PAYMENTS_STANDARD"
+	BILLMELATER                  ProductName0 = "BILL_ME_LATER"
+	EBAYCHECKOUT                 ProductName0 = "EBAY_CHECKOUT"
+	EMAILPAYMENTS                ProductName0 = "EMAIL_PAYMENTS"
+	ENHANCEDRECURRINGPAYMENTS    ProductName0 = "ENHANCED_RECURRING_PAYMENTS"
+	HOSTEDSOLESOLUTION           ProductName0 = "HOSTED_SOLE_SOLUTION"
+	MASSPAYMENT                  ProductName0 = "MASS_PAYMENT"
+	MOBILEEXPRESSCHECKOUT        ProductName0 = "MOBILE_EXPRESS_CHECKOUT"
+	MOBILEINSTORE                ProductName0 = "MOBILE_IN_STORE"
+	MOBILEPAYMENTACCEPTANCE      ProductName0 = "MOBILE_PAYMENT_ACCEPTANCE"
+	MOBILEPAYPALSTANDARD         ProductName0 = "MOBILE_PAYPAL_STANDARD"
+	PAYFLOWLINK                  ProductName0 = "PAYFLOW_LINK"
+	PAYFLOWPRO                   ProductName0 = "PAYFLOW_PRO"
+	PAYPALADVANCED               ProductName0 = "PAYPAL_ADVANCED"
+	PAYPALHERE                   ProductName0 = "PAYPAL_HERE"
+	PAYPALPRO                    ProductName0 = "PAYPAL_PRO"
+	PAYPALSTANDARD               ProductName0 = "PAYPAL_STANDARD"
+	PPCPCUSTOM                   ProductName0 = "PPCP_CUSTOM"
+	PPCPSTANDARD                 ProductName0 = "PPCP_STANDARD"
+	ProductName0ADVANCEDVAULTING ProductName0 = "ADVANCED_VAULTING"
+	ProductName0EXPRESSCHECKOUT  ProductName0 = "EXPRESS_CHECKOUT"
+	ProductName0PAYMENTMETHODS   ProductName0 = "PAYMENT_METHODS"
+	VIRTUALTERMINAL              ProductName0 = "VIRTUAL_TERMINAL"
+	WEBSITEPAYMENTSPRO20         ProductName0 = "WEBSITE_PAYMENTS_PRO_2_0"
+	WEBSITEPAYMENTSPRO30         ProductName0 = "WEBSITE_PAYMENTS_PRO_3_0"
+	WEBSITEPAYMENTSSTANDARD      ProductName0 = "WEBSITE_PAYMENTS_STANDARD"
 )
 
-// Validate checks if the ProductName1 value is valid
-func (p ProductName1) Validate() error {
+// Validate checks if the ProductName0 value is valid
+func (p ProductName0) Validate() error {
 	switch p {
-	case ProductName1ADVANCEDVAULTING, ProductName1BILLMELATER, ProductName1EBAYCHECKOUT, ProductName1EMAILPAYMENTS, ProductName1ENHANCEDRECURRINGPAYMENTS, ProductName1EXPRESSCHECKOUT, ProductName1HOSTEDSOLESOLUTION, ProductName1MASSPAYMENT, ProductName1MOBILEEXPRESSCHECKOUT, ProductName1MOBILEINSTORE, ProductName1MOBILEPAYMENTACCEPTANCE, ProductName1MOBILEPAYPALSTANDARD, ProductName1PAYFLOWLINK, ProductName1PAYFLOWPRO, ProductName1PAYMENTMETHODS, ProductName1PAYPALADVANCED, ProductName1PAYPALHERE, ProductName1PAYPALPRO, ProductName1PAYPALSTANDARD, ProductName1PPCPCUSTOM, ProductName1PPCPSTANDARD, ProductName1VIRTUALTERMINAL, ProductName1WEBSITEPAYMENTSPRO20, ProductName1WEBSITEPAYMENTSPRO30, ProductName1WEBSITEPAYMENTSSTANDARD:
+	case BILLMELATER, EBAYCHECKOUT, EMAILPAYMENTS, ENHANCEDRECURRINGPAYMENTS, HOSTEDSOLESOLUTION, MASSPAYMENT, MOBILEEXPRESSCHECKOUT, MOBILEINSTORE, MOBILEPAYMENTACCEPTANCE, MOBILEPAYPALSTANDARD, PAYFLOWLINK, PAYFLOWPRO, PAYPALADVANCED, PAYPALHERE, PAYPALPRO, PAYPALSTANDARD, PPCPCUSTOM, PPCPSTANDARD, ProductName0ADVANCEDVAULTING, ProductName0EXPRESSCHECKOUT, ProductName0PAYMENTMETHODS, VIRTUALTERMINAL, WEBSITEPAYMENTSPRO20, WEBSITEPAYMENTSPRO30, WEBSITEPAYMENTSSTANDARD:
 		return nil
 	default:
-		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ProductName1 value, got: %v", p))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ProductName0 value, got: %v", p))
 	}
 }
 
@@ -100,7 +100,7 @@ type GetMerchantsResponse struct {
 
 type Product struct {
 	// Name The name of the product.
-	Name   *ProductName1  `json:"name,omitempty"`
+	Name   *ProductName0  `json:"name,omitempty"`
 	Status *ProductStatus `json:"status,omitempty"`
 }
 

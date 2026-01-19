@@ -54,16 +54,16 @@ func TestTypeTracker_GenerateUniqueName(t *testing.T) {
 	// Register it
 	r.register(TypeDefinition{Name: "Status"}, "")
 
-	// Second use - should get Status1
+	// Second use - should get Status0 (numeric suffixes start from 0)
 	name = r.generateUniqueName("Status")
-	assert.Equal(t, "Status1", name)
+	assert.Equal(t, "Status0", name)
 
 	// Register it
-	r.register(TypeDefinition{Name: "Status1"}, "")
+	r.register(TypeDefinition{Name: "Status0"}, "")
 
-	// Third use - should get Status2
+	// Third use - should get Status1
 	name = r.generateUniqueName("Status")
-	assert.Equal(t, "Status2", name)
+	assert.Equal(t, "Status1", name)
 }
 
 func TestTypeTracker_GenerateUniqueNameWithSuffixes(t *testing.T) {
@@ -86,9 +86,9 @@ func TestTypeTracker_GenerateUniqueNameWithSuffixes(t *testing.T) {
 	// Register it
 	r.register(TypeDefinition{Name: "ResponseText"}, "")
 
-	// All suffixes taken, should fall back to numeric
+	// All suffixes taken, should fall back to numeric (starting from 0)
 	name = r.generateUniqueNameWithSuffixes("Response", []string{"JSON", "Text"})
-	assert.Equal(t, "Response1", name)
+	assert.Equal(t, "Response0", name)
 }
 
 func TestTypeTracker_WithDefaultSuffixes(t *testing.T) {
@@ -109,9 +109,9 @@ func TestTypeTracker_RefMapping(t *testing.T) {
 	// Schema "status" gets registered first as "Status"
 	r.register(TypeDefinition{Name: "Status", JsonName: "status"}, "#/components/schemas/status")
 
-	// Parameter "status" would conflict, so it gets renamed
+	// Parameter "status" would conflict, so it gets renamed (numeric suffixes start from 0)
 	paramName := r.generateUniqueName("Status")
-	assert.Equal(t, "Status1", paramName)
+	assert.Equal(t, "Status0", paramName)
 	r.register(TypeDefinition{Name: paramName, JsonName: "status"}, "#/components/parameters/status")
 
 	// Now when resolving refs, we get the correct Go type names
@@ -121,5 +121,5 @@ func TestTypeTracker_RefMapping(t *testing.T) {
 
 	paramType, ok := r.LookupByRef("#/components/parameters/status")
 	assert.True(t, ok)
-	assert.Equal(t, "Status1", paramType)
+	assert.Equal(t, "Status0", paramType)
 }

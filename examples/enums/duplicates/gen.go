@@ -13,37 +13,37 @@ import (
 type EmailActivityResponseCommonFieldsStatus string
 
 const (
-	EmailActivityResponseCommonFieldsStatusDelivered    EmailActivityResponseCommonFieldsStatus = "delivered"
-	EmailActivityResponseCommonFieldsStatusNotDelivered EmailActivityResponseCommonFieldsStatus = "not delivered"
-	EmailActivityResponseCommonFieldsStatusProcessed    EmailActivityResponseCommonFieldsStatus = "processed"
+	Delivered    EmailActivityResponseCommonFieldsStatus = "delivered"
+	NotDelivered EmailActivityResponseCommonFieldsStatus = "not delivered"
+	Processed    EmailActivityResponseCommonFieldsStatus = "processed"
 )
 
 // Validate checks if the EmailActivityResponseCommonFieldsStatus value is valid
 func (e EmailActivityResponseCommonFieldsStatus) Validate() error {
 	switch e {
-	case EmailActivityResponseCommonFieldsStatusDelivered, EmailActivityResponseCommonFieldsStatusNotDelivered, EmailActivityResponseCommonFieldsStatusProcessed:
+	case Delivered, NotDelivered, Processed:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid EmailActivityResponseCommonFieldsStatus value, got: %v", e))
 	}
 }
 
-// GetMsgIDResponseStatus1 Quick summary of the status of a message
-type GetMsgIDResponseStatus1 string
+// GetMsgIDResponseStatus0 Quick summary of the status of a message
+type GetMsgIDResponseStatus0 string
 
 const (
-	GetMsgIDResponseStatus1Delivered    GetMsgIDResponseStatus1 = "delivered"
-	GetMsgIDResponseStatus1NotDelivered GetMsgIDResponseStatus1 = "not delivered"
-	GetMsgIDResponseStatus1Processed    GetMsgIDResponseStatus1 = "processed"
+	GetMsgIDResponseStatus0Delivered    GetMsgIDResponseStatus0 = "delivered"
+	GetMsgIDResponseStatus0NotDelivered GetMsgIDResponseStatus0 = "not delivered"
+	GetMsgIDResponseStatus0Processed    GetMsgIDResponseStatus0 = "processed"
 )
 
-// Validate checks if the GetMsgIDResponseStatus1 value is valid
-func (g GetMsgIDResponseStatus1) Validate() error {
+// Validate checks if the GetMsgIDResponseStatus0 value is valid
+func (g GetMsgIDResponseStatus0) Validate() error {
 	switch g {
-	case GetMsgIDResponseStatus1Delivered, GetMsgIDResponseStatus1NotDelivered, GetMsgIDResponseStatus1Processed:
+	case GetMsgIDResponseStatus0Delivered, GetMsgIDResponseStatus0NotDelivered, GetMsgIDResponseStatus0Processed:
 		return nil
 	default:
-		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid GetMsgIDResponseStatus1 value, got: %v", g))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid GetMsgIDResponseStatus0 value, got: %v", g))
 	}
 }
 
@@ -66,22 +66,22 @@ func (g GetMsgIDResponseStatus) Validate() error {
 	}
 }
 
-// GetMsgIDResponseEventsBounceType1 Use to distinguish between types of bounces
-type GetMsgIDResponseEventsBounceType1 string
+// GetMsgIDResponseEventsBounceType0 Use to distinguish between types of bounces
+type GetMsgIDResponseEventsBounceType0 string
 
 const (
-	GetMsgIDResponseEventsBounceType1Blocked GetMsgIDResponseEventsBounceType1 = "blocked"
-	GetMsgIDResponseEventsBounceType1Bounced GetMsgIDResponseEventsBounceType1 = "bounced"
-	GetMsgIDResponseEventsBounceType1Expired GetMsgIDResponseEventsBounceType1 = "expired"
+	Blocked GetMsgIDResponseEventsBounceType0 = "blocked"
+	Bounced GetMsgIDResponseEventsBounceType0 = "bounced"
+	Expired GetMsgIDResponseEventsBounceType0 = "expired"
 )
 
-// Validate checks if the GetMsgIDResponseEventsBounceType1 value is valid
-func (g GetMsgIDResponseEventsBounceType1) Validate() error {
+// Validate checks if the GetMsgIDResponseEventsBounceType0 value is valid
+func (g GetMsgIDResponseEventsBounceType0) Validate() error {
 	switch g {
-	case GetMsgIDResponseEventsBounceType1Blocked, GetMsgIDResponseEventsBounceType1Bounced, GetMsgIDResponseEventsBounceType1Expired:
+	case Blocked, Bounced, Expired:
 		return nil
 	default:
-		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid GetMsgIDResponseEventsBounceType1 value, got: %v", g))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid GetMsgIDResponseEventsBounceType0 value, got: %v", g))
 	}
 }
 
@@ -89,14 +89,14 @@ func (g GetMsgIDResponseEventsBounceType1) Validate() error {
 type GetMsgIDResponseEventsBounceType string
 
 const (
-	GetMsgIDResponseEventsBounceTypeHard GetMsgIDResponseEventsBounceType = "hard"
-	GetMsgIDResponseEventsBounceTypeSoft GetMsgIDResponseEventsBounceType = "soft"
+	Hard GetMsgIDResponseEventsBounceType = "hard"
+	Soft GetMsgIDResponseEventsBounceType = "soft"
 )
 
 // Validate checks if the GetMsgIDResponseEventsBounceType value is valid
 func (g GetMsgIDResponseEventsBounceType) Validate() error {
 	switch g {
-	case GetMsgIDResponseEventsBounceTypeHard, GetMsgIDResponseEventsBounceTypeSoft:
+	case Hard, Soft:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid GetMsgIDResponseEventsBounceType value, got: %v", g))
@@ -131,10 +131,10 @@ func (e EmailActivityResponseCommonFields) Validate() error {
 	return errors
 }
 
-// GetMsgID_Response_Events1 List of events related to email message
-type GetMsgID_Response_Events1 []GetMsgID_Response_Events_Item1
+// GetMsgID_Response_Events0 List of events related to email message
+type GetMsgID_Response_Events0 []GetMsgID_Response_Events_Item0
 
-func (g GetMsgID_Response_Events1) Validate() error {
+func (g GetMsgID_Response_Events0) Validate() error {
 	if g == nil {
 		return nil
 	}
@@ -152,12 +152,12 @@ func (g GetMsgID_Response_Events1) Validate() error {
 	return errors
 }
 
-type GetMsgID_Response_Events_Item1 struct {
+type GetMsgID_Response_Events_Item0 struct {
 	// BounceType Use to distinguish between types of bounces
-	BounceType *GetMsgIDResponseEventsBounceType1 `json:"bounce_type,omitempty"`
+	BounceType *GetMsgIDResponseEventsBounceType0 `json:"bounce_type,omitempty"`
 }
 
-func (g GetMsgID_Response_Events_Item1) Validate() error {
+func (g GetMsgID_Response_Events_Item0) Validate() error {
 	var errors runtime.ValidationErrors
 	if g.BounceType != nil {
 		if v, ok := any(g.BounceType).(runtime.Validator); ok {

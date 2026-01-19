@@ -111,12 +111,8 @@ func (r *TypeTracker) generateUniqueNameWithSuffixes(baseName string, suffixes [
 		}
 	}
 
-	// If all suffixes are taken, use counter-based naming
-	// Start from the current counter value for this base name
+	// If all suffixes are taken, use counter-based naming starting from 0
 	counter := r.counters[baseName]
-	if counter == 0 {
-		counter = 1 // Start from 1 since base name is taken
-	}
 
 	for {
 		name := fmt.Sprintf("%s%d", baseName, counter)

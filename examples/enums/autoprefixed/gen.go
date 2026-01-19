@@ -12,15 +12,15 @@ import (
 type ProductVariations string
 
 const (
+	B                  ProductVariations = "B"
+	C                  ProductVariations = "C"
 	ProductVariationsA ProductVariations = "A"
-	ProductVariationsB ProductVariations = "B"
-	ProductVariationsC ProductVariations = "C"
 )
 
 // Validate checks if the ProductVariations value is valid
 func (p ProductVariations) Validate() error {
 	switch p {
-	case ProductVariationsA, ProductVariationsB, ProductVariationsC:
+	case B, C, ProductVariationsA:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ProductVariations value, got: %v", p))

@@ -29,8 +29,8 @@ func TestConfiguration_WithDefaults(t *testing.T) {
 		require.NotNil(t, result.Generate)
 		assert.Equal(t, "int", result.Generate.DefaultIntType)
 
-		// When Generate is nil, entire struct is copied from defaults (including AlwaysPrefixEnumValues: true)
-		assert.True(t, result.Generate.AlwaysPrefixEnumValues)
+		// AlwaysPrefixEnumValues defaults to false (allows user override)
+		assert.False(t, result.Generate.AlwaysPrefixEnumValues)
 
 		require.NotNil(t, result.Client)
 		assert.Equal(t, "Client", result.Client.Name)

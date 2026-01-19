@@ -12,13 +12,13 @@ import (
 type ProcessPaymentErrorResponseText string
 
 const (
-	ProcessPaymentErrorResponseTextInternalServerError ProcessPaymentErrorResponseText = "Internal Server Error"
+	InternalServerError ProcessPaymentErrorResponseText = "Internal Server Error"
 )
 
 // Validate checks if the ProcessPaymentErrorResponseText value is valid
 func (p ProcessPaymentErrorResponseText) Validate() error {
 	switch p {
-	case ProcessPaymentErrorResponseTextInternalServerError:
+	case InternalServerError:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ProcessPaymentErrorResponseText value, got: %v", p))

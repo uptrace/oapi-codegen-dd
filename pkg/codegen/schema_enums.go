@@ -27,12 +27,14 @@ import (
 // ValueWrapper wraps the value. It's used to conditionally apply quotes around strings.
 // PrefixTypeName determines if the enum value is prefixed with its TypeName.
 // Values contains the final constant names mapped to their values (computed in filterOutEnums).
+// SpecLocation indicates where in the OpenAPI spec this enum was defined.
 type EnumDefinition struct {
 	Name           string
 	ValueWrapper   string
 	PrefixTypeName bool
 	Schema         GoSchema
 	Values         []EnumValue
+	SpecLocation   SpecLocation
 }
 
 // EnumValue represents a single enum constant.
@@ -126,9 +128,10 @@ func createEnumsSchema(schema *base.Schema, options ParseOptions) (GoSchema, err
 		}
 
 		typeDef := TypeDefinition{
-			Name:     typeName,
-			JsonName: strings.Join(path, "."),
-			Schema:   outSchema,
+			Name:         typeName,
+			JsonName:     strings.Join(path, "."),
+			Schema:       outSchema,
+			SpecLocation: options.specLocation,
 		}
 		outSchema.AdditionalTypes = append(outSchema.AdditionalTypes, typeDef)
 		outSchema.RefType = typeName
@@ -247,6 +250,7 @@ func filterOutEnums(types []TypeDefinition, options ParseOptions) ([]EnumDefinit
 				Name:           name,
 				ValueWrapper:   wrapper,
 				PrefixTypeName: options.AlwaysPrefixEnumValues,
+				SpecLocation:   td.SpecLocation,
 			})
 			m[name] = 1
 		}
@@ -270,6 +274,7 @@ func filterOutEnums(types []TypeDefinition, options ParseOptions) ([]EnumDefinit
 					Name:           td.Name,
 					ValueWrapper:   wrapper,
 					PrefixTypeName: options.AlwaysPrefixEnumValues,
+					SpecLocation:   td.SpecLocation,
 				})
 			} else {
 				rest = append(rest, td)
@@ -280,52 +285,11 @@ func filterOutEnums(types []TypeDefinition, options ParseOptions) ([]EnumDefinit
 		m[td.Name] = 1
 	}
 
-	// Detect conflicts between enums and force prefixing when needed.
-	// Optimized: Use hash-based approach instead of O(n²) comparison.
-
-	// Build a map of enum value -> list of enum indices that have this value
-	// This allows O(n) conflict detection instead of O(n²)
-	valueToEnumIndices := make(map[string][]int)
-	for i, e := range enums {
-		for key := range e.Schema.EnumValues {
-			valueToEnumIndices[key] = append(valueToEnumIndices[key], i)
-		}
-	}
-
-	// Mark enums with conflicting values (same value appears in multiple enums)
-	for _, indices := range valueToEnumIndices {
-		if len(indices) > 1 {
-			for _, idx := range indices {
-				enums[idx].PrefixTypeName = true
-			}
-		}
-	}
-
-	// Build a set of type names for O(1) lookup
-	typeNames := make(map[string]struct{}, len(types))
-	for _, tp := range types {
-		if len(tp.Schema.EnumValues) == 0 {
-			typeNames[tp.Name] = struct{}{}
-		}
-	}
-
-	// Check for conflicts with type names and self-conflicts
-	for i, e := range enums {
-		// Check for conflicts with type names
-		for key := range e.Schema.EnumValues {
-			if _, found := typeNames[key]; found {
-				enums[i].PrefixTypeName = true
-				break
-			}
-		}
-
-		// Check if enum value conflicts with its own type name
-		if _, found := e.Schema.EnumValues[e.Name]; found {
-			enums[i].PrefixTypeName = true
-		}
-	}
-
 	// Go through all enums, compute final Values and register in typeTracker.
+	// Per-value conflict resolution handles all conflicts individually:
+	// - Conflicts with type names
+	// - Conflicts between enum values from different enums
+	// - Self-conflicts (enum value same as enum type name)
 	for i := range enums {
 		e := enums[i]
 
@@ -337,8 +301,51 @@ func filterOutEnums(types []TypeDefinition, options ParseOptions) ([]EnumDefinit
 			if e.PrefixTypeName {
 				baseName = e.Name + UppercaseFirstCharacter(k)
 			}
-			// Use typeTracker to handle conflicts with types and other enum constants.
-			name := options.typeTracker.generateUniqueName(baseName)
+
+			// Conflict resolution order:
+			// 1. Unprefixed name (e.g., "Debit")
+			// 2. Type-prefixed name (e.g., "TypeDebit")
+			// 3. SpecLocation-suffixed name (e.g., "DebitParameter")
+			// 4. Numeric suffix on SpecLocation name (e.g., "DebitParameter1")
+			var name string
+			if !options.typeTracker.Exists(baseName) {
+				// No conflict, use the base name as-is.
+				name = baseName
+			} else if !e.PrefixTypeName {
+				// Conflict exists and we're not already using prefix.
+				// Try prefixed name before other fallbacks.
+				prefixedName := e.Name + UppercaseFirstCharacter(k)
+				if !options.typeTracker.Exists(prefixedName) {
+					name = prefixedName
+				} else if e.SpecLocation != "" {
+					// Try SpecLocation suffix (e.g., "DebitParameter")
+					specSuffix := UppercaseFirstCharacter(string(e.SpecLocation))
+					specName := k + specSuffix
+					if !options.typeTracker.Exists(specName) {
+						name = specName
+					} else {
+						// SpecLocation name also conflicts, use numeric suffix on it
+						name = options.typeTracker.generateUniqueName(specName)
+					}
+				} else {
+					// No SpecLocation, fall back to numeric suffix on base name
+					name = options.typeTracker.generateUniqueName(baseName)
+				}
+			} else if e.SpecLocation != "" {
+				// Already using prefix and it conflicts, try SpecLocation suffix
+				specSuffix := UppercaseFirstCharacter(string(e.SpecLocation))
+				specName := baseName + specSuffix
+				if !options.typeTracker.Exists(specName) {
+					name = specName
+				} else {
+					// SpecLocation name also conflicts, use numeric suffix on it
+					name = options.typeTracker.generateUniqueName(specName)
+				}
+			} else {
+				// No SpecLocation, fall back to numeric suffix
+				name = options.typeTracker.generateUniqueName(baseName)
+			}
+
 			options.typeTracker.registerName(name)
 			values = append(values, EnumValue{Name: name, Value: v})
 		}

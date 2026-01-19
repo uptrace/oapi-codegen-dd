@@ -14,12 +14,12 @@ func TestOrderDirection_TypeMismatch(t *testing.T) {
 	}{
 		{
 			name:    "valid asc",
-			value:   OrderDirectionAsc,
+			value:   Asc,
 			wantErr: false,
 		},
 		{
 			name:    "valid desc",
-			value:   OrderDirectionDesc,
+			value:   Desc,
 			wantErr: false,
 		},
 		{
@@ -49,17 +49,17 @@ func TestPriority_TypeMismatch(t *testing.T) {
 	}{
 		{
 			name:    "valid low",
-			value:   PriorityLow,
+			value:   Low,
 			wantErr: false,
 		},
 		{
 			name:    "valid medium",
-			value:   PriorityMedium,
+			value:   Medium,
 			wantErr: false,
 		},
 		{
 			name:    "valid high",
-			value:   PriorityHigh,
+			value:   High,
 			wantErr: false,
 		},
 		{
@@ -89,17 +89,17 @@ func TestStatusCode_CorrectType(t *testing.T) {
 	}{
 		{
 			name:    "valid 200",
-			value:   StatusCodeN200,
+			value:   N200,
 			wantErr: false,
 		},
 		{
 			name:    "valid 404",
-			value:   StatusCodeN404,
+			value:   N404,
 			wantErr: false,
 		},
 		{
 			name:    "valid 500",
-			value:   StatusCodeN500,
+			value:   N500,
 			wantErr: false,
 		},
 		{

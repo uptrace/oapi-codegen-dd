@@ -14,13 +14,13 @@ import (
 type SpecificErrorIssuesAnyOf0Issue string
 
 const (
-	SpecificErrorIssuesAnyOf0IssueERRORA SpecificErrorIssuesAnyOf0Issue = "ERROR_A"
+	ERRORA SpecificErrorIssuesAnyOf0Issue = "ERROR_A"
 )
 
 // Validate checks if the SpecificErrorIssuesAnyOf0Issue value is valid
 func (s SpecificErrorIssuesAnyOf0Issue) Validate() error {
 	switch s {
-	case SpecificErrorIssuesAnyOf0IssueERRORA:
+	case ERRORA:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf0Issue value, got: %v", s))
@@ -30,13 +30,13 @@ func (s SpecificErrorIssuesAnyOf0Issue) Validate() error {
 type SpecificErrorIssuesAnyOf0Description string
 
 const (
-	SpecificErrorIssuesAnyOf0DescriptionThisIsErrorTypeA SpecificErrorIssuesAnyOf0Description = "This is error type A"
+	ThisIsErrorTypeA SpecificErrorIssuesAnyOf0Description = "This is error type A"
 )
 
 // Validate checks if the SpecificErrorIssuesAnyOf0Description value is valid
 func (s SpecificErrorIssuesAnyOf0Description) Validate() error {
 	switch s {
-	case SpecificErrorIssuesAnyOf0DescriptionThisIsErrorTypeA:
+	case ThisIsErrorTypeA:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf0Description value, got: %v", s))
@@ -46,13 +46,13 @@ func (s SpecificErrorIssuesAnyOf0Description) Validate() error {
 type SpecificErrorIssuesAnyOf1Issue string
 
 const (
-	SpecificErrorIssuesAnyOf1IssueERRORB SpecificErrorIssuesAnyOf1Issue = "ERROR_B"
+	ERRORB SpecificErrorIssuesAnyOf1Issue = "ERROR_B"
 )
 
 // Validate checks if the SpecificErrorIssuesAnyOf1Issue value is valid
 func (s SpecificErrorIssuesAnyOf1Issue) Validate() error {
 	switch s {
-	case SpecificErrorIssuesAnyOf1IssueERRORB:
+	case ERRORB:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf1Issue value, got: %v", s))
@@ -62,13 +62,13 @@ func (s SpecificErrorIssuesAnyOf1Issue) Validate() error {
 type SpecificErrorIssuesAnyOf1Description string
 
 const (
-	SpecificErrorIssuesAnyOf1DescriptionThisIsErrorTypeB SpecificErrorIssuesAnyOf1Description = "This is error type B"
+	ThisIsErrorTypeB SpecificErrorIssuesAnyOf1Description = "This is error type B"
 )
 
 // Validate checks if the SpecificErrorIssuesAnyOf1Description value is valid
 func (s SpecificErrorIssuesAnyOf1Description) Validate() error {
 	switch s {
-	case SpecificErrorIssuesAnyOf1DescriptionThisIsErrorTypeB:
+	case ThisIsErrorTypeB:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf1Description value, got: %v", s))
@@ -78,13 +78,13 @@ func (s SpecificErrorIssuesAnyOf1Description) Validate() error {
 type SpecificErrorIssuesAnyOf2Issue string
 
 const (
-	SpecificErrorIssuesAnyOf2IssueERRORC SpecificErrorIssuesAnyOf2Issue = "ERROR_C"
+	ERRORC SpecificErrorIssuesAnyOf2Issue = "ERROR_C"
 )
 
 // Validate checks if the SpecificErrorIssuesAnyOf2Issue value is valid
 func (s SpecificErrorIssuesAnyOf2Issue) Validate() error {
 	switch s {
-	case SpecificErrorIssuesAnyOf2IssueERRORC:
+	case ERRORC:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf2Issue value, got: %v", s))
@@ -94,13 +94,13 @@ func (s SpecificErrorIssuesAnyOf2Issue) Validate() error {
 type SpecificErrorIssuesAnyOf2Description string
 
 const (
-	SpecificErrorIssuesAnyOf2DescriptionThisIsErrorTypeC SpecificErrorIssuesAnyOf2Description = "This is error type C"
+	ThisIsErrorTypeC SpecificErrorIssuesAnyOf2Description = "This is error type C"
 )
 
 // Validate checks if the SpecificErrorIssuesAnyOf2Description value is valid
 func (s SpecificErrorIssuesAnyOf2Description) Validate() error {
 	switch s {
-	case SpecificErrorIssuesAnyOf2DescriptionThisIsErrorTypeC:
+	case ThisIsErrorTypeC:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid SpecificErrorIssuesAnyOf2Description value, got: %v", s))

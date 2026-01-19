@@ -62,15 +62,15 @@ func (w WebLinkType) Validate() error {
 type CollaborationRole string
 
 const (
-	CollaborationRoleEditor CollaborationRole = "editor"
-	CollaborationRoleOwner  CollaborationRole = "owner"
-	CollaborationRoleViewer CollaborationRole = "viewer"
+	Editor CollaborationRole = "editor"
+	Owner  CollaborationRole = "owner"
+	Viewer CollaborationRole = "viewer"
 )
 
 // Validate checks if the CollaborationRole value is valid
 func (c CollaborationRole) Validate() error {
 	switch c {
-	case CollaborationRoleEditor, CollaborationRoleOwner, CollaborationRoleViewer:
+	case Editor, Owner, Viewer:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid CollaborationRole value, got: %v", c))

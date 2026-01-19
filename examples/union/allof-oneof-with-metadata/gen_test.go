@@ -32,7 +32,7 @@ func TestCollaboration_AllOfWithMetadata(t *testing.T) {
 		collab := Collaboration{
 			ID:   "collab-456",
 			Item: item,
-			Role: ptr(CollaborationRoleEditor),
+			Role: ptr(Editor),
 		}
 
 		data, err := json.Marshal(collab)
@@ -77,7 +77,7 @@ func TestCollaboration_AllOfWithMetadata(t *testing.T) {
 		assert.Equal(t, "456", folder.ID)
 		assert.Equal(t, "My Folder", *folder.Name)
 
-		assert.Equal(t, CollaborationRoleViewer, *collab.Role)
+		assert.Equal(t, Viewer, *collab.Role)
 	})
 
 	t.Run("unmarshal collaboration with web_link item", func(t *testing.T) {

@@ -10,35 +10,35 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type Status1 string
+type StatusQuery string
 
 const (
-	Status1Active  Status1 = "active"
-	Status1Pending Status1 = "pending"
+	Active  StatusQuery = "active"
+	Pending StatusQuery = "pending"
 )
 
-// Validate checks if the Status1 value is valid
-func (s Status1) Validate() error {
+// Validate checks if the StatusQuery value is valid
+func (s StatusQuery) Validate() error {
 	switch s {
-	case Status1Active, Status1Pending:
+	case Active, Pending:
 		return nil
 	default:
-		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid Status1 value, got: %v", s))
+		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid StatusQuery value, got: %v", s))
 	}
 }
 
 type Category string
 
 const (
-	CategoryClothing    Category = "clothing"
-	CategoryElectronics Category = "electronics"
-	CategoryFood        Category = "food"
+	Clothing    Category = "clothing"
+	Electronics Category = "electronics"
+	Food        Category = "food"
 )
 
 // Validate checks if the Category value is valid
 func (c Category) Validate() error {
 	switch c {
-	case CategoryClothing, CategoryElectronics, CategoryFood:
+	case Clothing, Electronics, Food:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid Category value, got: %v", c))
@@ -48,15 +48,15 @@ func (c Category) Validate() error {
 type Status string
 
 const (
-	StatusArchived  Status = "archived"
-	StatusDraft     Status = "draft"
-	StatusPublished Status = "published"
+	Archived  Status = "archived"
+	Draft     Status = "draft"
+	Published Status = "published"
 )
 
 // Validate checks if the Status value is valid
 func (s Status) Validate() error {
 	switch s {
-	case StatusArchived, StatusDraft, StatusPublished:
+	case Archived, Draft, Published:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid Status value, got: %v", s))
@@ -84,15 +84,15 @@ func (i ItemType) Validate() error {
 type ProductType string
 
 const (
-	ProductTypeDigital  ProductType = "digital"
-	ProductTypePhysical ProductType = "physical"
-	ProductTypeService  ProductType = "service"
+	Digital  ProductType = "digital"
+	Physical ProductType = "physical"
+	Service  ProductType = "service"
 )
 
 // Validate checks if the ProductType value is valid
 func (p ProductType) Validate() error {
 	switch p {
-	case ProductTypeDigital, ProductTypePhysical, ProductTypeService:
+	case Digital, Physical, Service:
 		return nil
 	default:
 		return runtime.NewValidationErrorsFromString("Enum", fmt.Sprintf("must be a valid ProductType value, got: %v", p))
@@ -121,13 +121,13 @@ func (c CreateTokenBody) Validate() error {
 
 type CreateLabelBody = Label
 
-type Item1 = []string
+type ItemQuery = []string
 
-type Label1 = []string
+type LabelQuery = []string
 
 type GetItemsQuery struct {
 	// Item Filter by item IDs
-	Item Item1 `json:"item,omitempty"`
+	Item ItemQuery `json:"item,omitempty"`
 }
 
 func (g GetItemsQuery) Validate() error {
@@ -145,7 +145,7 @@ func (g GetItemsQuery) Validate() error {
 
 type GetLabelsQuery struct {
 	// Label Filter by labels
-	Label Label1 `json:"label,omitempty"`
+	Label LabelQuery `json:"label,omitempty"`
 }
 
 func (g GetLabelsQuery) Validate() error {
@@ -163,7 +163,7 @@ func (g GetLabelsQuery) Validate() error {
 
 type GetStatusQuery struct {
 	// Status Filter by status
-	Status *Status1 `json:"status,omitempty"`
+	Status *StatusQuery `json:"status,omitempty"`
 }
 
 type LabelList struct {

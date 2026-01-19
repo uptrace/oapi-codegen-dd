@@ -22,6 +22,42 @@ components:
     type:
       type: string
       enum:
-        # prefix will be added to avoid conflict
+        # prefix will be added to avoid conflict with source_type struct
         - source_type
         - debit
+
+    # Test case for SpecLocation suffix:
+    # Enum "status" has value "active"
+    # - "Active" conflicts with the "active" schema below
+    # - "StatusActive" conflicts with the "status_active" schema below
+    # - Falls back to "ActiveSchema" (SpecLocation suffix)
+    status:
+      type: string
+      enum:
+        - active
+        - inactive
+
+    # This takes the "Active" name, forcing enum to try prefix
+    active:
+      type: object
+      properties:
+        name:
+          type: string
+
+    # This takes the "StatusActive" name, forcing enum to try SpecLocation suffix
+    status_active:
+      type: object
+      properties:
+        since:
+          type: string
+
+  parameters:
+    type:
+      name: type
+      in: query
+      required: true
+      schema:
+        type: string
+        enum:
+          - valid
+          - invalid

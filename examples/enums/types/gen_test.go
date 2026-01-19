@@ -16,17 +16,17 @@ func TestStatusCode_Validate(t *testing.T) {
 	}{
 		{
 			name:    "valid 200",
-			value:   StatusCodeN200,
+			value:   N200,
 			wantErr: false,
 		},
 		{
 			name:    "valid 404",
-			value:   StatusCodeN404,
+			value:   N404,
 			wantErr: false,
 		},
 		{
 			name:    "valid 500",
-			value:   StatusCodeN500,
+			value:   N500,
 			wantErr: false,
 		},
 		{
@@ -59,17 +59,17 @@ func TestPriority_Validate(t *testing.T) {
 	}{
 		{
 			name:    "valid 1.0",
-			value:   PriorityN10,
+			value:   N10,
 			wantErr: false,
 		},
 		{
 			name:    "valid 2.5",
-			value:   PriorityN25,
+			value:   N25,
 			wantErr: false,
 		},
 		{
 			name:    "valid 5.0",
-			value:   PriorityN50,
+			value:   N50,
 			wantErr: false,
 		},
 		{
@@ -102,17 +102,17 @@ func TestColor_Validate(t *testing.T) {
 	}{
 		{
 			name:    "valid red",
-			value:   ColorRed,
+			value:   Red,
 			wantErr: false,
 		},
 		{
 			name:    "valid green",
-			value:   ColorGreen,
+			value:   Green,
 			wantErr: false,
 		},
 		{
 			name:    "valid blue",
-			value:   ColorBlue,
+			value:   Blue,
 			wantErr: false,
 		},
 		{

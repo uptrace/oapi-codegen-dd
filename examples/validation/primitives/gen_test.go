@@ -163,7 +163,7 @@ func TestPredefinedValue_Validate(t *testing.T) {
 		{
 			name: "valid - valid Predefined value",
 			pv: PredefinedValue{
-				Value: runtime.Ptr(PredefinedA2),
+				Value: runtime.Ptr(A2),
 				Type:  runtime.Ptr("test"),
 			},
 			wantErr: false,
