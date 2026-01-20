@@ -254,29 +254,6 @@ func (p *ProcessPaymentBody_D_AllOf0_OneOf_0) UnmarshalJSON(data []byte) error {
 
 type ProcessPaymentBody_D_AllOf0_OneOf_1 = map[string]any
 
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-	var res T
-	err := json.Unmarshal(v, &res)
-	return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-	if data != nil {
-		if err := json.Unmarshal(data, &object); err != nil {
-			return nil, err
-		}
-	}
-
-	object[field], err = json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-	}
-
-	return json.Marshal(object)
-}
-
 type ProcessPaymentBody_C_OneOf struct {
 	runtime.Either[string, bool]
 }
@@ -331,7 +308,7 @@ func (p *ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf) Raw() json.RawMessage {
 
 // AsBool returns the union data inside the ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf as a bool
 func (p *ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf) AsBool() (bool, error) {
-	return UnmarshalAs[bool](p.union)
+	return runtime.UnmarshalAs[bool](p.union)
 }
 
 // AsValidatedBool returns the union data inside the ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf as a validated bool
@@ -361,7 +338,7 @@ func (p *ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf) FromBool(val bool) error {
 
 // AsFloat32 returns the union data inside the ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf as a float32
 func (p *ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf) AsFloat32() (float32, error) {
-	return UnmarshalAs[float32](p.union)
+	return runtime.UnmarshalAs[float32](p.union)
 }
 
 // AsValidatedFloat32 returns the union data inside the ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf as a validated float32
@@ -391,7 +368,7 @@ func (p *ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf) FromFloat32(val float32) err
 
 // AsString returns the union data inside the ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf as a string
 func (p *ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf) AsString() (string, error) {
-	return UnmarshalAs[string](p.union)
+	return runtime.UnmarshalAs[string](p.union)
 }
 
 // AsValidatedString returns the union data inside the ProcessPaymentBody_D_AllOf0_OneOf_0_AnyOf as a validated string

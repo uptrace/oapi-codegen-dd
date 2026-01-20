@@ -363,3 +363,153 @@ func TestCoalesceOrMerge(t *testing.T) {
 		assert.Equal(t, "cannot combine 2 non-null branches of mixed/unsupported kinds", err.Error())
 	})
 }
+
+func TestUnmarshalAs(t *testing.T) {
+	t.Run("unmarshals into struct", func(t *testing.T) {
+		type Person struct {
+			Name string `json:"name"`
+			Age  int    `json:"age"`
+		}
+
+		data := json.RawMessage(`{"name":"John","age":30}`)
+		result, err := UnmarshalAs[Person](data)
+
+		require.NoError(t, err)
+		assert.Equal(t, "John", result.Name)
+		assert.Equal(t, 30, result.Age)
+	})
+
+	t.Run("unmarshals into primitive types", func(t *testing.T) {
+		strData := json.RawMessage(`"hello"`)
+		strResult, err := UnmarshalAs[string](strData)
+		require.NoError(t, err)
+		assert.Equal(t, "hello", strResult)
+
+		intData := json.RawMessage(`42`)
+		intResult, err := UnmarshalAs[int](intData)
+		require.NoError(t, err)
+		assert.Equal(t, 42, intResult)
+
+		boolData := json.RawMessage(`true`)
+		boolResult, err := UnmarshalAs[bool](boolData)
+		require.NoError(t, err)
+		assert.True(t, boolResult)
+	})
+
+	t.Run("unmarshals into slice", func(t *testing.T) {
+		data := json.RawMessage(`[1,2,3]`)
+		result, err := UnmarshalAs[[]int](data)
+
+		require.NoError(t, err)
+		assert.Equal(t, []int{1, 2, 3}, result)
+	})
+
+	t.Run("unmarshals into map", func(t *testing.T) {
+		data := json.RawMessage(`{"key":"value"}`)
+		result, err := UnmarshalAs[map[string]string](data)
+
+		require.NoError(t, err)
+		assert.Equal(t, map[string]string{"key": "value"}, result)
+	})
+
+	t.Run("returns error for invalid JSON", func(t *testing.T) {
+		data := json.RawMessage(`{invalid}`)
+		_, err := UnmarshalAs[map[string]string](data)
+
+		require.Error(t, err)
+	})
+
+	t.Run("returns error for type mismatch", func(t *testing.T) {
+		data := json.RawMessage(`"not a number"`)
+		_, err := UnmarshalAs[int](data)
+
+		require.Error(t, err)
+	})
+
+	t.Run("handles null", func(t *testing.T) {
+		data := json.RawMessage(`null`)
+		result, err := UnmarshalAs[*string](data)
+
+		require.NoError(t, err)
+		assert.Nil(t, result)
+	})
+}
+
+func TestMarshalEitherWithDiscriminator(t *testing.T) {
+	t.Run("adds discriminator to object", func(t *testing.T) {
+		data := []byte(`{"name":"John"}`)
+		result, err := MarshalEitherWithDiscriminator(data, "type", "person")
+
+		require.NoError(t, err)
+		var parsed map[string]any
+		require.NoError(t, json.Unmarshal(result, &parsed))
+		assert.Equal(t, "John", parsed["name"])
+		assert.Equal(t, "person", parsed["type"])
+	})
+
+	t.Run("overwrites existing discriminator", func(t *testing.T) {
+		data := []byte(`{"type":"old","name":"John"}`)
+		result, err := MarshalEitherWithDiscriminator(data, "type", "new")
+
+		require.NoError(t, err)
+		var parsed map[string]any
+		require.NoError(t, json.Unmarshal(result, &parsed))
+		assert.Equal(t, "new", parsed["type"])
+		assert.Equal(t, "John", parsed["name"])
+	})
+
+	t.Run("handles empty object", func(t *testing.T) {
+		data := []byte(`{}`)
+		result, err := MarshalEitherWithDiscriminator(data, "kind", "test")
+
+		require.NoError(t, err)
+		var parsed map[string]any
+		require.NoError(t, json.Unmarshal(result, &parsed))
+		assert.Equal(t, "test", parsed["kind"])
+		assert.Len(t, parsed, 1)
+	})
+
+	t.Run("handles nil data", func(t *testing.T) {
+		result, err := MarshalEitherWithDiscriminator(nil, "type", "value")
+
+		require.NoError(t, err)
+		var parsed map[string]any
+		require.NoError(t, json.Unmarshal(result, &parsed))
+		assert.Equal(t, "value", parsed["type"])
+		assert.Len(t, parsed, 1)
+	})
+
+	t.Run("preserves nested objects", func(t *testing.T) {
+		data := []byte(`{"nested":{"foo":"bar"},"array":[1,2,3]}`)
+		result, err := MarshalEitherWithDiscriminator(data, "discriminator", "test")
+
+		require.NoError(t, err)
+		var parsed map[string]json.RawMessage
+		require.NoError(t, json.Unmarshal(result, &parsed))
+
+		var nested map[string]string
+		require.NoError(t, json.Unmarshal(parsed["nested"], &nested))
+		assert.Equal(t, "bar", nested["foo"])
+
+		var arr []int
+		require.NoError(t, json.Unmarshal(parsed["array"], &arr))
+		assert.Equal(t, []int{1, 2, 3}, arr)
+	})
+
+	t.Run("returns error for invalid JSON", func(t *testing.T) {
+		data := []byte(`{invalid}`)
+		_, err := MarshalEitherWithDiscriminator(data, "type", "value")
+
+		require.Error(t, err)
+	})
+
+	t.Run("handles special characters in discriminator value", func(t *testing.T) {
+		data := []byte(`{}`)
+		result, err := MarshalEitherWithDiscriminator(data, "type", `value with "quotes" and \backslash`)
+
+		require.NoError(t, err)
+		var parsed map[string]string
+		require.NoError(t, json.Unmarshal(result, &parsed))
+		assert.Equal(t, `value with "quotes" and \backslash`, parsed["type"])
+	})
+}

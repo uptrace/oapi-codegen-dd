@@ -59,3 +59,10 @@ components:
       properties:
         url:
           type: string
+
+    TargetWithExtra:
+      anyOf:
+        - $ref: '#/components/schemas/EmailTarget'
+        - $ref: '#/components/schemas/WebhookTarget'
+      additionalProperties:
+        type: string

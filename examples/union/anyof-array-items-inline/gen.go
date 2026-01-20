@@ -581,29 +581,6 @@ func (c CombinedError_Issues_AnyOf_2) Validate() error {
 	return errors
 }
 
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-	var res T
-	err := json.Unmarshal(v, &res)
-	return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-	if data != nil {
-		if err := json.Unmarshal(data, &object); err != nil {
-			return nil, err
-		}
-	}
-
-	object[field], err = json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-	}
-
-	return json.Marshal(object)
-}
-
 type SpecificError_Issues_AnyOf struct {
 	union json.RawMessage
 }
@@ -622,7 +599,7 @@ func (s *SpecificError_Issues_AnyOf) Raw() json.RawMessage {
 
 // AsSpecificError_Issues_AnyOf_0 returns the union data inside the SpecificError_Issues_AnyOf as a SpecificError_Issues_AnyOf_0
 func (s *SpecificError_Issues_AnyOf) AsSpecificError_Issues_AnyOf_0() (SpecificError_Issues_AnyOf_0, error) {
-	return UnmarshalAs[SpecificError_Issues_AnyOf_0](s.union)
+	return runtime.UnmarshalAs[SpecificError_Issues_AnyOf_0](s.union)
 }
 
 // AsValidatedSpecificError_Issues_AnyOf_0 returns the union data inside the SpecificError_Issues_AnyOf as a validated SpecificError_Issues_AnyOf_0
@@ -652,7 +629,7 @@ func (s *SpecificError_Issues_AnyOf) FromSpecificError_Issues_AnyOf_0(val Specif
 
 // AsSpecificError_Issues_AnyOf_1 returns the union data inside the SpecificError_Issues_AnyOf as a SpecificError_Issues_AnyOf_1
 func (s *SpecificError_Issues_AnyOf) AsSpecificError_Issues_AnyOf_1() (SpecificError_Issues_AnyOf_1, error) {
-	return UnmarshalAs[SpecificError_Issues_AnyOf_1](s.union)
+	return runtime.UnmarshalAs[SpecificError_Issues_AnyOf_1](s.union)
 }
 
 // AsValidatedSpecificError_Issues_AnyOf_1 returns the union data inside the SpecificError_Issues_AnyOf as a validated SpecificError_Issues_AnyOf_1
@@ -682,7 +659,7 @@ func (s *SpecificError_Issues_AnyOf) FromSpecificError_Issues_AnyOf_1(val Specif
 
 // AsSpecificError_Issues_AnyOf_2 returns the union data inside the SpecificError_Issues_AnyOf as a SpecificError_Issues_AnyOf_2
 func (s *SpecificError_Issues_AnyOf) AsSpecificError_Issues_AnyOf_2() (SpecificError_Issues_AnyOf_2, error) {
-	return UnmarshalAs[SpecificError_Issues_AnyOf_2](s.union)
+	return runtime.UnmarshalAs[SpecificError_Issues_AnyOf_2](s.union)
 }
 
 // AsValidatedSpecificError_Issues_AnyOf_2 returns the union data inside the SpecificError_Issues_AnyOf as a validated SpecificError_Issues_AnyOf_2
@@ -764,7 +741,7 @@ func (c *CombinedError_Issues_AnyOf) Raw() json.RawMessage {
 
 // AsCombinedError_Issues_AnyOf_0 returns the union data inside the CombinedError_Issues_AnyOf as a CombinedError_Issues_AnyOf_0
 func (c *CombinedError_Issues_AnyOf) AsCombinedError_Issues_AnyOf_0() (CombinedError_Issues_AnyOf_0, error) {
-	return UnmarshalAs[CombinedError_Issues_AnyOf_0](c.union)
+	return runtime.UnmarshalAs[CombinedError_Issues_AnyOf_0](c.union)
 }
 
 // AsValidatedCombinedError_Issues_AnyOf_0 returns the union data inside the CombinedError_Issues_AnyOf as a validated CombinedError_Issues_AnyOf_0
@@ -794,7 +771,7 @@ func (c *CombinedError_Issues_AnyOf) FromCombinedError_Issues_AnyOf_0(val Combin
 
 // AsCombinedError_Issues_AnyOf_1 returns the union data inside the CombinedError_Issues_AnyOf as a CombinedError_Issues_AnyOf_1
 func (c *CombinedError_Issues_AnyOf) AsCombinedError_Issues_AnyOf_1() (CombinedError_Issues_AnyOf_1, error) {
-	return UnmarshalAs[CombinedError_Issues_AnyOf_1](c.union)
+	return runtime.UnmarshalAs[CombinedError_Issues_AnyOf_1](c.union)
 }
 
 // AsValidatedCombinedError_Issues_AnyOf_1 returns the union data inside the CombinedError_Issues_AnyOf as a validated CombinedError_Issues_AnyOf_1
@@ -824,7 +801,7 @@ func (c *CombinedError_Issues_AnyOf) FromCombinedError_Issues_AnyOf_1(val Combin
 
 // AsCombinedError_Issues_AnyOf_2 returns the union data inside the CombinedError_Issues_AnyOf as a CombinedError_Issues_AnyOf_2
 func (c *CombinedError_Issues_AnyOf) AsCombinedError_Issues_AnyOf_2() (CombinedError_Issues_AnyOf_2, error) {
-	return UnmarshalAs[CombinedError_Issues_AnyOf_2](c.union)
+	return runtime.UnmarshalAs[CombinedError_Issues_AnyOf_2](c.union)
 }
 
 // AsValidatedCombinedError_Issues_AnyOf_2 returns the union data inside the CombinedError_Issues_AnyOf as a validated CombinedError_Issues_AnyOf_2

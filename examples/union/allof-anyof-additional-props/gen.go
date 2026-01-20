@@ -125,6 +125,83 @@ type WebhookTarget struct {
 	URL string `json:"url"`
 }
 
+type TargetWithExtra struct {
+	TargetWithExtra_AnyOf *TargetWithExtra_AnyOf `json:"-"`
+	AdditionalProperties  map[string]string      `json:"-"`
+}
+
+// Getter for additional properties for TargetWithExtra. Returns the specified
+// element and whether it was found
+func (t TargetWithExtra) Get(fieldName string) (value string, found bool) {
+	if t.AdditionalProperties != nil {
+		value, found = t.AdditionalProperties[fieldName]
+	}
+	return
+}
+
+// Setter for additional properties for TargetWithExtra
+func (t *TargetWithExtra) Set(fieldName string, value string) {
+	if t.AdditionalProperties == nil {
+		t.AdditionalProperties = make(map[string]string)
+	}
+	t.AdditionalProperties[fieldName] = value
+}
+
+// Override default JSON handling for TargetWithExtra to handle AdditionalProperties
+func (t *TargetWithExtra) UnmarshalJSON(data []byte) error {
+	object := make(map[string]json.RawMessage)
+	if err := json.Unmarshal(data, &object); err != nil {
+		return err
+	}
+
+	if err := json.Unmarshal(data, &t.TargetWithExtra_AnyOf); err != nil {
+		return fmt.Errorf("error reading embedded 'TargetWithExtra_AnyOf': %w", err)
+	}
+	delete(object, "email")
+	delete(object, "url")
+
+	if len(object) != 0 {
+		t.AdditionalProperties = make(map[string]string)
+		for fieldName, fieldBuf := range object {
+			var fieldVal string
+			if err := json.Unmarshal(fieldBuf, &fieldVal); err != nil {
+				return fmt.Errorf("error unmarshaling field %s: %w", fieldName, err)
+			}
+			t.AdditionalProperties[fieldName] = fieldVal
+		}
+	}
+	return nil
+}
+
+// Override default JSON handling for TargetWithExtra to handle AdditionalProperties
+func (t TargetWithExtra) MarshalJSON() ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+
+	if t.TargetWithExtra_AnyOf != nil {
+		{
+			embeddedJSON, err := json.Marshal(t.TargetWithExtra_AnyOf)
+			if err != nil {
+				return nil, fmt.Errorf("error marshaling embedded 'TargetWithExtra_AnyOf': %w", err)
+			}
+			var embeddedObj map[string]json.RawMessage
+			if err := json.Unmarshal(embeddedJSON, &embeddedObj); err == nil {
+				for k, v := range embeddedObj {
+					object[k] = v
+				}
+			}
+		}
+	}
+
+	for fieldName, field := range t.AdditionalProperties {
+		object[fieldName], err = json.Marshal(field)
+		if err != nil {
+			return nil, fmt.Errorf("error marshaling '%s': %w", fieldName, err)
+		}
+	}
+	return json.Marshal(object)
+}
+
 type Target_AllOf1 struct {
 	Target_AllOf1_AnyOf *Target_AllOf1_AnyOf `json:"-"`
 }
@@ -163,34 +240,29 @@ func (t *Target_AllOf1) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-	var res T
-	err := json.Unmarshal(v, &res)
-	return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-	if data != nil {
-		if err := json.Unmarshal(data, &object); err != nil {
-			return nil, err
-		}
-	}
-
-	object[field], err = json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-	}
-
-	return json.Marshal(object)
-}
-
 type Target_AllOf1_AnyOf struct {
 	runtime.Either[EmailTarget, WebhookTarget]
 }
 
 func (t *Target_AllOf1_AnyOf) Validate() error {
+	if t.IsA() {
+		if v, ok := any(t.A).(runtime.Validator); ok {
+			return v.Validate()
+		}
+	}
+	if t.IsB() {
+		if v, ok := any(t.B).(runtime.Validator); ok {
+			return v.Validate()
+		}
+	}
+	return nil
+}
+
+type TargetWithExtra_AnyOf struct {
+	runtime.Either[EmailTarget, WebhookTarget]
+}
+
+func (t *TargetWithExtra_AnyOf) Validate() error {
 	if t.IsA() {
 		if v, ok := any(t.A).(runtime.Validator); ok {
 			return v.Validate()

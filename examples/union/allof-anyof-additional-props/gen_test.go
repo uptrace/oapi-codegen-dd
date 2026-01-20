@@ -3,8 +3,9 @@ package union
 import (
 	"encoding/json"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
 	"testing"
+
+	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -92,4 +93,40 @@ func TestTarget_Roundtrip(t *testing.T) {
 	assert.Equal(t, "email", result["type"])
 	assert.Equal(t, "test@example.com", result["email"])
 	assert.Equal(t, "value", result["custom"])
+}
+
+func TestTargetWithExtra_UnmarshalJSON_EmailTarget(t *testing.T) {
+	input := `{"email": "test@example.com", "extra": "data"}`
+
+	var target TargetWithExtra
+	err := json.Unmarshal([]byte(input), &target)
+	require.NoError(t, err)
+
+	require.NotNil(t, target.TargetWithExtra_AnyOf)
+	assert.True(t, target.TargetWithExtra_AnyOf.IsA())
+	assert.Equal(t, "test@example.com", target.TargetWithExtra_AnyOf.A.Email)
+	assert.Equal(t, map[string]string{"extra": "data"}, target.AdditionalProperties)
+}
+
+func TestTargetWithExtra_UnmarshalJSON_WebhookTarget(t *testing.T) {
+	input := `{"url": "https://example.com", "custom": "value"}`
+
+	var target TargetWithExtra
+	err := json.Unmarshal([]byte(input), &target)
+	require.NoError(t, err)
+
+	require.NotNil(t, target.TargetWithExtra_AnyOf)
+	assert.True(t, target.TargetWithExtra_AnyOf.IsB())
+	assert.Equal(t, "https://example.com", target.TargetWithExtra_AnyOf.B.URL)
+	assert.Equal(t, map[string]string{"custom": "value"}, target.AdditionalProperties)
+}
+
+func TestTargetWithExtra_UnmarshalJSON_NoAdditionalProperties(t *testing.T) {
+	input := `{"email": "test@example.com"}`
+
+	var target TargetWithExtra
+	err := json.Unmarshal([]byte(input), &target)
+	require.NoError(t, err)
+
+	assert.Nil(t, target.AdditionalProperties)
 }

@@ -307,29 +307,6 @@ func (o Order_Product_OneOf_3) Validate() error {
 	return errors
 }
 
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-	var res T
-	err := json.Unmarshal(v, &res)
-	return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-	if data != nil {
-		if err := json.Unmarshal(data, &object); err != nil {
-			return nil, err
-		}
-	}
-
-	object[field], err = json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-	}
-
-	return json.Marshal(object)
-}
-
 type Order_Product_OneOf struct {
 	union json.RawMessage
 }
@@ -348,7 +325,7 @@ func (o *Order_Product_OneOf) Raw() json.RawMessage {
 
 // AsVersionA returns the union data inside the Order_Product_OneOf as a VersionA
 func (o *Order_Product_OneOf) AsVersionA() (VersionA, error) {
-	return UnmarshalAs[VersionA](o.union)
+	return runtime.UnmarshalAs[VersionA](o.union)
 }
 
 // AsValidatedVersionA returns the union data inside the Order_Product_OneOf as a validated VersionA
@@ -378,7 +355,7 @@ func (o *Order_Product_OneOf) FromVersionA(val VersionA) error {
 
 // AsVersionB returns the union data inside the Order_Product_OneOf as a VersionB
 func (o *Order_Product_OneOf) AsVersionB() (VersionB, error) {
-	return UnmarshalAs[VersionB](o.union)
+	return runtime.UnmarshalAs[VersionB](o.union)
 }
 
 // AsValidatedVersionB returns the union data inside the Order_Product_OneOf as a validated VersionB
@@ -408,7 +385,7 @@ func (o *Order_Product_OneOf) FromVersionB(val VersionB) error {
 
 // AsBool returns the union data inside the Order_Product_OneOf as a bool
 func (o *Order_Product_OneOf) AsBool() (bool, error) {
-	return UnmarshalAs[bool](o.union)
+	return runtime.UnmarshalAs[bool](o.union)
 }
 
 // AsValidatedBool returns the union data inside the Order_Product_OneOf as a validated bool
@@ -438,7 +415,7 @@ func (o *Order_Product_OneOf) FromBool(val bool) error {
 
 // AsOrder_Product_OneOf_3 returns the union data inside the Order_Product_OneOf as a Order_Product_OneOf_3
 func (o *Order_Product_OneOf) AsOrder_Product_OneOf_3() (Order_Product_OneOf_3, error) {
-	return UnmarshalAs[Order_Product_OneOf_3](o.union)
+	return runtime.UnmarshalAs[Order_Product_OneOf_3](o.union)
 }
 
 // AsValidatedOrder_Product_OneOf_3 returns the union data inside the Order_Product_OneOf as a validated Order_Product_OneOf_3

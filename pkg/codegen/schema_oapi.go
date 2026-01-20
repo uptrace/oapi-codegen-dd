@@ -295,7 +295,11 @@ func oapiSchemaToGoType(schema *base.Schema, options ParseOptions) (GoSchema, er
 		case "binary":
 			goType = "runtime.File"
 		case "uuid":
-			goType = "uuid.UUID"
+			// Only use uuid.UUID for standard UUID lengths (32 or 36 chars)
+			// Non-standard lengths should use string to avoid unmarshal errors
+			if isStandardUUIDLength(schema) {
+				goType = "uuid.UUID"
+			}
 		}
 
 		// Always use alias for primitives - validation will be handled
@@ -330,4 +334,33 @@ func oapiSchemaToGoType(schema *base.Schema, options ParseOptions) (GoSchema, er
 	}
 
 	return GoSchema{}, fmt.Errorf("unhandled GoSchema type: %v", t)
+}
+
+// isStandardUUIDLength checks if the schema's length constraints are compatible with uuid.UUID.
+// Standard UUID is 36 chars (with dashes) or 32 chars (without dashes).
+// If no length constraints are specified, assumes standard UUID.
+// Returns false for non-standard lengths (e.g., 64 chars) which should use string type.
+func isStandardUUIDLength(schema *base.Schema) bool {
+	// If no length constraints, assume standard UUID
+	if schema.MinLength == nil && schema.MaxLength == nil {
+		return true
+	}
+
+	// Check minLength
+	if schema.MinLength != nil {
+		minLen := *schema.MinLength
+		if minLen != 32 && minLen != 36 {
+			return false
+		}
+	}
+
+	// Check maxLength
+	if schema.MaxLength != nil {
+		maxLen := *schema.MaxLength
+		if maxLen != 32 && maxLen != 36 {
+			return false
+		}
+	}
+
+	return true
 }

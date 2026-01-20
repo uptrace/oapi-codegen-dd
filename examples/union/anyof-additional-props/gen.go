@@ -105,29 +105,6 @@ type PushNotification struct {
 	Badge       *int   `json:"badge,omitempty"`
 }
 
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-	var res T
-	err := json.Unmarshal(v, &res)
-	return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-	if data != nil {
-		if err := json.Unmarshal(data, &object); err != nil {
-			return nil, err
-		}
-	}
-
-	object[field], err = json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-	}
-
-	return json.Marshal(object)
-}
-
 type Notification_AnyOf struct {
 	union json.RawMessage
 }
@@ -146,7 +123,7 @@ func (n *Notification_AnyOf) Raw() json.RawMessage {
 
 // AsEmailNotification returns the union data inside the Notification_AnyOf as a EmailNotification
 func (n *Notification_AnyOf) AsEmailNotification() (EmailNotification, error) {
-	return UnmarshalAs[EmailNotification](n.union)
+	return runtime.UnmarshalAs[EmailNotification](n.union)
 }
 
 // AsValidatedEmailNotification returns the union data inside the Notification_AnyOf as a validated EmailNotification
@@ -176,7 +153,7 @@ func (n *Notification_AnyOf) FromEmailNotification(val EmailNotification) error 
 
 // AsSMSNotification returns the union data inside the Notification_AnyOf as a SMSNotification
 func (n *Notification_AnyOf) AsSMSNotification() (SMSNotification, error) {
-	return UnmarshalAs[SMSNotification](n.union)
+	return runtime.UnmarshalAs[SMSNotification](n.union)
 }
 
 // AsValidatedSMSNotification returns the union data inside the Notification_AnyOf as a validated SMSNotification
@@ -206,7 +183,7 @@ func (n *Notification_AnyOf) FromSMSNotification(val SMSNotification) error {
 
 // AsPushNotification returns the union data inside the Notification_AnyOf as a PushNotification
 func (n *Notification_AnyOf) AsPushNotification() (PushNotification, error) {
-	return UnmarshalAs[PushNotification](n.union)
+	return runtime.UnmarshalAs[PushNotification](n.union)
 }
 
 // AsValidatedPushNotification returns the union data inside the Notification_AnyOf as a validated PushNotification

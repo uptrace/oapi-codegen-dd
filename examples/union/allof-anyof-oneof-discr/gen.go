@@ -363,29 +363,6 @@ func (p *Pet) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-	var res T
-	err := json.Unmarshal(v, &res)
-	return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-	if data != nil {
-		if err := json.Unmarshal(data, &object); err != nil {
-			return nil, err
-		}
-	}
-
-	object[field], err = json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-	}
-
-	return json.Marshal(object)
-}
-
 type ClientAndMaybeIdentity_Entity_AnyOf struct {
 	runtime.Either[Client, Identity]
 }
@@ -465,7 +442,7 @@ func (c *ClientOrIdentityWithDiscriminator_OneOf) MarshalJSON() ([]byte, error) 
 	if err != nil {
 		return nil, err
 	}
-	return marshalJSONWithDiscriminator(obj, "type", disc)
+	return runtime.MarshalEitherWithDiscriminator(obj, "type", disc)
 }
 
 func (c *ClientOrIdentityWithDiscriminator_OneOf) UnmarshalJSON(data []byte) error {
@@ -540,7 +517,7 @@ func (p *Pet_OneOf) MarshalJSON() ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	return marshalJSONWithDiscriminator(obj, "type", disc)
+	return runtime.MarshalEitherWithDiscriminator(obj, "type", disc)
 }
 
 func (p *Pet_OneOf) UnmarshalJSON(data []byte) error {

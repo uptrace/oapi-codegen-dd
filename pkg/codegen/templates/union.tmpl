@@ -13,29 +13,6 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */}}
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-    var res T
-    err := json.Unmarshal(v, &res)
-    return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-    var err error
-    object := make(map[string]json.RawMessage)
-    if data != nil {
-        if err := json.Unmarshal(data, &object); err != nil {
-            return nil, err
-        }
-    }
-
-    object[field], err = json.Marshal(value)
-    if err != nil {
-        return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-    }
-
-    return json.Marshal(object)
-}
-
 {{ $config := .Config }}
 {{ $typeSchemaMap := .TypeSchemaMap }}
 
@@ -102,7 +79,7 @@ func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, err
 
         // As{{ .Method }} returns the union data inside the {{$typeName}} as a {{.TypeName}}
         func ({{$alias}} *{{$typeName}}) As{{ .Method }}() ({{.TypeName}}, error) {
-            return UnmarshalAs[{{.TypeName}}]({{$alias}}.union)
+            return runtime.UnmarshalAs[{{.TypeName}}]({{$alias}}.union)
         }
 
         // AsValidated{{ .Method }} returns the union data inside the {{$typeName}} as a validated {{.TypeName}}
@@ -236,7 +213,7 @@ func ({{$args.alias}} *{{$args.name}}) MarshalJSON() ([]byte, error) {
     if err != nil {
         return nil, err
     }
-    return marshalJSONWithDiscriminator(obj, "{{escapeGoString $args.discriminator.Property}}", disc)
+    return runtime.MarshalEitherWithDiscriminator(obj, "{{escapeGoString $args.discriminator.Property}}", disc)
 }
 {{ end }}
 

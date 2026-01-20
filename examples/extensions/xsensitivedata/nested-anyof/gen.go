@@ -860,29 +860,6 @@ func (a *AccountHolder) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-	var res T
-	err := json.Unmarshal(v, &res)
-	return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-	if data != nil {
-		if err := json.Unmarshal(data, &object); err != nil {
-			return nil, err
-		}
-	}
-
-	object[field], err = json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-	}
-
-	return json.Marshal(object)
-}
-
 type PaymentMethod_AnyOf struct {
 	union json.RawMessage
 }
@@ -901,7 +878,7 @@ func (p *PaymentMethod_AnyOf) Raw() json.RawMessage {
 
 // AsCreditCardPayment returns the union data inside the PaymentMethod_AnyOf as a CreditCardPayment
 func (p *PaymentMethod_AnyOf) AsCreditCardPayment() (CreditCardPayment, error) {
-	return UnmarshalAs[CreditCardPayment](p.union)
+	return runtime.UnmarshalAs[CreditCardPayment](p.union)
 }
 
 // AsValidatedCreditCardPayment returns the union data inside the PaymentMethod_AnyOf as a validated CreditCardPayment
@@ -931,7 +908,7 @@ func (p *PaymentMethod_AnyOf) FromCreditCardPayment(val CreditCardPayment) error
 
 // AsBankTransferPayment returns the union data inside the PaymentMethod_AnyOf as a BankTransferPayment
 func (p *PaymentMethod_AnyOf) AsBankTransferPayment() (BankTransferPayment, error) {
-	return UnmarshalAs[BankTransferPayment](p.union)
+	return runtime.UnmarshalAs[BankTransferPayment](p.union)
 }
 
 // AsValidatedBankTransferPayment returns the union data inside the PaymentMethod_AnyOf as a validated BankTransferPayment
@@ -961,7 +938,7 @@ func (p *PaymentMethod_AnyOf) FromBankTransferPayment(val BankTransferPayment) e
 
 // AsDigitalWalletPayment returns the union data inside the PaymentMethod_AnyOf as a DigitalWalletPayment
 func (p *PaymentMethod_AnyOf) AsDigitalWalletPayment() (DigitalWalletPayment, error) {
-	return UnmarshalAs[DigitalWalletPayment](p.union)
+	return runtime.UnmarshalAs[DigitalWalletPayment](p.union)
 }
 
 // AsValidatedDigitalWalletPayment returns the union data inside the PaymentMethod_AnyOf as a validated DigitalWalletPayment

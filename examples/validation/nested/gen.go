@@ -198,29 +198,6 @@ func (r RelativeTimeDuration) Validate() error {
 	return runtime.ConvertValidatorError(typesValidator.Struct(r))
 }
 
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-	var res T
-	err := json.Unmarshal(v, &res)
-	return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-	if data != nil {
-		if err := json.Unmarshal(data, &object); err != nil {
-			return nil, err
-		}
-	}
-
-	object[field], err = json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-	}
-
-	return json.Marshal(object)
-}
-
 type PointRequestOneOf_OneOf struct {
 	runtime.Either[TimeBasedLocation, DistanceBasedLocation]
 }

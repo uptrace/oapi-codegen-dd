@@ -203,6 +203,33 @@ func JSONMerge(data, patch json.RawMessage) (json.RawMessage, error) {
 	return merged, nil
 }
 
+// UnmarshalAs is a generic helper to unmarshal JSON into a typed value.
+// It's useful for union types where you want to unmarshal into a specific variant.
+func UnmarshalAs[T any](v json.RawMessage) (T, error) {
+	var res T
+	err := json.Unmarshal(v, &res)
+	return res, err
+}
+
+// MarshalEitherWithDiscriminator marshals data and adds/overwrites a discriminator field.
+// This is used for Either union types with discriminator properties.
+func MarshalEitherWithDiscriminator(data []byte, field, value string) ([]byte, error) {
+	var err error
+	object := make(map[string]json.RawMessage)
+	if data != nil {
+		if err := json.Unmarshal(data, &object); err != nil {
+			return nil, err
+		}
+	}
+
+	object[field], err = json.Marshal(value)
+	if err != nil {
+		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
+	}
+
+	return json.Marshal(object)
+}
+
 // MarshalJSON marshals value respecting json.Marshaler.
 func MarshalJSON(v any) (json.RawMessage, error) {
 	if v == nil {

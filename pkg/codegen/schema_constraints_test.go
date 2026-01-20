@@ -417,3 +417,98 @@ func TestNewConstraints_NonStringFormats(t *testing.T) {
 		}, res)
 	})
 }
+
+func TestIsStandardUUIDLength(t *testing.T) {
+	assert := assert.New(t)
+
+	t.Run("no length constraints returns true", func(t *testing.T) {
+		schema := &base.Schema{
+			Type:   []string{"string"},
+			Format: "uuid",
+		}
+		assert.True(isStandardUUIDLength(schema))
+	})
+
+	t.Run("minLength 36 returns true", func(t *testing.T) {
+		minLn := int64(36)
+		schema := &base.Schema{
+			Type:      []string{"string"},
+			Format:    "uuid",
+			MinLength: &minLn,
+		}
+		assert.True(isStandardUUIDLength(schema))
+	})
+
+	t.Run("maxLength 36 returns true", func(t *testing.T) {
+		maxLn := int64(36)
+		schema := &base.Schema{
+			Type:      []string{"string"},
+			Format:    "uuid",
+			MaxLength: &maxLn,
+		}
+		assert.True(isStandardUUIDLength(schema))
+	})
+
+	t.Run("minLength 32 returns true", func(t *testing.T) {
+		minLn := int64(32)
+		schema := &base.Schema{
+			Type:      []string{"string"},
+			Format:    "uuid",
+			MinLength: &minLn,
+		}
+		assert.True(isStandardUUIDLength(schema))
+	})
+
+	t.Run("maxLength 32 returns true", func(t *testing.T) {
+		maxLn := int64(32)
+		schema := &base.Schema{
+			Type:      []string{"string"},
+			Format:    "uuid",
+			MaxLength: &maxLn,
+		}
+		assert.True(isStandardUUIDLength(schema))
+	})
+
+	t.Run("minLength 64 returns false", func(t *testing.T) {
+		minLn := int64(64)
+		schema := &base.Schema{
+			Type:      []string{"string"},
+			Format:    "uuid",
+			MinLength: &minLn,
+		}
+		assert.False(isStandardUUIDLength(schema))
+	})
+
+	t.Run("maxLength 64 returns false", func(t *testing.T) {
+		maxLn := int64(64)
+		schema := &base.Schema{
+			Type:      []string{"string"},
+			Format:    "uuid",
+			MaxLength: &maxLn,
+		}
+		assert.False(isStandardUUIDLength(schema))
+	})
+
+	t.Run("minLength and maxLength both 64 returns false", func(t *testing.T) {
+		ln := int64(64)
+		schema := &base.Schema{
+			Type:      []string{"string"},
+			Format:    "uuid",
+			MinLength: &ln,
+			MaxLength: &ln,
+		}
+		assert.False(isStandardUUIDLength(schema))
+	})
+
+	t.Run("minLength 32 maxLength 36 returns true", func(t *testing.T) {
+		minLn := int64(32)
+		maxLn := int64(36)
+		schema := &base.Schema{
+			Type:      []string{"string"},
+			Format:    "uuid",
+			MinLength: &minLn,
+			MaxLength: &maxLn,
+		}
+		assert.True(isStandardUUIDLength(schema))
+	})
+}

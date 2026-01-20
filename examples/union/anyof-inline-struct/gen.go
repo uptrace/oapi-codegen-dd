@@ -246,29 +246,6 @@ type UpdateConfigBody_Config_AnyOf_2 struct {
 	Compression *bool `json:"compression,omitempty"`
 }
 
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-	var res T
-	err := json.Unmarshal(v, &res)
-	return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-	if data != nil {
-		if err := json.Unmarshal(data, &object); err != nil {
-			return nil, err
-		}
-	}
-
-	object[field], err = json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-	}
-
-	return json.Marshal(object)
-}
-
 type GetConfig_Response_Config_AnyOf struct {
 	union json.RawMessage
 }
@@ -287,7 +264,7 @@ func (g *GetConfig_Response_Config_AnyOf) Raw() json.RawMessage {
 
 // AsGetConfig_Response_Config_AnyOf_0 returns the union data inside the GetConfig_Response_Config_AnyOf as a GetConfig_Response_Config_AnyOf_0
 func (g *GetConfig_Response_Config_AnyOf) AsGetConfig_Response_Config_AnyOf_0() (GetConfig_Response_Config_AnyOf_0, error) {
-	return UnmarshalAs[GetConfig_Response_Config_AnyOf_0](g.union)
+	return runtime.UnmarshalAs[GetConfig_Response_Config_AnyOf_0](g.union)
 }
 
 // AsValidatedGetConfig_Response_Config_AnyOf_0 returns the union data inside the GetConfig_Response_Config_AnyOf as a validated GetConfig_Response_Config_AnyOf_0
@@ -317,7 +294,7 @@ func (g *GetConfig_Response_Config_AnyOf) FromGetConfig_Response_Config_AnyOf_0(
 
 // AsGetConfig_Response_Config_AnyOf_1 returns the union data inside the GetConfig_Response_Config_AnyOf as a GetConfig_Response_Config_AnyOf_1
 func (g *GetConfig_Response_Config_AnyOf) AsGetConfig_Response_Config_AnyOf_1() (GetConfig_Response_Config_AnyOf_1, error) {
-	return UnmarshalAs[GetConfig_Response_Config_AnyOf_1](g.union)
+	return runtime.UnmarshalAs[GetConfig_Response_Config_AnyOf_1](g.union)
 }
 
 // AsValidatedGetConfig_Response_Config_AnyOf_1 returns the union data inside the GetConfig_Response_Config_AnyOf as a validated GetConfig_Response_Config_AnyOf_1
@@ -347,7 +324,7 @@ func (g *GetConfig_Response_Config_AnyOf) FromGetConfig_Response_Config_AnyOf_1(
 
 // AsGetConfig_Response_Config_AnyOf_2 returns the union data inside the GetConfig_Response_Config_AnyOf as a GetConfig_Response_Config_AnyOf_2
 func (g *GetConfig_Response_Config_AnyOf) AsGetConfig_Response_Config_AnyOf_2() (GetConfig_Response_Config_AnyOf_2, error) {
-	return UnmarshalAs[GetConfig_Response_Config_AnyOf_2](g.union)
+	return runtime.UnmarshalAs[GetConfig_Response_Config_AnyOf_2](g.union)
 }
 
 // AsValidatedGetConfig_Response_Config_AnyOf_2 returns the union data inside the GetConfig_Response_Config_AnyOf as a validated GetConfig_Response_Config_AnyOf_2
@@ -429,7 +406,7 @@ func (u *UpdateConfigBody_Config_AnyOf) Raw() json.RawMessage {
 
 // AsUpdateConfigBody_Config_AnyOf_0 returns the union data inside the UpdateConfigBody_Config_AnyOf as a UpdateConfigBody_Config_AnyOf_0
 func (u *UpdateConfigBody_Config_AnyOf) AsUpdateConfigBody_Config_AnyOf_0() (UpdateConfigBody_Config_AnyOf_0, error) {
-	return UnmarshalAs[UpdateConfigBody_Config_AnyOf_0](u.union)
+	return runtime.UnmarshalAs[UpdateConfigBody_Config_AnyOf_0](u.union)
 }
 
 // AsValidatedUpdateConfigBody_Config_AnyOf_0 returns the union data inside the UpdateConfigBody_Config_AnyOf as a validated UpdateConfigBody_Config_AnyOf_0
@@ -459,7 +436,7 @@ func (u *UpdateConfigBody_Config_AnyOf) FromUpdateConfigBody_Config_AnyOf_0(val 
 
 // AsUpdateConfigBody_Config_AnyOf_1 returns the union data inside the UpdateConfigBody_Config_AnyOf as a UpdateConfigBody_Config_AnyOf_1
 func (u *UpdateConfigBody_Config_AnyOf) AsUpdateConfigBody_Config_AnyOf_1() (UpdateConfigBody_Config_AnyOf_1, error) {
-	return UnmarshalAs[UpdateConfigBody_Config_AnyOf_1](u.union)
+	return runtime.UnmarshalAs[UpdateConfigBody_Config_AnyOf_1](u.union)
 }
 
 // AsValidatedUpdateConfigBody_Config_AnyOf_1 returns the union data inside the UpdateConfigBody_Config_AnyOf as a validated UpdateConfigBody_Config_AnyOf_1
@@ -489,7 +466,7 @@ func (u *UpdateConfigBody_Config_AnyOf) FromUpdateConfigBody_Config_AnyOf_1(val 
 
 // AsUpdateConfigBody_Config_AnyOf_2 returns the union data inside the UpdateConfigBody_Config_AnyOf as a UpdateConfigBody_Config_AnyOf_2
 func (u *UpdateConfigBody_Config_AnyOf) AsUpdateConfigBody_Config_AnyOf_2() (UpdateConfigBody_Config_AnyOf_2, error) {
-	return UnmarshalAs[UpdateConfigBody_Config_AnyOf_2](u.union)
+	return runtime.UnmarshalAs[UpdateConfigBody_Config_AnyOf_2](u.union)
 }
 
 // AsValidatedUpdateConfigBody_Config_AnyOf_2 returns the union data inside the UpdateConfigBody_Config_AnyOf as a validated UpdateConfigBody_Config_AnyOf_2

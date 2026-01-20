@@ -76,29 +76,6 @@ type PayloadC struct {
 	C *string `json:"c,omitempty"`
 }
 
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-	var res T
-	err := json.Unmarshal(v, &res)
-	return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-	if data != nil {
-		if err := json.Unmarshal(data, &object); err != nil {
-			return nil, err
-		}
-	}
-
-	object[field], err = json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-	}
-
-	return json.Marshal(object)
-}
-
 type ProcessPaymentBody_OneOf struct {
 	union json.RawMessage
 }
@@ -117,7 +94,7 @@ func (p *ProcessPaymentBody_OneOf) Raw() json.RawMessage {
 
 // AsPayloadA returns the union data inside the ProcessPaymentBody_OneOf as a PayloadA
 func (p *ProcessPaymentBody_OneOf) AsPayloadA() (PayloadA, error) {
-	return UnmarshalAs[PayloadA](p.union)
+	return runtime.UnmarshalAs[PayloadA](p.union)
 }
 
 // AsValidatedPayloadA returns the union data inside the ProcessPaymentBody_OneOf as a validated PayloadA
@@ -147,7 +124,7 @@ func (p *ProcessPaymentBody_OneOf) FromPayloadA(val PayloadA) error {
 
 // AsPayloadB returns the union data inside the ProcessPaymentBody_OneOf as a PayloadB
 func (p *ProcessPaymentBody_OneOf) AsPayloadB() (PayloadB, error) {
-	return UnmarshalAs[PayloadB](p.union)
+	return runtime.UnmarshalAs[PayloadB](p.union)
 }
 
 // AsValidatedPayloadB returns the union data inside the ProcessPaymentBody_OneOf as a validated PayloadB
@@ -177,7 +154,7 @@ func (p *ProcessPaymentBody_OneOf) FromPayloadB(val PayloadB) error {
 
 // AsPayloadC returns the union data inside the ProcessPaymentBody_OneOf as a PayloadC
 func (p *ProcessPaymentBody_OneOf) AsPayloadC() (PayloadC, error) {
-	return UnmarshalAs[PayloadC](p.union)
+	return runtime.UnmarshalAs[PayloadC](p.union)
 }
 
 // AsValidatedPayloadC returns the union data inside the ProcessPaymentBody_OneOf as a validated PayloadC

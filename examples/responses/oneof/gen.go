@@ -63,29 +63,6 @@ type ResponseC struct {
 	C *string `json:"c,omitempty"`
 }
 
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-	var res T
-	err := json.Unmarshal(v, &res)
-	return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-	if data != nil {
-		if err := json.Unmarshal(data, &object); err != nil {
-			return nil, err
-		}
-	}
-
-	object[field], err = json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-	}
-
-	return json.Marshal(object)
-}
-
 type ProcessPayment_Response_OneOf struct {
 	union json.RawMessage
 }
@@ -104,7 +81,7 @@ func (p *ProcessPayment_Response_OneOf) Raw() json.RawMessage {
 
 // AsResponseA returns the union data inside the ProcessPayment_Response_OneOf as a ResponseA
 func (p *ProcessPayment_Response_OneOf) AsResponseA() (ResponseA, error) {
-	return UnmarshalAs[ResponseA](p.union)
+	return runtime.UnmarshalAs[ResponseA](p.union)
 }
 
 // AsValidatedResponseA returns the union data inside the ProcessPayment_Response_OneOf as a validated ResponseA
@@ -134,7 +111,7 @@ func (p *ProcessPayment_Response_OneOf) FromResponseA(val ResponseA) error {
 
 // AsResponseB returns the union data inside the ProcessPayment_Response_OneOf as a ResponseB
 func (p *ProcessPayment_Response_OneOf) AsResponseB() (ResponseB, error) {
-	return UnmarshalAs[ResponseB](p.union)
+	return runtime.UnmarshalAs[ResponseB](p.union)
 }
 
 // AsValidatedResponseB returns the union data inside the ProcessPayment_Response_OneOf as a validated ResponseB
@@ -164,7 +141,7 @@ func (p *ProcessPayment_Response_OneOf) FromResponseB(val ResponseB) error {
 
 // AsResponseC returns the union data inside the ProcessPayment_Response_OneOf as a ResponseC
 func (p *ProcessPayment_Response_OneOf) AsResponseC() (ResponseC, error) {
-	return UnmarshalAs[ResponseC](p.union)
+	return runtime.UnmarshalAs[ResponseC](p.union)
 }
 
 // AsValidatedResponseC returns the union data inside the ProcessPayment_Response_OneOf as a validated ResponseC

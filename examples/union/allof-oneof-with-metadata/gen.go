@@ -282,29 +282,6 @@ func (c *Collaboration_Item_AllOf0) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-	var res T
-	err := json.Unmarshal(v, &res)
-	return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-	if data != nil {
-		if err := json.Unmarshal(data, &object); err != nil {
-			return nil, err
-		}
-	}
-
-	object[field], err = json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-	}
-
-	return json.Marshal(object)
-}
-
 type Collaboration_Item_AllOf0_OneOf struct {
 	union json.RawMessage
 }
@@ -323,7 +300,7 @@ func (c *Collaboration_Item_AllOf0_OneOf) Raw() json.RawMessage {
 
 // AsFile returns the union data inside the Collaboration_Item_AllOf0_OneOf as a File
 func (c *Collaboration_Item_AllOf0_OneOf) AsFile() (File, error) {
-	return UnmarshalAs[File](c.union)
+	return runtime.UnmarshalAs[File](c.union)
 }
 
 // AsValidatedFile returns the union data inside the Collaboration_Item_AllOf0_OneOf as a validated File
@@ -353,7 +330,7 @@ func (c *Collaboration_Item_AllOf0_OneOf) FromFile(val File) error {
 
 // AsFolder returns the union data inside the Collaboration_Item_AllOf0_OneOf as a Folder
 func (c *Collaboration_Item_AllOf0_OneOf) AsFolder() (Folder, error) {
-	return UnmarshalAs[Folder](c.union)
+	return runtime.UnmarshalAs[Folder](c.union)
 }
 
 // AsValidatedFolder returns the union data inside the Collaboration_Item_AllOf0_OneOf as a validated Folder
@@ -383,7 +360,7 @@ func (c *Collaboration_Item_AllOf0_OneOf) FromFolder(val Folder) error {
 
 // AsWebLink returns the union data inside the Collaboration_Item_AllOf0_OneOf as a WebLink
 func (c *Collaboration_Item_AllOf0_OneOf) AsWebLink() (WebLink, error) {
-	return UnmarshalAs[WebLink](c.union)
+	return runtime.UnmarshalAs[WebLink](c.union)
 }
 
 // AsValidatedWebLink returns the union data inside the Collaboration_Item_AllOf0_OneOf as a validated WebLink

@@ -223,29 +223,6 @@ type User struct {
 	Age  *int    `json:"age,omitempty"`
 }
 
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-	var res T
-	err := json.Unmarshal(v, &res)
-	return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-	if data != nil {
-		if err := json.Unmarshal(data, &object); err != nil {
-			return nil, err
-		}
-	}
-
-	object[field], err = json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-	}
-
-	return json.Marshal(object)
-}
-
 type Response_User_OneOf struct {
 	runtime.Either[User, string]
 }
@@ -282,7 +259,7 @@ func (r *Response_Friend_AnyOf) Raw() json.RawMessage {
 
 // AsUser returns the union data inside the Response_Friend_AnyOf as a User
 func (r *Response_Friend_AnyOf) AsUser() (User, error) {
-	return UnmarshalAs[User](r.union)
+	return runtime.UnmarshalAs[User](r.union)
 }
 
 // AsValidatedUser returns the union data inside the Response_Friend_AnyOf as a validated User
@@ -312,7 +289,7 @@ func (r *Response_Friend_AnyOf) FromUser(val User) error {
 
 // AsString returns the union data inside the Response_Friend_AnyOf as a string
 func (r *Response_Friend_AnyOf) AsString() (string, error) {
-	return UnmarshalAs[string](r.union)
+	return runtime.UnmarshalAs[string](r.union)
 }
 
 // AsValidatedString returns the union data inside the Response_Friend_AnyOf as a validated string
@@ -342,7 +319,7 @@ func (r *Response_Friend_AnyOf) FromString(val string) error {
 
 // AsInt returns the union data inside the Response_Friend_AnyOf as a int
 func (r *Response_Friend_AnyOf) AsInt() (int, error) {
-	return UnmarshalAs[int](r.union)
+	return runtime.UnmarshalAs[int](r.union)
 }
 
 // AsValidatedInt returns the union data inside the Response_Friend_AnyOf as a validated int

@@ -4,7 +4,6 @@ package gen
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/go-playground/validator/v10"
@@ -48,29 +47,6 @@ func (m Measurement) Validate() error {
 }
 
 type IgnoredOneOf = int
-
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-	var res T
-	err := json.Unmarshal(v, &res)
-	return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-	if data != nil {
-		if err := json.Unmarshal(data, &object); err != nil {
-			return nil, err
-		}
-	}
-
-	object[field], err = json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-	}
-
-	return json.Marshal(object)
-}
 
 type Measurement_Value struct {
 	runtime.Either[string, float32]
@@ -126,7 +102,7 @@ func (m *Measurement_Count) Raw() json.RawMessage {
 
 // AsString returns the union data inside the Measurement_Count as a string
 func (m *Measurement_Count) AsString() (string, error) {
-	return UnmarshalAs[string](m.union)
+	return runtime.UnmarshalAs[string](m.union)
 }
 
 // AsValidatedString returns the union data inside the Measurement_Count as a validated string
@@ -156,7 +132,7 @@ func (m *Measurement_Count) FromString(val string) error {
 
 // AsInt returns the union data inside the Measurement_Count as a int
 func (m *Measurement_Count) AsInt() (int, error) {
-	return UnmarshalAs[int](m.union)
+	return runtime.UnmarshalAs[int](m.union)
 }
 
 // AsValidatedInt returns the union data inside the Measurement_Count as a validated int
@@ -186,7 +162,7 @@ func (m *Measurement_Count) FromInt(val int) error {
 
 // AsBool returns the union data inside the Measurement_Count as a bool
 func (m *Measurement_Count) AsBool() (bool, error) {
-	return UnmarshalAs[bool](m.union)
+	return runtime.UnmarshalAs[bool](m.union)
 }
 
 // AsValidatedBool returns the union data inside the Measurement_Count as a validated bool
@@ -268,7 +244,7 @@ func (m *Measurement_Count_AdditionalProperties) Raw() json.RawMessage {
 
 // AsString returns the union data inside the Measurement_Count_AdditionalProperties as a string
 func (m *Measurement_Count_AdditionalProperties) AsString() (string, error) {
-	return UnmarshalAs[string](m.union)
+	return runtime.UnmarshalAs[string](m.union)
 }
 
 // AsValidatedString returns the union data inside the Measurement_Count_AdditionalProperties as a validated string
@@ -298,7 +274,7 @@ func (m *Measurement_Count_AdditionalProperties) FromString(val string) error {
 
 // AsInt returns the union data inside the Measurement_Count_AdditionalProperties as a int
 func (m *Measurement_Count_AdditionalProperties) AsInt() (int, error) {
-	return UnmarshalAs[int](m.union)
+	return runtime.UnmarshalAs[int](m.union)
 }
 
 // AsValidatedInt returns the union data inside the Measurement_Count_AdditionalProperties as a validated int
@@ -328,7 +304,7 @@ func (m *Measurement_Count_AdditionalProperties) FromInt(val int) error {
 
 // AsBool returns the union data inside the Measurement_Count_AdditionalProperties as a bool
 func (m *Measurement_Count_AdditionalProperties) AsBool() (bool, error) {
-	return UnmarshalAs[bool](m.union)
+	return runtime.UnmarshalAs[bool](m.union)
 }
 
 // AsValidatedBool returns the union data inside the Measurement_Count_AdditionalProperties as a validated bool

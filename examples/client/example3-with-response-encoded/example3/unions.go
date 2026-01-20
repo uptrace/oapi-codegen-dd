@@ -4,33 +4,9 @@ package example3
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
 )
-
-func UnmarshalAs[T any](v json.RawMessage) (T, error) {
-	var res T
-	err := json.Unmarshal(v, &res)
-	return res, err
-}
-
-func marshalJSONWithDiscriminator(data []byte, field, value string) ([]byte, error) {
-	var err error
-	object := make(map[string]json.RawMessage)
-	if data != nil {
-		if err := json.Unmarshal(data, &object); err != nil {
-			return nil, err
-		}
-	}
-
-	object[field], err = json.Marshal(value)
-	if err != nil {
-		return nil, fmt.Errorf("error marshaling discriminator field '%s': %w", field, err)
-	}
-
-	return json.Marshal(object)
-}
 
 type GetUserUnion2_Response_OneOf struct {
 	runtime.Either[User, string]
@@ -68,7 +44,7 @@ func (g *GetUserUnion3_Response_OneOf) Raw() json.RawMessage {
 
 // AsUser returns the union data inside the GetUserUnion3_Response_OneOf as a User
 func (g *GetUserUnion3_Response_OneOf) AsUser() (User, error) {
-	return UnmarshalAs[User](g.union)
+	return runtime.UnmarshalAs[User](g.union)
 }
 
 // AsValidatedUser returns the union data inside the GetUserUnion3_Response_OneOf as a validated User
@@ -98,7 +74,7 @@ func (g *GetUserUnion3_Response_OneOf) FromUser(val User) error {
 
 // AsString returns the union data inside the GetUserUnion3_Response_OneOf as a string
 func (g *GetUserUnion3_Response_OneOf) AsString() (string, error) {
-	return UnmarshalAs[string](g.union)
+	return runtime.UnmarshalAs[string](g.union)
 }
 
 // AsValidatedString returns the union data inside the GetUserUnion3_Response_OneOf as a validated string
@@ -128,7 +104,7 @@ func (g *GetUserUnion3_Response_OneOf) FromString(val string) error {
 
 // AsInt returns the union data inside the GetUserUnion3_Response_OneOf as a int
 func (g *GetUserUnion3_Response_OneOf) AsInt() (int, error) {
-	return UnmarshalAs[int](g.union)
+	return runtime.UnmarshalAs[int](g.union)
 }
 
 // AsValidatedInt returns the union data inside the GetUserUnion3_Response_OneOf as a validated int
