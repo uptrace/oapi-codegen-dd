@@ -236,6 +236,107 @@ res2 := res1.Message
 return res2`
 		assert.Equal(t, expected, res)
 	})
+
+	t.Run("array property with bracket notation", func(t *testing.T) {
+		typ := TypeDefinition{
+			Name: "ServiceError",
+			Schema: GoSchema{
+				Properties: []Property{
+					{
+						GoName:        "Data",
+						JsonFieldName: "data",
+						Schema: GoSchema{
+							ArrayType: &GoSchema{
+								GoType: "ErrorData",
+							},
+						},
+					},
+				},
+			},
+		}
+
+		errorDataSchema := GoSchema{
+			Properties: []Property{
+				{
+					GoName:        "Message",
+					JsonFieldName: "message",
+					Schema: GoSchema{
+						ArrayType: &GoSchema{
+							GoType: "string",
+						},
+					},
+				},
+			},
+		}
+
+		typeSchemaMap := map[string]GoSchema{
+			"ServiceError": typ.Schema,
+			"ErrorData":    errorDataSchema,
+		}
+
+		res := typ.GetErrorResponse(map[string]string{"ServiceError": "data[].message[]"}, "s", typeSchemaMap)
+		expected := `res0 := s.Data
+if len(res0) == 0 { return "unknown error" }
+res1 := res0[0]
+res2 := res1.Message
+if len(res2) == 0 { return "unknown error" }
+res3 := res2[0]
+return res3`
+		assert.Equal(t, expected, res)
+	})
+
+	t.Run("array property without bracket notation returns array", func(t *testing.T) {
+		typ := TypeDefinition{
+			Name: "ServiceError",
+			Schema: GoSchema{
+				Properties: []Property{
+					{
+						GoName:        "Messages",
+						JsonFieldName: "messages",
+						Schema: GoSchema{
+							ArrayType: &GoSchema{
+								GoType: "string",
+							},
+						},
+					},
+				},
+			},
+		}
+
+		res := typ.GetErrorResponse(map[string]string{"ServiceError": "messages"}, "s", map[string]GoSchema{})
+		expected := `res0 := s.Messages
+return res0`
+		assert.Equal(t, expected, res)
+	})
+
+	t.Run("nullable array property with bracket notation", func(t *testing.T) {
+		// Arrays are represented as slices []T, not pointers *[]T,
+		// so we don't need nil check + dereference, just len check
+		typ := TypeDefinition{
+			Name: "ServiceError",
+			Schema: GoSchema{
+				Properties: []Property{
+					{
+						GoName:        "Errors",
+						JsonFieldName: "errors",
+						Constraints:   Constraints{Nullable: ptr(true)},
+						Schema: GoSchema{
+							ArrayType: &GoSchema{
+								GoType: "string",
+							},
+						},
+					},
+				},
+			},
+		}
+
+		res := typ.GetErrorResponse(map[string]string{"ServiceError": "errors[]"}, "s", map[string]GoSchema{})
+		expected := `res0 := s.Errors
+if len(res0) == 0 { return "unknown error" }
+res1 := res0[0]
+return res1`
+		assert.Equal(t, expected, res)
+	})
 }
 
 func boolPtr(b bool) *bool {

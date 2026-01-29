@@ -158,6 +158,10 @@ func (u User) Validate() error {
 
 type BadRequestException struct{}
 
+func (s BadRequestException) Error() string {
+	return "unmapped client error"
+}
+
 type ConflictException struct{}
 
 type InternalServerException struct{}

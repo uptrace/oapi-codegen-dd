@@ -468,8 +468,20 @@ func collectResponseErrors(errNames []string, tracker *TypeTracker) ([]string, e
 				res = append(res, name)
 				break
 			}
+			// For aliases, the target type name is in GoType (when DefineViaAlias is true)
+			// or in RefType (for other alias cases)
 			newName := typ.Schema.RefType
+			if newName == "" && typ.Schema.DefineViaAlias {
+				newName = typ.Schema.GoType
+			}
 			if newName == "" || newName == name {
+				res = append(res, name)
+				break
+			}
+
+			// Only follow the alias if the target is a registered type
+			// (not a primitive Go type like map[string]any)
+			if _, exists := tracker.LookupByName(newName); !exists {
 				res = append(res, name)
 				break
 			}

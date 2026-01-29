@@ -1,0 +1,45 @@
+openapi: "3.0.0"
+info:
+  version: 1.0.0
+  title: Error Mapping with Arrays
+paths:
+  /files:
+    get:
+      operationId: getFiles
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Files"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ServiceError"
+
+components:
+  schemas:
+    Files:
+      type: object
+      properties:
+        name:
+          type: string
+
+    ServiceError:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            $ref: "#/components/schemas/ErrorDetails"
+
+    ErrorDetails:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            type: string

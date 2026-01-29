@@ -54,6 +54,8 @@ func (t TypeDefinition) IsOptional() bool {
 
 // GetErrorResponse generates a Go code snippet that returns an error response
 // based on the predefined spec error path.
+// The path supports array access with [] suffix, e.g., "data[].message[]" will
+// access the first element of each array.
 func (t TypeDefinition) GetErrorResponse(errTypes map[string]string, alias string, typeSchemaMap map[string]GoSchema) string {
 	unknownRes := `return "unknown error"`
 
@@ -63,17 +65,34 @@ func (t TypeDefinition) GetErrorResponse(errTypes map[string]string, alias strin
 		return unknownRes
 	}
 
+	segments := parseErrorPath(path)
+
+	type pathEntry struct {
+		goName       string
+		prop         Property
+		isArrayIndex bool
+	}
+
 	var (
 		schema   = t.Schema
-		callPath []keyValue[string, Property]
+		callPath []pathEntry
 	)
 
-	for _, part := range strings.Split(path, ".") {
+	for _, seg := range segments {
 		found := false
 		for _, prop := range schema.Properties {
-			if prop.JsonFieldName == part {
-				callPath = append(callPath, keyValue[string, Property]{prop.GoName, prop})
+			if prop.JsonFieldName == seg.propertyName {
+				callPath = append(callPath, pathEntry{
+					goName:       prop.GoName,
+					prop:         prop,
+					isArrayIndex: seg.isArrayIndex,
+				})
 				schema = prop.Schema
+
+				// If array access, get the element schema
+				if seg.isArrayIndex && schema.ArrayType != nil {
+					schema = *schema.ArrayType
+				}
 
 				// If the property references another type, resolve it
 				if schema.GoType != "" && len(schema.Properties) == 0 {
@@ -102,13 +121,15 @@ func (t TypeDefinition) GetErrorResponse(errTypes map[string]string, alias strin
 		varIndex = 0
 	)
 
-	for _, pair := range callPath {
-		name, prop := pair.key, pair.value
-
+	for _, entry := range callPath {
 		varName = fmt.Sprintf("res%d", varIndex)
-		code = append(code, fmt.Sprintf("%s := %s.%s", varName, prevVar, name))
+		code = append(code, fmt.Sprintf("%s := %s.%s", varName, prevVar, entry.goName))
 
-		if prop.Constraints.Nullable != nil && *prop.Constraints.Nullable {
+		isArray := entry.prop.Schema.ArrayType != nil
+
+		// For nullable non-array types, add nil check and dereference
+		// For arrays, we handle nil check in the array access section (via len check)
+		if entry.prop.Constraints.Nullable != nil && *entry.prop.Constraints.Nullable && !isArray {
 			code = append(code, fmt.Sprintf("if %s == nil { %s }", varName, unknownRes))
 
 			// Prepare for next access with dereference
@@ -121,8 +142,41 @@ func (t TypeDefinition) GetErrorResponse(errTypes map[string]string, alias strin
 		}
 
 		varIndex++
+
+		// Handle array access
+		if entry.isArrayIndex {
+			code = append(code, fmt.Sprintf("if len(%s) == 0 { %s }", prevVar, unknownRes))
+
+			varName = fmt.Sprintf("res%d", varIndex)
+			code = append(code, fmt.Sprintf("%s := %s[0]", varName, prevVar))
+			prevVar = varName
+			varIndex++
+		}
 	}
 
 	code = append(code, fmt.Sprintf("return %s", prevVar))
 	return strings.Join(code, "\n")
+}
+
+// errorPathSegment represents a parsed segment of an error mapping path.
+type errorPathSegment struct {
+	propertyName string
+	isArrayIndex bool
+}
+
+// parseErrorPath parses an error mapping path like "data[].message[]" into segments.
+func parseErrorPath(path string) []errorPathSegment {
+	parts := strings.Split(path, ".")
+	segments := make([]errorPathSegment, 0, len(parts))
+
+	for _, part := range parts {
+		isArray := strings.HasSuffix(part, "[]")
+		propName := strings.TrimSuffix(part, "[]")
+		segments = append(segments, errorPathSegment{
+			propertyName: propName,
+			isArrayIndex: isArray,
+		})
+	}
+
+	return segments
 }
