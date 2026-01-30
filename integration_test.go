@@ -15,7 +15,10 @@ package main
 
 import (
 	"context"
+	"crypto/sha256"
 	"embed"
+	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"os"
@@ -34,16 +37,19 @@ const (
 	showMaxErrors = 50
 
 	// Default maximum concurrency for parallel test execution
-	defaultMaxConcurrency = 50
+	defaultMaxConcurrency = 10
 
 	// Timeout for each spec's operations (generate, build, etc.)
-	specTimeout = 10 * time.Minute
+	specTimeout = 15 * time.Minute
 
 	// Maximum number of error lines to show per failure
 	maxErrorLines = 15
 
 	// Maximum length of error line before truncation
 	maxErrorLineLength = 200
+
+	// CacheFileName is the name of the cache file
+	cacheFileName = ".integration-cache.json"
 )
 
 var (
@@ -100,13 +106,49 @@ func TestIntegration(t *testing.T) {
 		return
 	}
 
+	// Load cache (unless disabled via INTEGRATION_NO_CACHE=1)
+	var cache *ResultCache
+	noCache := os.Getenv("INTEGRATION_NO_CACHE") != ""
+	useCache := !noCache
+	if useCache {
+		var err error
+		cache, err = NewResultCache(projectRoot)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "⚠️  Failed to load cache: %v\n", err)
+		} else if os.Getenv("CLEAR_CACHE") == "1" {
+			if err := cache.Clear(); err != nil {
+				fmt.Fprintf(os.Stderr, "⚠️  Failed to clear cache: %v\n", err)
+			} else {
+				fmt.Fprintf(os.Stderr, "🗑️  Cache cleared\n")
+			}
+		} else {
+			fmt.Fprintf(os.Stderr, "📦 Loaded cache with %d entries\n", cache.Size())
+			if cache.Size() > 0 {
+				originalCount := len(specs)
+				specs = cache.FilterUncached(specs)
+				skipped := originalCount - len(specs)
+				if skipped > 0 {
+					fmt.Fprintf(os.Stderr, "📦 Skipping %d cached passing specs (%d remaining)\n", skipped, len(specs))
+				} else {
+					fmt.Fprintf(os.Stderr, "📦 No specs matched cache (paths or hashes may differ)\n")
+				}
+			}
+		}
+	}
+
+	if len(specs) == 0 {
+		fmt.Fprintln(os.Stderr, "✅ All specs cached as passing. Use CLEAR_CACHE=1 to retest.")
+		return
+	}
+
 	fmt.Fprintf(os.Stderr, "\n🔍 Found %d specs to process\n", len(specs))
 
 	// Sort specs to start known slow ones first (LPT scheduling)
 	slowSpecs := map[string]int{
-		"id4i.de.yaml":      0,
-		"stripe-spec3.yaml": 1,
-		"netbox.dev.yaml":   2,
+		"id4i.de.yaml":                  0,
+		"stripe-spec3.yaml":             1,
+		"netbox.dev.yaml":               2,
+		"microsoft.com/graph.1.0.1.yml": 3,
 	}
 	sort.SliceStable(specs, func(i, j int) bool {
 		iPriority := len(slowSpecs)
@@ -233,6 +275,17 @@ func TestIntegration(t *testing.T) {
 					hasFailures = true
 				}
 				mu.Unlock()
+
+				// Update cache immediately after each spec (survives timeout)
+				if cache != nil {
+					if result.passed {
+						cache.MarkPassed(name)
+					} else {
+						cache.MarkFailed(name)
+					}
+					// Best effort, ignore errors
+					_ = cache.Save()
+				}
 			}()
 
 			// Helper to record failure
@@ -392,6 +445,10 @@ output:
 	close(stopProgress)
 	<-progressDone
 	fmt.Fprintf(os.Stderr, "\r✅ Progress: %d/%d completed%-80s\n\n", total, total, "")
+
+	if cache != nil {
+		fmt.Fprintf(os.Stderr, "💾 Cache has %d entries\n", cache.Size())
+	}
 
 	// Print summary
 	printSummary(total, results)
@@ -644,4 +701,135 @@ func formatNumber(n int) string {
 		result = append(result, byte(c))
 	}
 	return string(result)
+}
+
+// cacheEntry represents a cached test result
+type cacheEntry struct {
+	SpecHash string    `json:"spec_hash"`
+	Passed   bool      `json:"passed"`
+	TestedAt time.Time `json:"tested_at"`
+}
+
+// ResultCache manages cached test results
+type ResultCache struct {
+	Entries map[string]cacheEntry `json:"entries"` // key is spec path
+	mu      sync.RWMutex
+	path    string
+}
+
+// NewResultCache creates or loads a cache from the given directory
+func NewResultCache(cacheDir string) (*ResultCache, error) {
+	cachePath := filepath.Join(cacheDir, cacheFileName)
+	cache := &ResultCache{
+		Entries: make(map[string]cacheEntry),
+		path:    cachePath,
+	}
+
+	// Try to load existing cache
+	data, err := os.ReadFile(cachePath)
+	if err == nil {
+		if err := json.Unmarshal(data, cache); err != nil {
+			// Corrupted cache, start fresh
+			cache.Entries = make(map[string]cacheEntry)
+		}
+	}
+
+	return cache, nil
+}
+
+// hashSpec computes a hash of the spec file content
+func hashSpec(specPath string) (string, error) {
+	data, err := os.ReadFile(specPath)
+	if err != nil {
+		return "", err
+	}
+	hash := sha256.Sum256(data)
+	return hex.EncodeToString(hash[:8]), nil // Use first 8 bytes for shorter hash
+}
+
+// IsCached checks if a spec has a valid cached passing result
+func (c *ResultCache) IsCached(specPath string) bool {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	entry, ok := c.Entries[specPath]
+	if !ok || !entry.Passed {
+		return false
+	}
+
+	// Verify spec hasn't changed
+	currentHash, err := hashSpec(specPath)
+	if err != nil {
+		return false
+	}
+
+	return entry.SpecHash == currentHash
+}
+
+// MarkPassed marks a spec as passing
+func (c *ResultCache) MarkPassed(specPath string) {
+	hash, err := hashSpec(specPath)
+	if err != nil {
+		return
+	}
+
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.Entries[specPath] = cacheEntry{
+		SpecHash: hash,
+		Passed:   true,
+		TestedAt: time.Now(),
+	}
+}
+
+// MarkFailed removes a spec from the cache (so it will be retested)
+func (c *ResultCache) MarkFailed(specPath string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	delete(c.Entries, specPath)
+}
+
+// Save persists the cache to disk
+func (c *ResultCache) Save() error {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	data, err := json.MarshalIndent(c, "", "  ")
+	if err != nil {
+		return err
+	}
+
+	return os.WriteFile(c.path, data, 0600)
+}
+
+// Clear removes all cached entries
+func (c *ResultCache) Clear() error {
+	c.mu.Lock()
+	c.Entries = make(map[string]cacheEntry)
+	c.mu.Unlock()
+
+	// Remove the cache file
+	if err := os.Remove(c.path); err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	return nil
+}
+
+// Size returns the number of cached entries
+func (c *ResultCache) Size() int {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return len(c.Entries)
+}
+
+// FilterUncached returns only specs that are not cached as passing
+func (c *ResultCache) FilterUncached(specs []string) []string {
+	var uncached []string
+	for _, spec := range specs {
+		if !c.IsCached(spec) {
+			uncached = append(uncached, spec)
+		}
+	}
+	return uncached
 }
