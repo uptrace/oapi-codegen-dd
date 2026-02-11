@@ -1,6 +1,5 @@
+<!-- --8<-- [start:docs] -->
 # `oapi-codegen`
-
-[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/9450/badge)](https://www.bestpractices.dev/projects/9450)
 
 > **Battle-tested**: This generator is continuously tested against 2,000+ real-world OpenAPI specs, successfully generating and compiling over 20 million lines of Go code. Handles complex specs with circular references, deep nesting, and union types.
 
@@ -53,14 +52,43 @@ oapi-codegen https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/ex
 ```
 
 ## Examples
-The [examples directory](examples) contains cases with useful examples how to use `oapi-codegen`.
+The [examples directory](https://github.com/doordash-oss/oapi-codegen-dd/tree/main/examples) contains useful examples of how to use `oapi-codegen`.
 
+## Why v3?
 
-## Migrate from v2
-This project is a fork of [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) v2.
-Due to the lack of OpenAPI 3.1 support in the original repository, we introduced a fully reworked implementation.
-While this includes some breaking changes, it also brings more flexible generator and parser APIs for finer control over code generation.
-If you're migrating from v2, please refer to the [migration guide](https://doordash-oss.github.io/oapi-codegen-dd/migrate-from-v2/) for important differences.
+This project is a fork of [oapi-codegen](https://github.com/oapi-codegen/oapi-codegen) v2, fully reworked to address limitations in the original.
+
+### Compatibility
+
+Tested against [2,137 real-world OpenAPI 3.0 specs](https://github.com/cubahno/specs):
+
+| Version | Passed | Failed | Pass Rate |
+|---------|--------|--------|-----------|
+| **v3** | 2,137 | 0 | **100%** |
+| v2 | 1,159 | 978 | 54.2% |
+
+### Key Improvements
+
+| Category | v2 | v3 |
+|----------|----|----|
+| **OpenAPI Support** | 3.0 only | 3.0, 3.1, 3.2 |
+| **Parser** | `kin-openapi` | `libopenapi` |
+| **Circular References** | Limited | Full support |
+| **Union Types (oneOf/anyOf)** | Basic | Full with optimizations |
+| **Name Conflicts** | Manual fix required | Automatic resolution |
+| **Validation** | None | `Validate()` methods |
+| **Server Scaffold** | Interface only, manual boilerplate | Full typed solution (service, middleware, main.go) |
+| **Filtering** | Tags, operation IDs | + Paths, extensions, schema properties |
+| **Overlays** | Single | Multiple, applied in order |
+| **Output** | Single file | Single or multiple files |
+| **Templates** | Monolithic | Composable with `{{define}}` blocks |
+| **Programmatic API** | Limited | Full (`ParseContext`, `TypeTracker`) |
+| **Server Frameworks** | 7 (Chi, Echo, Fiber, Gin, Gorilla, Iris, std-http) | 13 (+ Beego, go-zero, Kratos, GoFrame, Hertz, fasthttp) |
+
+### Migration
+
+If you're migrating from v2, please refer to the [migration guide](https://doordash-oss.github.io/oapi-codegen-dd/migrate-from-v2/).
+<!-- --8<-- [end:docs] -->
 
 ## License
 This project is licensed under the Apache License 2.0.  

@@ -52,7 +52,7 @@ markdown_extensions:
   - pymdownx.tabbed
   - pymdownx.details
   - pymdownx.snippets:
-      base_path: ["examples"]
+      base_path: [".", "examples"]
   - toc:
       permalink: true
 
