@@ -15,6 +15,79 @@ import (
 	"github.com/valyala/fasthttp/fasthttpadaptor"
 )
 
+// OapiErrorKind represents the type of error that occurred during request processing.
+type OapiErrorKind int
+
+const (
+	// OapiErrorKindParse indicates a parameter parsing error (invalid path/query/header parameter).
+	OapiErrorKindParse OapiErrorKind = iota
+
+	// OapiErrorKindDecode indicates a request body decoding error (invalid JSON, form data, etc.).
+	OapiErrorKindDecode
+
+	// OapiErrorKindValidation indicates a request validation error (failed schema validation).
+	OapiErrorKindValidation
+
+	// OapiErrorKindService indicates a service/business logic error returned by the service implementation.
+	OapiErrorKindService
+)
+
+// OapiHandlerError represents an error that occurred during request handling (parse, decode, validation).
+// When no typed error response is configured in the OpenAPI spec, this error type is used.
+// Custom error handlers can type-assert to this type to access error details.
+type OapiHandlerError struct {
+	Kind          OapiErrorKind
+	OperationID   string
+	Message       string
+	ParamName     string
+	ParamLocation string
+}
+
+func (e OapiHandlerError) Error() string {
+	return e.Message
+}
+
+// OapiErrorResponse is the default JSON error response structure used by OapiDefaultErrorHandler.
+type OapiErrorResponse struct {
+	Error         string `json:"error"`
+	OperationID   string `json:"operation_id,omitempty"`
+	ParamName     string `json:"param_name,omitempty"`
+	ParamLocation string `json:"param_location,omitempty"`
+}
+
+// OapiErrorHandler handles errors that occur during request processing.
+// Implement this interface to customize error responses, logging, and metrics.
+type OapiErrorHandler interface {
+	// HandleError writes an error response to w with the given status code.
+	// The err is either an OapiHandlerError (for parse/decode/validation errors)
+	// or a typed error matching the OpenAPI spec's error response schema.
+	HandleError(w http.ResponseWriter, r *http.Request, statusCode int, err error)
+}
+
+// OapiDefaultErrorHandler provides the default error handling behavior.
+// It writes JSON error responses. For OapiHandlerError, it uses OapiErrorResponse.
+// For typed errors (from OpenAPI spec), it encodes them directly.
+type OapiDefaultErrorHandler struct{}
+
+// HandleError implements OapiErrorHandler with default JSON error responses.
+func (h *OapiDefaultErrorHandler) HandleError(w http.ResponseWriter, r *http.Request, statusCode int, err error) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(statusCode)
+
+	if handlerErr, ok := err.(OapiHandlerError); ok {
+		_ = json.NewEncoder(w).Encode(OapiErrorResponse{
+			Error:         handlerErr.Message,
+			OperationID:   handlerErr.OperationID,
+			ParamName:     handlerErr.ParamName,
+			ParamLocation: handlerErr.ParamLocation,
+		})
+		return
+	}
+
+	// Typed error from OpenAPI spec - encode directly
+	_ = json.NewEncoder(w).Encode(err)
+}
+
 // ServiceInterface defines the service interface for business logic.
 type ServiceInterface interface {
 	// HealthCheck Health check endpoint
@@ -68,25 +141,18 @@ type ServiceInterface interface {
 // HTTPAdapter adapts the ServiceInterface to HTTP handlers.
 // This struct is generated and should not be modified.
 type HTTPAdapter struct {
-	svc ServiceInterface
+	svc        ServiceInterface
+	errHandler OapiErrorHandler
 }
 
 // NewHTTPAdapter creates a new HTTPAdapter wrapping the given service.
-func NewHTTPAdapter(svc ServiceInterface) *HTTPAdapter {
-	return &HTTPAdapter{svc: svc}
-}
-
-// returnParseError writes a 400 Bad Request response if err is not nil.
-// Returns true if an error was written (caller should return), false otherwise.
-func returnParseError(w http.ResponseWriter, paramName string, err error) bool {
-	if err != nil {
-		http.Error(w, fmt.Sprintf("invalid parameter %q: %v", paramName, err), http.StatusBadRequest)
-		return true
+// If errHandler is nil, OapiDefaultErrorHandler is used.
+func NewHTTPAdapter(svc ServiceInterface, errHandler OapiErrorHandler) *HTTPAdapter {
+	if errHandler == nil {
+		errHandler = &OapiDefaultErrorHandler{}
 	}
-	return false
+	return &HTTPAdapter{svc: svc, errHandler: errHandler}
 }
-
-// HTTP handler adapters - parse request, call interface, write response
 
 // HealthCheck handles GET /health
 func (a *HTTPAdapter) HealthCheck(w http.ResponseWriter, r *http.Request) {
@@ -96,9 +162,7 @@ func (a *HTTPAdapter) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.HealthCheck(ctx)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -134,7 +198,14 @@ func (a *HTTPAdapter) ListUsers(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	if queryParamLimitStr := query.Get("limit"); queryParamLimitStr != "" {
 		queryParamLimit, err := runtime.ParseString[int](queryParamLimitStr)
-		if returnParseError(w, "limit", err) {
+		if err != nil {
+			a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+				Kind:          OapiErrorKindParse,
+				OperationID:   "ListUsers",
+				Message:       err.Error(),
+				ParamName:     "limit",
+				ParamLocation: "query",
+			})
 			return
 		}
 		queryParams.Limit = &queryParamLimit
@@ -154,9 +225,7 @@ func (a *HTTPAdapter) ListUsers(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.ListUsers(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -191,7 +260,11 @@ func (a *HTTPAdapter) CreateUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var body CreateUserBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+			Kind:        OapiErrorKindDecode,
+			OperationID: "CreateUser",
+			Message:     err.Error(),
+		})
 		return
 	}
 	opts.Body = &body
@@ -200,9 +273,7 @@ func (a *HTTPAdapter) CreateUser(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.CreateUser(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -235,8 +306,12 @@ func (a *HTTPAdapter) ImportUsers(w http.ResponseWriter, r *http.Request) {
 
 	// Parse request body
 	defer r.Body.Close()
-	if err := r.ParseMultipartForm(32 << 20); err != nil { // 32MB max memory
-		http.Error(w, err.Error(), http.StatusBadRequest)
+	if err := r.ParseMultipartForm(32 << 20); err != nil {
+		a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+			Kind:        OapiErrorKindDecode,
+			OperationID: "ImportUsers",
+			Message:     err.Error(),
+		})
 		return
 	}
 	var body ImportUsersBody
@@ -255,9 +330,7 @@ func (a *HTTPAdapter) ImportUsers(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.ImportUsers(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -298,9 +371,7 @@ func (a *HTTPAdapter) GetUser(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.GetUser(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -341,9 +412,7 @@ func (a *HTTPAdapter) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.DeleteUser(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -383,9 +452,7 @@ func (a *HTTPAdapter) GetUserAvatar(w http.ResponseWriter, r *http.Request) {
 		if _, ok := err.(*GetUserAvatarErrorResponse); ok {
 			code = 404
 		}
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -433,9 +500,7 @@ func (a *HTTPAdapter) UploadUserAvatar(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.UploadUserAvatar(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -467,16 +532,28 @@ func (a *HTTPAdapter) SubmitContactForm(w http.ResponseWriter, r *http.Request) 
 	var body SubmitContactFormBody
 	formBytes, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+			Kind:        OapiErrorKindDecode,
+			OperationID: "SubmitContactForm",
+			Message:     err.Error(),
+		})
 		return
 	}
 	jsonBytes, err := runtime.ConvertFormFields(formBytes)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+			Kind:        OapiErrorKindDecode,
+			OperationID: "SubmitContactForm",
+			Message:     err.Error(),
+		})
 		return
 	}
 	if err := json.Unmarshal(jsonBytes, &body); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+			Kind:        OapiErrorKindDecode,
+			OperationID: "SubmitContactForm",
+			Message:     err.Error(),
+		})
 		return
 	}
 	opts.Body = &body
@@ -485,9 +562,7 @@ func (a *HTTPAdapter) SubmitContactForm(w http.ResponseWriter, r *http.Request) 
 	resp, err := a.svc.SubmitContactForm(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -522,7 +597,11 @@ func (a *HTTPAdapter) CreateNote(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	bodyBytes, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+			Kind:        OapiErrorKindDecode,
+			OperationID: "CreateNote",
+			Message:     err.Error(),
+		})
 		return
 	}
 	body := CreateNoteBody(string(bodyBytes))
@@ -532,9 +611,7 @@ func (a *HTTPAdapter) CreateNote(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.CreateNote(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -572,9 +649,7 @@ func (a *HTTPAdapter) ProcessXMLData(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.ProcessXMLData(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -608,9 +683,7 @@ func (a *HTTPAdapter) ExportData(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.ExportData(ctx)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -651,16 +724,28 @@ func (a *HTTPAdapter) GetOAuthToken(w http.ResponseWriter, r *http.Request) {
 	var body GetOAuthTokenBody
 	formBytes, err := io.ReadAll(r.Body)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+			Kind:        OapiErrorKindDecode,
+			OperationID: "GetOAuthToken",
+			Message:     err.Error(),
+		})
 		return
 	}
 	jsonBytes, err := runtime.ConvertFormFields(formBytes)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+			Kind:        OapiErrorKindDecode,
+			OperationID: "GetOAuthToken",
+			Message:     err.Error(),
+		})
 		return
 	}
 	if err := json.Unmarshal(jsonBytes, &body); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+			Kind:        OapiErrorKindDecode,
+			OperationID: "GetOAuthToken",
+			Message:     err.Error(),
+		})
 		return
 	}
 	opts.Body = &body
@@ -669,9 +754,7 @@ func (a *HTTPAdapter) GetOAuthToken(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.GetOAuthToken(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -715,9 +798,7 @@ func (a *HTTPAdapter) GetItemsByType(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.GetItemsByType(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -761,9 +842,7 @@ func (a *HTTPAdapter) Search(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.Search(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -796,9 +875,7 @@ func (a *HTTPAdapter) GetStatus(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.GetStatus(ctx)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -836,9 +913,7 @@ func (a *HTTPAdapter) UploadImage(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.UploadImage(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -883,21 +958,42 @@ func (a *HTTPAdapter) ListProducts(w http.ResponseWriter, r *http.Request) {
 
 	if values, ok := query["categoryIds"]; ok {
 		parsed, err := runtime.ParseStringSlice[int](values)
-		if returnParseError(w, "categoryIds", err) {
+		if err != nil {
+			a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+				Kind:          OapiErrorKindParse,
+				OperationID:   "ListProducts",
+				Message:       err.Error(),
+				ParamName:     "categoryIds",
+				ParamLocation: "query",
+			})
 			return
 		}
 		queryParams.CategoryIds = parsed
 	}
 	if queryParamMinPriceStr := query.Get("minPrice"); queryParamMinPriceStr != "" {
 		queryParamMinPrice, err := runtime.ParseString[float32](queryParamMinPriceStr)
-		if returnParseError(w, "minPrice", err) {
+		if err != nil {
+			a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+				Kind:          OapiErrorKindParse,
+				OperationID:   "ListProducts",
+				Message:       err.Error(),
+				ParamName:     "minPrice",
+				ParamLocation: "query",
+			})
 			return
 		}
 		queryParams.MinPrice = &queryParamMinPrice
 	}
 	if queryParamActiveStr := query.Get("active"); queryParamActiveStr != "" {
 		queryParamActive, err := runtime.ParseString[bool](queryParamActiveStr)
-		if returnParseError(w, "active", err) {
+		if err != nil {
+			a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+				Kind:          OapiErrorKindParse,
+				OperationID:   "ListProducts",
+				Message:       err.Error(),
+				ParamName:     "active",
+				ParamLocation: "query",
+			})
 			return
 		}
 		queryParams.Active = &queryParamActive
@@ -908,9 +1004,7 @@ func (a *HTTPAdapter) ListProducts(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.ListProducts(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -946,7 +1040,14 @@ func (a *HTTPAdapter) GetCategory(w http.ResponseWriter, r *http.Request) {
 	pathParamCategoryIDStr := r.PathValue("categoryId")
 
 	pathParamCategoryID, err := runtime.ParseString[int](pathParamCategoryIDStr)
-	if returnParseError(w, "categoryId", err) {
+	if err != nil {
+		a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+			Kind:          OapiErrorKindParse,
+			OperationID:   "GetCategory",
+			Message:       err.Error(),
+			ParamName:     "categoryId",
+			ParamLocation: "path",
+		})
 		return
 	}
 	pathParams.CategoryID = pathParamCategoryID
@@ -957,21 +1058,42 @@ func (a *HTTPAdapter) GetCategory(w http.ResponseWriter, r *http.Request) {
 	headers := r.Header
 	if headerValues := headers[http.CanonicalHeaderKey("X-Include-Products")]; len(headerValues) > 0 {
 		headerParamXIncludeProducts, err := runtime.ParseString[bool](headerValues[0])
-		if returnParseError(w, "X-Include-Products", err) {
+		if err != nil {
+			a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+				Kind:          OapiErrorKindParse,
+				OperationID:   "GetCategory",
+				Message:       err.Error(),
+				ParamName:     "X-Include-Products",
+				ParamLocation: "header",
+			})
 			return
 		}
 		headerParams.XIncludeProducts = &headerParamXIncludeProducts
 	}
 	if headerValues := headers[http.CanonicalHeaderKey("X-Max-Depth")]; len(headerValues) > 0 {
 		headerParamXMaxDepth, err := runtime.ParseString[int](headerValues[0])
-		if returnParseError(w, "X-Max-Depth", err) {
+		if err != nil {
+			a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+				Kind:          OapiErrorKindParse,
+				OperationID:   "GetCategory",
+				Message:       err.Error(),
+				ParamName:     "X-Max-Depth",
+				ParamLocation: "header",
+			})
 			return
 		}
 		headerParams.XMaxDepth = &headerParamXMaxDepth
 	}
 	if headerValues := headers[http.CanonicalHeaderKey("X-Price-Threshold")]; len(headerValues) > 0 {
 		headerParamXPriceThreshold, err := runtime.ParseString[float32](headerValues[0])
-		if returnParseError(w, "X-Price-Threshold", err) {
+		if err != nil {
+			a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+				Kind:          OapiErrorKindParse,
+				OperationID:   "GetCategory",
+				Message:       err.Error(),
+				ParamName:     "X-Price-Threshold",
+				ParamLocation: "header",
+			})
 			return
 		}
 		headerParams.XPriceThreshold = &headerParamXPriceThreshold
@@ -982,9 +1104,7 @@ func (a *HTTPAdapter) GetCategory(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.GetCategory(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -1022,7 +1142,14 @@ func (a *HTTPAdapter) GetItemsByStatus(w http.ResponseWriter, r *http.Request) {
 	pathParamRatingStr := r.PathValue("rating")
 
 	pathParamRating, err := runtime.ParseString[float32](pathParamRatingStr)
-	if returnParseError(w, "rating", err) {
+	if err != nil {
+		a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+			Kind:          OapiErrorKindParse,
+			OperationID:   "GetItemsByStatus",
+			Message:       err.Error(),
+			ParamName:     "rating",
+			ParamLocation: "path",
+		})
 		return
 	}
 	pathParams.Rating = pathParamRating
@@ -1032,9 +1159,7 @@ func (a *HTTPAdapter) GetItemsByStatus(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.GetItemsByStatus(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -1077,9 +1202,7 @@ func (a *HTTPAdapter) GetUserPost(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.GetUserPost(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -1114,7 +1237,11 @@ func (a *HTTPAdapter) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var body CreateOrderBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+			Kind:        OapiErrorKindDecode,
+			OperationID: "CreateOrder",
+			Message:     err.Error(),
+		})
 		return
 	}
 	opts.Body = &body
@@ -1123,9 +1250,7 @@ func (a *HTTPAdapter) CreateOrder(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.CreateOrder(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -1160,7 +1285,11 @@ func (a *HTTPAdapter) CreateCompany(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var body CreateCompanyBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+			Kind:        OapiErrorKindDecode,
+			OperationID: "CreateCompany",
+			Message:     err.Error(),
+		})
 		return
 	}
 	opts.Body = &body
@@ -1169,9 +1298,7 @@ func (a *HTTPAdapter) CreateCompany(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.CreateCompany(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -1201,12 +1328,21 @@ type RouterOption func(*routerConfig)
 
 type routerConfig struct {
 	middlewares []func(fasthttp.RequestHandler) fasthttp.RequestHandler
+	errHandler  OapiErrorHandler
 }
 
 // WithMiddleware adds middleware to the router.
 func WithMiddleware(mw func(fasthttp.RequestHandler) fasthttp.RequestHandler) RouterOption {
 	return func(cfg *routerConfig) {
 		cfg.middlewares = append(cfg.middlewares, mw)
+	}
+}
+
+// WithErrorHandler sets a custom error handler for the router.
+// If not set, OapiDefaultErrorHandler is used.
+func WithErrorHandler(h OapiErrorHandler) RouterOption {
+	return func(cfg *routerConfig) {
+		cfg.errHandler = h
 	}
 }
 
@@ -1233,7 +1369,7 @@ func NewRouter(svc ServiceInterface, opts ...RouterOption) *router.Router {
 		opt(cfg)
 	}
 
-	httpAdapter := NewHTTPAdapter(svc)
+	httpAdapter := NewHTTPAdapter(svc, cfg.errHandler)
 	r := router.New()
 	r.GET("/health", fasthttpadaptor.NewFastHTTPHandlerFunc(httpAdapter.HealthCheck))
 	r.GET("/users", fasthttpadaptor.NewFastHTTPHandlerFunc(httpAdapter.ListUsers))
@@ -1282,7 +1418,7 @@ func Handler(svc ServiceInterface, opts ...RouterOption) fasthttp.RequestHandler
 		opt(cfg)
 	}
 
-	httpAdapter := NewHTTPAdapter(svc)
+	httpAdapter := NewHTTPAdapter(svc, cfg.errHandler)
 	r := router.New()
 	r.GET("/health", fasthttpadaptor.NewFastHTTPHandlerFunc(httpAdapter.HealthCheck))
 	r.GET("/users", fasthttpadaptor.NewFastHTTPHandlerFunc(httpAdapter.ListUsers))

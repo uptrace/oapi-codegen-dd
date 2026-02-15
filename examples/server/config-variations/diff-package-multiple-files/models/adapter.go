@@ -4,7 +4,6 @@ package models
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
@@ -28,25 +27,18 @@ type ServiceInterface interface {
 // HTTPAdapter adapts the ServiceInterface to HTTP handlers.
 // This struct is generated and should not be modified.
 type HTTPAdapter struct {
-	svc ServiceInterface
+	svc        ServiceInterface
+	errHandler OapiErrorHandler
 }
 
 // NewHTTPAdapter creates a new HTTPAdapter wrapping the given service.
-func NewHTTPAdapter(svc ServiceInterface) *HTTPAdapter {
-	return &HTTPAdapter{svc: svc}
-}
-
-// returnParseError writes a 400 Bad Request response if err is not nil.
-// Returns true if an error was written (caller should return), false otherwise.
-func returnParseError(w http.ResponseWriter, paramName string, err error) bool {
-	if err != nil {
-		http.Error(w, fmt.Sprintf("invalid parameter %q: %v", paramName, err), http.StatusBadRequest)
-		return true
+// If errHandler is nil, OapiDefaultErrorHandler is used.
+func NewHTTPAdapter(svc ServiceInterface, errHandler OapiErrorHandler) *HTTPAdapter {
+	if errHandler == nil {
+		errHandler = &OapiDefaultErrorHandler{}
 	}
-	return false
+	return &HTTPAdapter{svc: svc, errHandler: errHandler}
 }
-
-// HTTP handler adapters - parse request, call interface, write response
 
 // HealthCheck handles GET /health
 func (a *HTTPAdapter) HealthCheck(w http.ResponseWriter, r *http.Request) {
@@ -56,9 +48,7 @@ func (a *HTTPAdapter) HealthCheck(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.HealthCheck(ctx)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -94,7 +84,14 @@ func (a *HTTPAdapter) ListUsers(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query()
 	if queryParamLimitStr := query.Get("limit"); queryParamLimitStr != "" {
 		queryParamLimit, err := runtime.ParseString[int](queryParamLimitStr)
-		if returnParseError(w, "limit", err) {
+		if err != nil {
+			a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+				Kind:          OapiErrorKindParse,
+				OperationID:   "ListUsers",
+				Message:       err.Error(),
+				ParamName:     "limit",
+				ParamLocation: "query",
+			})
 			return
 		}
 		queryParams.Limit = &queryParamLimit
@@ -105,9 +102,7 @@ func (a *HTTPAdapter) ListUsers(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.ListUsers(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -142,7 +137,11 @@ func (a *HTTPAdapter) CreateUser(w http.ResponseWriter, r *http.Request) {
 	defer r.Body.Close()
 	var body CreateUserBody
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		a.errHandler.HandleError(w, r, http.StatusBadRequest, OapiHandlerError{
+			Kind:        OapiErrorKindDecode,
+			OperationID: "CreateUser",
+			Message:     err.Error(),
+		})
 		return
 	}
 	opts.Body = &body
@@ -151,9 +150,7 @@ func (a *HTTPAdapter) CreateUser(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.CreateUser(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -194,9 +191,7 @@ func (a *HTTPAdapter) GetUser(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.GetUser(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 
@@ -237,9 +232,7 @@ func (a *HTTPAdapter) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	resp, err := a.svc.DeleteUser(ctx, opts)
 	if err != nil {
 		code := http.StatusInternalServerError
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(code)
-		_ = json.NewEncoder(w).Encode(err)
+		a.errHandler.HandleError(w, r, code, err)
 		return
 	}
 

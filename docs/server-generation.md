@@ -370,6 +370,143 @@ func TestGetUser(t *testing.T) {
 }
 ```
 
+## Error Handling
+
+The generated code includes a flexible error handling system that separates error classification from error response formatting.
+
+### Error Types
+
+The `HTTPAdapter` handles four types of errors:
+
+| Error Kind | Description | Default Status |
+|------------|-------------|----------------|
+| `OapiErrorKindParse` | Parameter parsing errors (invalid path/query/header) | 400 |
+| `OapiErrorKindDecode` | Request body decoding errors (invalid JSON, form data) | 400 |
+| `OapiErrorKindValidation` | Request validation errors (failed schema validation) | 400 |
+| `OapiErrorKindService` | Service/business logic errors from your implementation | 500 (or typed) |
+
+### Default Behavior
+
+The `OapiDefaultErrorHandler` respects the `Accept` header:
+
+- **JSON** (`application/json`, `*/*`, or empty): Returns JSON response
+- **Other**: Returns plain text
+
+```go
+// JSON error response for parse/decode/validation errors
+{
+    "error": "invalid parameter \"id\": strconv.Atoi: parsing \"abc\": invalid syntax"
+}
+```
+
+Service errors are JSON-encoded directly, so the response structure matches your error type's JSON tags.
+
+### Custom Error Handler
+
+Implement the `OapiErrorHandler` interface to customize error responses, add logging, or collect metrics:
+
+```go
+type OapiErrorHandler interface {
+    HandleError(w http.ResponseWriter, r *http.Request, statusCode int, err error)
+}
+```
+
+The `err` parameter is either:
+
+- **`OapiHandlerError`** - A generic handler error (parse, decode, validation) with context fields
+- **Typed error** - An error type from your OpenAPI spec (when `error-mapping` is configured)
+
+```go
+type OapiHandlerError struct {
+    Kind          OapiErrorKind  // Type of error (Parse, Decode, Validation, Service)
+    OperationID   string         // OpenAPI operation ID (e.g., "GetUser", "CreateOrder")
+    Message       string         // Error message
+    ParamName     string         // Parameter name (for parse errors)
+    ParamLocation string         // Parameter location: "path", "query", "header" (for parse errors)
+}
+```
+
+Example custom handler with logging:
+
+```go
+type LoggingErrorHandler struct {
+    logger *slog.Logger
+}
+
+func (h *LoggingErrorHandler) HandleError(w http.ResponseWriter, r *http.Request, statusCode int, err error) {
+    // Check if it's a generic handler error
+    if handlerErr, ok := err.(api.OapiHandlerError); ok {
+        h.logger.Error("request error",
+            "operation", handlerErr.OperationID,
+            "kind", handlerErr.Kind,
+            "error", handlerErr.Message,
+            "status", statusCode,
+            "param", handlerErr.ParamName,
+            "param_location", handlerErr.ParamLocation,
+        )
+    } else {
+        // Typed error from OpenAPI spec or service error
+        h.logger.Error("service error",
+            "error", err.Error(),
+            "status", statusCode,
+        )
+    }
+
+    // Write response
+    w.Header().Set("Content-Type", "application/json")
+    w.WriteHeader(statusCode)
+
+    if handlerErr, ok := err.(api.OapiHandlerError); ok {
+        json.NewEncoder(w).Encode(map[string]string{
+            "error": handlerErr.Message,
+        })
+    } else {
+        // Typed error - encode directly to match API contract
+        json.NewEncoder(w).Encode(err)
+    }
+}
+```
+
+Use your custom handler with `WithErrorHandler`:
+
+```go
+svc := api.NewService()
+handler := api.NewRouter(svc,
+    api.WithErrorHandler(&LoggingErrorHandler{logger: slog.Default()}),
+)
+```
+
+### Typed Error Responses
+
+When your OpenAPI spec defines error response types and you configure `error-mapping`, the generator creates typed errors with constructors:
+
+```yaml
+# cfg.yaml
+error-mapping:
+  InvalidRequestError: error.message
+```
+
+This generates:
+
+```go
+func NewInvalidRequestError(message string) InvalidRequestError {
+    return InvalidRequestError{ErrorData: &ErrorData{Message: message}}
+}
+```
+
+Use in your service implementation:
+
+```go
+func (s *Service) CreateUser(ctx context.Context, opts *CreateUserOpts) (*CreateUserResponse, error) {
+    if opts.Body.Email == "" {
+        return nil, NewInvalidRequestError("email is required")
+    }
+    // ...
+}
+```
+
+The `HTTPAdapter` automatically detects typed errors and uses the appropriate status code from your OpenAPI spec.
+
 ## Examples
 
 Complete examples for each framework are available in the repository:
