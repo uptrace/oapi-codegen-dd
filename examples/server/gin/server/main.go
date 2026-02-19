@@ -13,8 +13,8 @@ import (
 	"syscall"
 	"time"
 
-	handler "github.com/uptrace/oapi-codegen-dd/v3/examples/server/gin/api"
 	"github.com/gin-gonic/gin"
+	handler "github.com/uptrace/oapi-codegen-dd/v3/examples/server/gin/api"
 )
 
 func main() {

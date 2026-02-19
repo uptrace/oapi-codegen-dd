@@ -7,9 +7,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 )
 
 // OapiErrorKind represents the type of error that occurred during request processing.

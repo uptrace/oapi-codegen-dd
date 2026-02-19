@@ -9,9 +9,9 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 	kratoshttp "github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/gorilla/mux"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 )
 
 // OapiErrorKind represents the type of error that occurred during request processing.

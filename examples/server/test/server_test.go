@@ -11,6 +11,11 @@ import (
 	"testing"
 
 	"github.com/beego/beego/v2/server/web"
+	"github.com/gin-gonic/gin"
+	"github.com/gofiber/fiber/v3"
+	"github.com/labstack/echo/v4"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	beegoapi "github.com/uptrace/oapi-codegen-dd/v3/examples/server/test/beego/testcase"
 	chiapi "github.com/uptrace/oapi-codegen-dd/v3/examples/server/test/chi/testcase"
 	echoapi "github.com/uptrace/oapi-codegen-dd/v3/examples/server/test/echo/testcase"
@@ -24,11 +29,6 @@ import (
 	irisapi "github.com/uptrace/oapi-codegen-dd/v3/examples/server/test/iris/testcase"
 	kratosapi "github.com/uptrace/oapi-codegen-dd/v3/examples/server/test/kratos/testcase"
 	stdhttpapi "github.com/uptrace/oapi-codegen-dd/v3/examples/server/test/std-http/testcase"
-	"github.com/gin-gonic/gin"
-	"github.com/gofiber/fiber/v3"
-	"github.com/labstack/echo/v4"
-	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 	"github.com/valyala/fasthttp"
 )
 

@@ -10,9 +10,9 @@ import (
 	"syscall"
 	"time"
 
-	handler "github.com/uptrace/oapi-codegen-dd/v3/examples/server/echo/api"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	handler "github.com/uptrace/oapi-codegen-dd/v3/examples/server/echo/api"
 )
 
 func main() {

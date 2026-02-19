@@ -3,8 +3,8 @@
 package xgotypeskipoptionalpointer
 
 import (
-	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/go-playground/validator/v10"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 )
 
 type Client struct {

@@ -5,8 +5,8 @@ package gen
 import (
 	"fmt"
 
-	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/go-playground/validator/v10"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 )
 
 // ProductName The PayPal product for which the customer is onboarded.

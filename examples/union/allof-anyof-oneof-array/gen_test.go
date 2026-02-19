@@ -3,9 +3,9 @@ package union
 import (
 	"testing"
 
-	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 )
 
 func TestCreateUserBody_User_Validation(t *testing.T) {
