@@ -6,10 +6,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	example5 "github.com/doordash-oss/oapi-codegen-dd/v3/examples/client/example5-query-explode-false"
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	example5 "github.com/uptrace/oapi-codegen-dd/v3/examples/client/example5-query-explode-false"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 )
 
 // httpClientAdapter wraps http.Client to implement runtime.HttpRequestDoer

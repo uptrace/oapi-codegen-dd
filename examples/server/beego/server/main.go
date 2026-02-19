@@ -14,8 +14,8 @@ import (
 	"github.com/beego/beego/v2/server/web"
 	beecontext "github.com/beego/beego/v2/server/web/context"
 	"github.com/beego/beego/v2/server/web/filter/cors"
-	handler "github.com/doordash-oss/oapi-codegen-dd/v3/examples/server/beego/api"
 	"github.com/google/uuid"
+	handler "github.com/uptrace/oapi-codegen-dd/v3/examples/server/beego/api"
 )
 
 func main() {

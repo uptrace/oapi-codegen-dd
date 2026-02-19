@@ -51,7 +51,7 @@ on the real value-add for your organization.
 ## Quick Start
 ```bash
 # Install
-go install github.com/doordash-oss/oapi-codegen-dd/v3/cmd/oapi-codegen@latest
+go install github.com/uptrace/oapi-codegen-dd/v3/cmd/oapi-codegen@latest
 
 # Generate code from the Petstore example
 oapi-codegen https://raw.githubusercontent.com/OAI/OpenAPI-Specification/main/examples/v3.0/petstore.yaml > petstore.go

@@ -3,8 +3,8 @@ package gen
 import (
 	"testing"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/stretchr/testify/assert"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 )
 
 func TestGetFiles_Response_Item_Validate(t *testing.T) {

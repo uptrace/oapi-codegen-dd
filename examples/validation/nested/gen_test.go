@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 )
 
 // Helper to create TimeBasedLocation with AbsoluteTimeRange

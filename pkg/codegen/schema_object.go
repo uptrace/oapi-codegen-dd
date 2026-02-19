@@ -15,8 +15,8 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/pb33f/libopenapi/datamodel/high/base"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 )
 
 func createObjectSchema(schema *base.Schema, options ParseOptions) (GoSchema, error) {

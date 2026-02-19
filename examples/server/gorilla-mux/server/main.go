@@ -13,7 +13,7 @@ import (
 	"syscall"
 	"time"
 
-	handler "github.com/doordash-oss/oapi-codegen-dd/v3/examples/server/gorilla-mux/api"
+	handler "github.com/uptrace/oapi-codegen-dd/v3/examples/server/gorilla-mux/api"
 )
 
 func main() {

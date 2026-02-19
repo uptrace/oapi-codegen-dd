@@ -9,8 +9,8 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
 	iris "github.com/kataras/iris/v12"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 )
 
 // OapiErrorKind represents the type of error that occurred during request processing.

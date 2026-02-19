@@ -6,7 +6,7 @@ package service
 import (
 	"context"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/examples/server/config-variations/diff-package-multiple-files/models"
+	"github.com/uptrace/oapi-codegen-dd/v3/examples/server/config-variations/diff-package-multiple-files/models"
 )
 
 // Service implements the ServiceInterface.

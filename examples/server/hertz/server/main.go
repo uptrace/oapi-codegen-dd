@@ -13,7 +13,7 @@ import (
 	"github.com/cloudwego/hertz/pkg/common/hlog"
 	"github.com/cloudwego/hertz/pkg/protocol/consts"
 
-	handler "github.com/doordash-oss/oapi-codegen-dd/v3/examples/server/hertz/api"
+	handler "github.com/uptrace/oapi-codegen-dd/v3/examples/server/hertz/api"
 )
 
 func main() {

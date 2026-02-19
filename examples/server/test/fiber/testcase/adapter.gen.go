@@ -9,9 +9,9 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
 	fiber "github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/adaptor"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 )
 
 // OapiErrorKind represents the type of error that occurred during request processing.

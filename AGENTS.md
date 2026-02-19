@@ -95,7 +95,7 @@ When debugging complex issues, create a minimal reproducible example:
 
    import (
        "testing"
-       _ "github.com/doordash-oss/oapi-codegen-dd/v3/examples/issue-123"
+       _ "github.com/uptrace/oapi-codegen-dd/v3/examples/issue-123"
    )
 
    func TestCompiles(t *testing.T) {}
@@ -219,7 +219,7 @@ Create `examples/server/test/<framework>/testcase/` with:
   ```go
   //go:generate cp ../../testcase/gen.go ./gen.go
   //go:generate cp ../../testcase/service.go.src ./service.go
-  //go:generate go run github.com/doordash-oss/oapi-codegen-dd/v3/cmd/oapi-codegen -config cfg.yml ../../../api.yml
+  //go:generate go run github.com/uptrace/oapi-codegen-dd/v3/cmd/oapi-codegen -config cfg.yml ../../../api.yml
   ```
 
 ### 5. Update test file

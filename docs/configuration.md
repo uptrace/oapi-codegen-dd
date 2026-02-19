@@ -7,7 +7,7 @@ oapi-codegen uses YAML configuration files to control code generation behavior. 
 Create a configuration file (e.g., `cfg.yaml`) and reference it when running oapi-codegen:
 
 ```bash
-go run github.com/doordash-oss/oapi-codegen-dd/v3/cmd/oapi-codegen --config cfg.yaml spec.yaml
+go run github.com/uptrace/oapi-codegen-dd/v3/cmd/oapi-codegen --config cfg.yaml spec.yaml
 ```
 
 !!! tip

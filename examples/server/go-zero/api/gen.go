@@ -7,8 +7,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/go-playground/validator/v10"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/zeromicro/go-zero/rest"
 	"github.com/zeromicro/go-zero/rest/pathvar"
 	"github.com/zeromicro/go-zero/rest/router"

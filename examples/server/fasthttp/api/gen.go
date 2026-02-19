@@ -7,9 +7,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/fasthttp/router"
 	"github.com/go-playground/validator/v10"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/valyala/fasthttp"
 	"github.com/valyala/fasthttp/fasthttpadaptor"
 )

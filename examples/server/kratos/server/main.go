@@ -7,11 +7,11 @@ import (
 	"log"
 	"time"
 
-	handler "github.com/doordash-oss/oapi-codegen-dd/v3/examples/server/kratos/api"
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/transport/http"
+	handler "github.com/uptrace/oapi-codegen-dd/v3/examples/server/kratos/api"
 )
 
 func main() {

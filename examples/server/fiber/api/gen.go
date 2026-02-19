@@ -7,10 +7,10 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/go-playground/validator/v10"
 	fiber "github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/adaptor"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 )
 
 // OapiErrorKind represents the type of error that occurred during request processing.

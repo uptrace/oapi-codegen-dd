@@ -7,9 +7,9 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
 	gin "github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 )
 
 // OapiErrorKind represents the type of error that occurred during request processing.

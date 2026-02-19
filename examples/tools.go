@@ -4,5 +4,5 @@
 package tools
 
 import (
-	_ "github.com/doordash-oss/oapi-codegen-dd/v3/cmd/oapi-codegen"
+	_ "github.com/uptrace/oapi-codegen-dd/v3/cmd/oapi-codegen"
 )
