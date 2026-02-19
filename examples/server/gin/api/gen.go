@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 	gin "github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 )

@@ -27,7 +27,7 @@ generate:
 Run the generator:
 
 ```bash
-go run github.com/doordash-oss/oapi-codegen-dd/v3/cmd/oapi-codegen -config cfg.yaml spec.yaml
+go run github.com/uptrace/oapi-codegen-dd/v3/cmd/oapi-codegen -config cfg.yaml spec.yaml
 ```
 
 Create a main.go to run the server:

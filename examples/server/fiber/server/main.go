@@ -11,7 +11,7 @@ import (
 	"syscall"
 	"time"
 
-	handler "github.com/doordash-oss/oapi-codegen-dd/v3/examples/server/fiber/api"
+	handler "github.com/uptrace/oapi-codegen-dd/v3/examples/server/fiber/api"
 	"github.com/gofiber/fiber/v3"
 	"github.com/gofiber/fiber/v3/middleware/logger"
 	"github.com/gofiber/fiber/v3/middleware/recover"

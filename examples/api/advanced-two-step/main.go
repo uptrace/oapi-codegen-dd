@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/codegen"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/codegen"
 )
 
 func main() {

@@ -5,7 +5,7 @@ package prefixed
 import (
 	"fmt"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/go-playground/validator/v10"
 )
 

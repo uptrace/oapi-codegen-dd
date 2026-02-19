@@ -9,7 +9,7 @@ import (
 
 	"github.com/gogf/gf/v2/net/ghttp"
 
-	handler "github.com/doordash-oss/oapi-codegen-dd/v3/examples/server/goframe/api"
+	handler "github.com/uptrace/oapi-codegen-dd/v3/examples/server/goframe/api"
 )
 
 func main() {

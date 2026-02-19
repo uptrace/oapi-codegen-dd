@@ -9,7 +9,7 @@ import (
 	"os/signal"
 	"syscall"
 
-	handler "github.com/doordash-oss/oapi-codegen-dd/v3/examples/server/iris/api"
+	handler "github.com/uptrace/oapi-codegen-dd/v3/examples/server/iris/api"
 	"github.com/kataras/iris/v12"
 	"github.com/kataras/iris/v12/middleware/logger"
 	"github.com/kataras/iris/v12/middleware/recover"

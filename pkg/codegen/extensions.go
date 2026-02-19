@@ -14,7 +14,7 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/pb33f/libopenapi/orderedmap"
 	"go.yaml.in/yaml/v4"
 )

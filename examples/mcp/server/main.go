@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/examples/mcp/gen"
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
+	"github.com/uptrace/oapi-codegen-dd/v3/examples/mcp/gen"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/mark3labs/mcp-go/server"
 )
 

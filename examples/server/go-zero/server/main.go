@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	handler "github.com/doordash-oss/oapi-codegen-dd/v3/examples/server/go-zero/api"
+	handler "github.com/uptrace/oapi-codegen-dd/v3/examples/server/go-zero/api"
 	"github.com/zeromicro/go-zero/rest"
 )
 

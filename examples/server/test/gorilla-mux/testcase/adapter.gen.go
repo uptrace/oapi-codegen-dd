@@ -9,7 +9,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/pkg/runtime"
+	"github.com/uptrace/oapi-codegen-dd/v3/pkg/runtime"
 	"github.com/gorilla/mux"
 )
 

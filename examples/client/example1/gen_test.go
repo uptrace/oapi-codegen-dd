@@ -3,7 +3,7 @@ package example1_test
 import (
 	"testing"
 
-	"github.com/doordash-oss/oapi-codegen-dd/v3/examples/client/example1/example1"
+	"github.com/uptrace/oapi-codegen-dd/v3/examples/client/example1/example1"
 	"github.com/stretchr/testify/assert"
 )
 

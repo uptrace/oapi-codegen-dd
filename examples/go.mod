@@ -1,13 +1,13 @@
-module github.com/doordash-oss/oapi-codegen-dd/v3/examples
+module github.com/uptrace/oapi-codegen-dd/v3/examples
 
 go 1.25.3
 
-replace github.com/doordash-oss/oapi-codegen-dd/v3 => ../
+replace github.com/uptrace/oapi-codegen-dd/v3 => ../
 
 require (
 	github.com/beego/beego/v2 v2.3.8
 	github.com/cloudwego/hertz v0.10.4
-	github.com/doordash-oss/oapi-codegen-dd/v3 v3.63.4
+	github.com/uptrace/oapi-codegen-dd/v3 v3.63.4
 	github.com/fasthttp/router v1.5.4
 	github.com/gin-gonic/gin v1.11.0
 	github.com/go-chi/chi/v5 v5.2.5
