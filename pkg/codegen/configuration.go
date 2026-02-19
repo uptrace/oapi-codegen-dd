@@ -291,6 +291,11 @@ type GenerateOptions struct {
 	// Requires client generation to be enabled.
 	MCPServer *MCPServerOptions `yaml:"mcp-server,omitempty"`
 
+	// AutoExtraTags specifies automatic tag generation from OpenAPI schema fields.
+	// Key is the Go struct tag name, value is the OpenAPI schema field to extract.
+	// Example: {"jsonschema": "description", "validate": "x-validation"}
+	AutoExtraTags map[string]string `yaml:"auto-extra-tags,omitempty"`
+
 	// OmitDescription specifies whether to omit schema description from the spec in the generated code. Defaults to false.
 	OmitDescription bool `yaml:"omit-description"`
 

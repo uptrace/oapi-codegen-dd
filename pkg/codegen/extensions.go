@@ -51,6 +51,9 @@ const (
 	// extSensitiveData marks a field as containing sensitive data that should be masked
 	extSensitiveData = "x-sensitive-data"
 
+	// extPropJsonSchema allows setting jsonschema tag value per-field
+	extPropJsonSchema = "x-jsonschema"
+
 	// extMCP configures MCP tool generation for an operation
 	extMCP = "x-mcp"
 )
