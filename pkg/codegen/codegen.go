@@ -100,6 +100,7 @@ func CreateParseContextFromModel(model *v3high.Document, cfg Configuration) (*Pa
 		AlwaysPrefixEnumValues: cfg.Generate.AlwaysPrefixEnumValues,
 		SkipValidation:         cfg.Generate.Validation.Skip,
 		ErrorMapping:           cfg.ErrorMapping,
+		AutoExtraTags:          cfg.Generate.AutoExtraTags,
 		typeTracker:            newTypeTracker(),
 		visited:                map[string]bool{},
 		model:                  model,

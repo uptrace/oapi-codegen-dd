@@ -314,6 +314,25 @@ func genFieldsFromProperties(props []Property, options ParseOptions) []string {
 			fieldTags["sensitive"] = ""
 		}
 
+		// Support x-jsonschema
+		if extension, ok := p.Extensions[extPropJsonSchema]; ok {
+			if jsonSchemaValue, err := parseString(extension); err == nil {
+				fieldTags["jsonschema"] = jsonSchemaValue
+			}
+		}
+
+		// Support auto-extra-tags from configuration
+		if options.AutoExtraTags != nil {
+			for tagKey, sourceField := range options.AutoExtraTags {
+				if sourceValue := extractPropertyFieldValue(p, sourceField); sourceValue != "" {
+					// Only add the tag if it doesn't already exist
+					if _, exists := fieldTags[tagKey]; !exists {
+						fieldTags[tagKey] = sourceValue
+					}
+				}
+			}
+		}
+
 		// Convert the fieldTags map into Go field annotations.
 		keys := sortedMapKeys(fieldTags)
 		tags := make([]string, len(keys))
@@ -325,4 +344,28 @@ func genFieldsFromProperties(props []Property, options ParseOptions) []string {
 	}
 
 	return fields
+}
+
+// extractPropertyFieldValue extracts a field value from a Property based on the field name.
+// Supported field names:
+// - "description": returns the property description
+// - extension names (e.g., "x-validation"): returns the extension value if it's a string
+func extractPropertyFieldValue(p Property, fieldName string) string {
+	// Handle standard OpenAPI fields
+	switch fieldName {
+	case "description":
+		return p.Description
+	}
+
+	// Handle extension fields (x-* fields)
+	if strings.HasPrefix(fieldName, "x-") {
+		if extension, ok := p.Extensions[fieldName]; ok {
+			// Try to convert to string
+			if strValue, err := parseString(extension); err == nil {
+				return strValue
+			}
+		}
+	}
+
+	return ""
 }
